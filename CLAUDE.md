@@ -41,6 +41,10 @@ platform must remain reusable for real safety officers and future assignments.
    disable it.
 6. **No emoji in committed code or docs** unless the surrounding file already
    uses them.
+7. **Do not mix seed-shape cleanup with domain-rule changes by accident.**
+   When normalizing seed or runtime truth, keep structural normalization
+   separate from behavior-changing rule changes unless the active story
+   explicitly authorizes both.
 
 ## Workflow
 

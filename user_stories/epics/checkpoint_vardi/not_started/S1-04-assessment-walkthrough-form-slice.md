@@ -42,6 +42,7 @@ Build the core assessment form experience where the user walks through checklist
 
 - Start by creating a new git branch and checking it out.
 - Apply any repo skill, AGENTS guidance, local conventions, or project skill that is helpful for this story.
+- You must apply the `frontend-design` skill for all user-facing web work in this story, including layout, form UX, interaction states, responsive behavior, and visual hierarchy.
 - Keep the implementation inside the scope of this story. Do not silently widen scope.
 - After implementation, open a GitHub PR and make sure it is **not** a draft.
 - If the story cannot be fully completed because of blockers, do both:

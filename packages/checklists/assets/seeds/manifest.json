@@ -21,6 +21,8 @@
   ],
   "legalReferences": {
     "file": "legal_references.json",
+    "canonicalCount": 11,
+    "unresolvedImportedCount": 68,
     "count": 79
   },
   "riskMatrices": {

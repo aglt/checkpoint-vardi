@@ -21,6 +21,7 @@ Generate the teacher-deliverable output package from the assessment data capture
   - action or risk register output
   - summary output
 - Use seeded checklist structure and persisted assessment data.
+- Own the deterministic mapping seam from persisted assessment state into export-template input data for each report.
 - Use stable ordering and traceable mappings so outputs are deterministic.
 - Prioritize correctness and completeness of exported content.
 - Keep report generation good enough that the output can be handed to the teacher as the system-produced deliverable.
@@ -32,12 +33,14 @@ Generate the teacher-deliverable output package from the assessment data capture
 - Checklist output respects seeded section and criterion order.
 - Register output reflects transferred and evaluated risk entries.
 - Summary output reflects the persisted summary form.
+- The export implementation owns explicit, deterministic mapping from assessment state into report fields and template inputs.
 - The export path proves the app can replace manual checklist and document-editor work for the MVP deliverable.
 
 ## Execution Rules
 
 - Start by creating a new git branch and checking it out.
 - Apply any repo skill, AGENTS guidance, local conventions, or project skill that is helpful for this story.
+- You must apply the `frontend-design` skill for all user-facing web work in this story, including layout, form UX, interaction states, responsive behavior, and visual hierarchy.
 - Keep the implementation inside the scope of this story. Do not silently widen scope.
 - After implementation, open a GitHub PR and make sure it is **not** a draft.
 - If the story cannot be fully completed because of blockers, do both:

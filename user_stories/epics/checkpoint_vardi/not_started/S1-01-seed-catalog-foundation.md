@@ -14,7 +14,7 @@ Depends on: S0-01
 
 Establish the seeded runtime truth for checklist-driven assessments.
 
-This story must replace the current seed files with the canonical versions provided in this packet and wire the seed-loading or validation baseline so later stories can safely depend on seeded checklist, legal-reference, and risk-matrix data.
+This story must safely adapt the current seed files using the structural improvements provided in this packet, while preserving fuller in-repo checklist content where the packet only supplies smaller canonical examples. It also wires the seed-loading or validation baseline so later stories can safely depend on seeded checklist, legal-reference, and risk-matrix data.
 
 ## Why
 
@@ -22,12 +22,14 @@ The web app depends on seeded domain data. Users will fill in assessment forms f
 
 ## Scope
 
-- Replace the existing seed files in `packages/checklists/assets/seeds/` with the updated seed files from this packet.
+- Update the existing seed files in `packages/checklists/assets/seeds/` using the packet as a structural source of truth, not a blind overwrite.
 - Keep the same overall seed approach:
   - `manifest.json`
   - checklist JSON files
-  - legal references JSON
-  - risk matrices JSON
+  - `legal_references.json`
+  - `risk_matrices.json`
+- Preserve the full useful checklist content already present in the repo where the packet contains smaller illustrative or canonical examples.
+- Avoid destructive downgrade from fuller extracted data to reduced packet examples unless the packet clearly contains the complete intended replacement dataset.
 - Ensure the updated seeds support runtime use, not just extraction provenance.
 - Add or preserve canonical stable identifiers for seeded entities where needed for DB and runtime mapping:
   - checklist id or slug
@@ -37,6 +39,7 @@ The web app depends on seeded domain data. Users will fill in assessment forms f
   - risk matrix id or slug
 - Validate that all checklist `legalRefs` resolve cleanly against the legal-reference catalog.
 - Validate that risk matrices are complete and structurally valid.
+- Keep structural normalization separate from behavior-changing domain-rule changes unless the story explicitly authorizes both.
 - Keep provenance metadata only as metadata, not as the core runtime shape.
 - Ensure the seed loader or validation path fails fast if seed integrity is broken.
 
@@ -44,10 +47,13 @@ The web app depends on seeded domain data. Users will fill in assessment forms f
 
 - The repo contains the updated seed files from this packet.
 - The seed structure is consistent across all checklist files.
+- The repo keeps the best available runtime checklist content and does not destructively downgrade to smaller packet examples.
 - Sections and criteria have stable canonical ids suitable for DB seeding and foreign keys.
 - Every legal reference used by a checklist resolves to a canonical legal-reference entry.
+- Unresolved imported legal-reference placeholders, if any remain, are explicitly distinguished from canonical resolved references.
 - No orphan legal references remain in checklist files.
 - Risk matrix seed data validates successfully.
+- Structural normalization does not silently change seed-driven product behavior unless the story explicitly authorizes that behavior change.
 - A repo command or automated validation path proves the seed set is internally consistent.
 - No feature UI is introduced in this story.
 

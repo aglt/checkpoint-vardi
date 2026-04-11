@@ -1,5 +1,128 @@
 {
-  "references": [
+  "canonicalReferences": [
+    {
+      "id": "legal.L-46-1980",
+      "code": "L-46/1980",
+      "url": "https://www.reglugerd.is/reglugerdir/eftir-raduneytum/felagsmalaraduneyti/nr/46",
+      "translations": {
+        "is": {
+          "title": "Lög um aðbúnað, hollustuhætti og öryggi á vinnustöðum"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.R-547-1996",
+      "code": "R-547/1996",
+      "url": "https://island.is/reglugerdir/nr/0547-1996",
+      "translations": {
+        "is": {
+          "title": "Reglur um hollustu og öryggi á byggingarvinnustöðum og aðra tímabundna mannvirkjagerð"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.R-581-1995",
+      "code": "R-581/1995",
+      "url": "https://island.is/reglugerdir/nr/0581-1995",
+      "translations": {
+        "is": {
+          "title": "Reglur um húsnæði vinnustaða"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.Rg-1009-2015",
+      "code": "Rg-1009/2015",
+      "url": "https://island.is/reglugerdir/nr/1009-2015",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um aðgerðir gegn einelti, kynferðislegri áreitni, kynbundinni áreitni og ofbeldi á vinnustöðum"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.Rg-426-1999",
+      "code": "Rg-426/1999",
+      "url": "https://island.is/reglugerdir/nr/0426-1999",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um vinnu barna og unglinga"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.Rg-530-2020",
+      "code": "Rg-530/2020",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Reglur tengdar efnum og öryggisblöðum"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.Rg-553-2004",
+      "code": "Rg-553/2004",
+      "url": "https://island.is/reglugerdir/nr/0553-2004",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um verndun starfsmanna gegn hættu á heilsutjóni af völdum efna á vinnustöðum"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.Rg-920-2006",
+      "code": "Rg-920/2006",
+      "url": "https://island.is/reglugerdir/nr/0920-2006",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um skipulag og framkvæmd vinnuverndarstarfs á vinnustöðum"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.Rg-921-2006",
+      "code": "Rg-921/2006",
+      "url": "https://island.is/reglugerdir/nr/0921-2006",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um varnir gegn álagi vegna hávaða á vinnustöðum"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.Rg-922-2006",
+      "code": "Rg-922/2006",
+      "url": "https://island.is/reglugerdir/nr/0922-2006",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um varnir gegn álagi vegna vélræns titrings á vinnustöðum"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    },
+    {
+      "id": "legal.Rg-931-2000",
+      "code": "Rg-931/2000",
+      "url": "https://island.is/reglugerdir/nr/0931-2000",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um ráðstafanir til þess að auka öryggi og heilbrigði á vinnustöðum fyrir konur sem eru þungaðar, hafa nýlega alið barn eða hafa barn á brjósti"
+        }
+      },
+      "resolutionStatus": "canonical_resolved"
+    }
+  ],
+  "unresolvedImportedReferences": [
     {
       "id": "legal.FL-1-2019",
       "code": "FL-1/2019",
@@ -9,9 +132,10 @@
           "title": "FL-1/2019"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -23,9 +147,10 @@
           "title": "FL-10/1989"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -37,9 +162,10 @@
           "title": "FL-13/1999"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -51,9 +177,10 @@
           "title": "FL-17/2002"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -65,9 +192,10 @@
           "title": "FL-18/2005"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -79,9 +207,10 @@
           "title": "FL-21/2006"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -93,9 +222,10 @@
           "title": "FL-23/2008"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -107,9 +237,10 @@
           "title": "FL-24/2008"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -121,9 +252,10 @@
           "title": "FL-25/2008"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -135,9 +267,10 @@
           "title": "FL-26/2008"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -149,9 +282,10 @@
           "title": "FL-27/2006"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -163,9 +297,10 @@
           "title": "FL-30/2013"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -177,9 +312,10 @@
           "title": "FL-32/2014"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -191,9 +327,10 @@
           "title": "FL-34/2017"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -205,9 +342,10 @@
           "title": "FL-34/2018"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -219,9 +357,10 @@
           "title": "FL-35/2016"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -233,9 +372,10 @@
           "title": "FL-35/2021"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -247,9 +387,10 @@
           "title": "FL-36/2016"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -261,9 +402,10 @@
           "title": "FL-37/2017"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -275,9 +417,10 @@
           "title": "FL-38/2018"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -289,9 +432,10 @@
           "title": "FL-39/2018"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -303,19 +447,10 @@
           "title": "FL-7/2000"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
-      }
-    },
-    {
-      "id": "legal.L-46-1980",
-      "code": "L-46/1980",
-      "url": "https://www.reglugerd.is/reglugerdir/eftir-raduneytum/felagsmalaraduneyti/nr/46",
-      "translations": {
-        "is": {
-          "title": "Lög um aðbúnað, hollustuhætti og öryggi á vinnustöðum"
-        }
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -327,9 +462,10 @@
           "title": "L-6/2002"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -341,9 +477,10 @@
           "title": "L-61/2013"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -355,9 +492,10 @@
           "title": "Lb-1"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -369,9 +507,10 @@
           "title": "Lb-1/1991"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -383,9 +522,10 @@
           "title": "Lb-1/2001"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -397,9 +537,10 @@
           "title": "Lb-1/2006"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -411,9 +552,10 @@
           "title": "Lb-1/2007"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -425,9 +567,10 @@
           "title": "Lb-1/2008"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -439,9 +582,10 @@
           "title": "Lb-1/2012"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -453,9 +597,10 @@
           "title": "Lb-1/2021"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -467,9 +612,10 @@
           "title": "Lb-2/2006"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -481,9 +627,10 @@
           "title": "Lb-3"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -495,9 +642,10 @@
           "title": "Lb-4/2007"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -509,9 +657,10 @@
           "title": "Lb-5/2007"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -523,9 +672,10 @@
           "title": "R-198/1983"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -537,9 +687,10 @@
           "title": "R-204/1972"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -551,9 +702,10 @@
           "title": "R-331/1989"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -565,9 +717,10 @@
           "title": "R-349/2004"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -579,9 +732,10 @@
           "title": "R-388/1989"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -593,9 +747,10 @@
           "title": "R-492/1987"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -607,9 +762,10 @@
           "title": "R-497/1994"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -621,9 +777,10 @@
           "title": "R-497/1999"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -635,9 +792,10 @@
           "title": "R-499/1994"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -649,9 +807,10 @@
           "title": "R-501/1994"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -663,19 +822,10 @@
           "title": "R-504/1999"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
-      }
-    },
-    {
-      "id": "legal.R-547-1996",
-      "code": "R-547/1996",
-      "url": "https://island.is/reglugerdir/nr/0547-1996",
-      "translations": {
-        "is": {
-          "title": "Reglur um hollustu og öryggi á byggingarvinnustöðum og aðra tímabundna mannvirkjagerð"
-        }
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -687,9 +837,10 @@
           "title": "R-552/1996"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -701,19 +852,10 @@
           "title": "R-571/2000"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
-      }
-    },
-    {
-      "id": "legal.R-581-1995",
-      "code": "R-581/1995",
-      "url": "https://island.is/reglugerdir/nr/0581-1995",
-      "translations": {
-        "is": {
-          "title": "Reglur um húsnæði vinnustaða"
-        }
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -725,9 +867,10 @@
           "title": "R-609/1999"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -739,9 +882,10 @@
           "title": "R-707/1995"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -753,9 +897,10 @@
           "title": "R-921/1996"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -767,9 +912,10 @@
           "title": "R-99/1996"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -781,19 +927,10 @@
           "title": "Rg-1005/2009"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
-      }
-    },
-    {
-      "id": "legal.Rg-1009-2015",
-      "code": "Rg-1009/2015",
-      "url": "https://island.is/reglugerdir/nr/1009-2015",
-      "translations": {
-        "is": {
-          "title": "Reglugerð um aðgerðir gegn einelti, kynferðislegri áreitni, kynbundinni áreitni og ofbeldi á vinnustöðum"
-        }
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -805,9 +942,10 @@
           "title": "Rg-1021/2017"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -819,9 +957,10 @@
           "title": "Rg-1022/2017"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -833,9 +972,10 @@
           "title": "Rg-202/1952"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -847,9 +987,10 @@
           "title": "Rg-326/2007"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -861,9 +1002,10 @@
           "title": "Rg-367/2006"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -875,9 +1017,10 @@
           "title": "Rg-390/2009"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -889,19 +1032,10 @@
           "title": "Rg-415/2014"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
-      }
-    },
-    {
-      "id": "legal.Rg-426-1999",
-      "code": "Rg-426/1999",
-      "url": "https://island.is/reglugerdir/nr/0426-1999",
-      "translations": {
-        "is": {
-          "title": "Reglugerð um vinnu barna og unglinga"
-        }
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -913,9 +1047,10 @@
           "title": "Rg-430/2007"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -927,19 +1062,10 @@
           "title": "Rg-510/2018"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
-      }
-    },
-    {
-      "id": "legal.Rg-530-2020",
-      "code": "Rg-530/2020",
-      "url": null,
-      "translations": {
-        "is": {
-          "title": "Reglur tengdar efnum og öryggisblöðum"
-        }
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -951,19 +1077,10 @@
           "title": "Rg-540/2011"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
-      }
-    },
-    {
-      "id": "legal.Rg-553-2004",
-      "code": "Rg-553/2004",
-      "url": "https://island.is/reglugerdir/nr/0553-2004",
-      "translations": {
-        "is": {
-          "title": "Reglugerð um verndun starfsmanna gegn hættu á heilsutjóni af völdum efna á vinnustöðum"
-        }
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -975,9 +1092,10 @@
           "title": "Rg-728/2018"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -989,9 +1107,10 @@
           "title": "Rg-729/2018"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -1003,49 +1122,10 @@
           "title": "Rg-730/2012"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
-      }
-    },
-    {
-      "id": "legal.Rg-920-2006",
-      "code": "Rg-920/2006",
-      "url": "https://island.is/reglugerdir/nr/0920-2006",
-      "translations": {
-        "is": {
-          "title": "Reglugerð um skipulag og framkvæmd vinnuverndarstarfs á vinnustöðum"
-        }
-      }
-    },
-    {
-      "id": "legal.Rg-921-2006",
-      "code": "Rg-921/2006",
-      "url": "https://island.is/reglugerdir/nr/0921-2006",
-      "translations": {
-        "is": {
-          "title": "Reglugerð um varnir gegn álagi vegna hávaða á vinnustöðum"
-        }
-      }
-    },
-    {
-      "id": "legal.Rg-922-2006",
-      "code": "Rg-922/2006",
-      "url": "https://island.is/reglugerdir/nr/0922-2006",
-      "translations": {
-        "is": {
-          "title": "Reglugerð um varnir gegn álagi vegna vélræns titrings á vinnustöðum"
-        }
-      }
-    },
-    {
-      "id": "legal.Rg-931-2000",
-      "code": "Rg-931/2000",
-      "url": "https://island.is/reglugerdir/nr/0931-2000",
-      "translations": {
-        "is": {
-          "title": "Reglugerð um ráðstafanir til þess að auka öryggi og heilbrigði á vinnustöðum fyrir konur sem eru þungaðar, hafa nýlega alið barn eða hafa barn á brjósti"
-        }
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     },
     {
@@ -1057,9 +1137,10 @@
           "title": "Sb-56"
         }
       },
+      "resolutionStatus": "unresolved_imported_code",
       "metadata": {
-        "titleStatus": "placeholder",
-        "source": "derived-from-checklist-usage"
+        "source": "derived-from-checklist-usage",
+        "displayMode": "code_only"
       }
     }
   ]

@@ -7,6 +7,8 @@ const seedsDir = path.resolve(scriptDir, "../assets/seeds");
 
 const allowedRiskLevels = new Set(["low", "medium", "high"]);
 const errors = [];
+const requireResolvedOnly =
+  process.env.VARDI_REQUIRE_RESOLVED_LEGAL_REFS === "1";
 
 const readJson = (file) =>
   JSON.parse(readFileSync(path.join(seedsDir, file), "utf8"));
@@ -55,21 +57,49 @@ ensureString(riskMatrixFile, "manifest.riskMatrices.file");
 const legalCatalog = readJson(legalFile);
 const riskCatalog = readJson(riskMatrixFile);
 
-ensure(Array.isArray(legalCatalog.references), "legal catalog must expose references[]");
+ensure(
+  Array.isArray(legalCatalog.canonicalReferences),
+  "legal catalog must expose canonicalReferences[]",
+);
+ensure(
+  Array.isArray(legalCatalog.unresolvedImportedReferences),
+  "legal catalog must expose unresolvedImportedReferences[]",
+);
 ensure(Array.isArray(riskCatalog.matrices), "risk matrix catalog must expose matrices[]");
 
 const legalByCode = new Map();
-for (const [index, reference] of legalCatalog.references.entries()) {
-  ensure(isPlainObject(reference), `legal reference #${index + 1} must be an object`);
-  ensureString(reference.id, `legal reference #${index + 1}.id`);
-  ensureString(reference.code, `legal reference #${index + 1}.code`);
+const validateLegalReference = (
+  reference,
+  index,
+  collectionName,
+  expectedStatus,
+) => {
+  ensure(
+    isPlainObject(reference),
+    `${collectionName} reference #${index + 1} must be an object`,
+  );
+  ensureString(reference.id, `${collectionName} reference #${index + 1}.id`);
+  ensureString(reference.code, `${collectionName} reference #${index + 1}.code`);
+  ensure(
+    reference.resolutionStatus === expectedStatus,
+    `${collectionName} reference ${reference.code}.resolutionStatus must be ${expectedStatus}`,
+  );
   ensureTranslationTitle(
     reference.translations,
-    `legal reference ${reference.code}.translations`,
+    `${collectionName} reference ${reference.code}.translations`,
   );
   ensure(
     reference.url === null || typeof reference.url === "string",
-    `legal reference ${reference.code}.url must be null or string`,
+    `${collectionName} reference ${reference.code}.url must be null or string`,
+  );
+};
+
+for (const [index, reference] of legalCatalog.canonicalReferences.entries()) {
+  validateLegalReference(
+    reference,
+    index,
+    "canonical",
+    "canonical_resolved",
   );
   if (legalByCode.has(reference.code)) {
     fail(`duplicate legal reference code: ${reference.code}`);
@@ -78,10 +108,59 @@ for (const [index, reference] of legalCatalog.references.entries()) {
   }
 }
 
+for (const [index, reference] of legalCatalog.unresolvedImportedReferences.entries()) {
+  validateLegalReference(
+    reference,
+    index,
+    "unresolved imported",
+    "unresolved_imported_code",
+  );
+  ensure(
+    isPlainObject(reference.metadata),
+    `unresolved imported reference ${reference.code}.metadata must be an object`,
+  );
+  ensure(
+    reference.metadata.source === "derived-from-checklist-usage",
+    `unresolved imported reference ${reference.code}.metadata.source must be derived-from-checklist-usage`,
+  );
+  ensure(
+    reference.metadata.displayMode === "code_only",
+    `unresolved imported reference ${reference.code}.metadata.displayMode must be code_only`,
+  );
+  if (legalByCode.has(reference.code)) {
+    fail(`duplicate legal reference code: ${reference.code}`);
+  } else {
+    legalByCode.set(reference.code, reference);
+  }
+}
+
+const totalLegalReferences =
+  legalCatalog.canonicalReferences.length +
+  legalCatalog.unresolvedImportedReferences.length;
+
 ensure(
-  legalCatalog.references.length === manifest.legalReferences.count,
-  `manifest legal reference count ${manifest.legalReferences.count} does not match ${legalCatalog.references.length}`,
+  legalCatalog.canonicalReferences.length ===
+    manifest.legalReferences.canonicalCount,
+  `manifest canonical legal reference count ${manifest.legalReferences.canonicalCount} does not match ${legalCatalog.canonicalReferences.length}`,
 );
+ensure(
+  legalCatalog.unresolvedImportedReferences.length ===
+    manifest.legalReferences.unresolvedImportedCount,
+  `manifest unresolved imported legal reference count ${manifest.legalReferences.unresolvedImportedCount} does not match ${legalCatalog.unresolvedImportedReferences.length}`,
+);
+ensure(
+  totalLegalReferences === manifest.legalReferences.count,
+  `manifest legal reference count ${manifest.legalReferences.count} does not match ${totalLegalReferences}`,
+);
+
+if (
+  requireResolvedOnly &&
+  legalCatalog.unresolvedImportedReferences.length > 0
+) {
+  fail(
+    `strict legal reference mode requires zero unresolved imported references; found ${legalCatalog.unresolvedImportedReferences.length}`,
+  );
+}
 
 const matrixIds = new Set();
 const matrixSlugs = new Set();
@@ -308,5 +387,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `Validated ${manifest.checklists.length} checklists, ${legalCatalog.references.length} legal references, ${riskCatalog.matrices.length} risk matrices, and ${totalCriteria} total criteria.`,
+  `Validated ${manifest.checklists.length} checklists, ${legalCatalog.canonicalReferences.length} canonical legal references, ${legalCatalog.unresolvedImportedReferences.length} unresolved imported legal references, ${riskCatalog.matrices.length} risk matrices, and ${totalCriteria} total criteria.`,
 );

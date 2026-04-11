@@ -1,8 +1,8 @@
 {
   "matrices": [
     {
-      "id": "risk-matrix.2x2-basic",
-      "slug": "2x2-basic",
+      "id": "risk-matrix.simple-2x2",
+      "slug": "simple-2x2",
       "likelihoodLevels": 2,
       "consequenceLevels": 2,
       "lookup": {
@@ -13,7 +13,7 @@
       },
       "translations": {
         "is": {
-          "title": "Grunn 2x2"
+          "title": "Einföld 2x2"
         }
       }
     },
@@ -24,9 +24,9 @@
       "consequenceLevels": 3,
       "lookup": {
         "1,1": "low",
-        "1,2": "medium",
+        "1,2": "low",
         "1,3": "medium",
-        "2,1": "medium",
+        "2,1": "low",
         "2,2": "medium",
         "2,3": "high",
         "3,1": "medium",
@@ -40,28 +40,28 @@
       }
     },
     {
-      "id": "risk-matrix.5x5-guide",
-      "slug": "5x5-guide",
+      "id": "risk-matrix.guide-5x5",
+      "slug": "guide-5x5",
       "likelihoodLevels": 5,
       "consequenceLevels": 5,
       "lookup": {
         "1,1": "low",
         "1,2": "low",
         "1,3": "low",
-        "1,4": "medium",
+        "1,4": "low",
         "1,5": "medium",
         "2,1": "low",
-        "2,2": "medium",
+        "2,2": "low",
         "2,3": "medium",
-        "2,4": "high",
+        "2,4": "medium",
         "2,5": "high",
         "3,1": "low",
         "3,2": "medium",
-        "3,3": "high",
+        "3,3": "medium",
         "3,4": "high",
         "3,5": "high",
         "4,1": "medium",
-        "4,2": "high",
+        "4,2": "medium",
         "4,3": "high",
         "4,4": "high",
         "4,5": "high",
