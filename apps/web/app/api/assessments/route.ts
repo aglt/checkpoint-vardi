@@ -21,13 +21,12 @@ const FORM_ERROR_MESSAGES = {
 type FormErrorCode = keyof typeof FORM_ERROR_MESSAGES;
 
 export async function POST(request: Request): Promise<Response> {
-  const requestMode = getRequestMode(request);
-  const payload = await readRequestPayload(request);
+  const payload = await readFormPayload(request);
   const parsedInput =
     startAssessmentFromSeededTemplateInputSchema.safeParse(payload);
 
   if (!parsedInput.success) {
-    return respondWithError(request, requestMode, "invalid-start-request", 400);
+    return redirectWithError(request, "invalid-start-request");
   }
 
   try {
@@ -39,39 +38,24 @@ export async function POST(request: Request): Promise<Response> {
       }),
     );
 
-    if (requestMode === "form") {
-      return NextResponse.redirect(
-        new URL(`/assessments/${output.assessmentId}`, request.url),
-        { status: 303 },
-      );
-    }
-
-    return NextResponse.json(output, { status: 201 });
+    return NextResponse.redirect(
+      new URL(`/assessments/${output.assessmentId}`, request.url),
+      { status: 303 },
+    );
   } catch (error) {
     if (error instanceof SeedChecklistNotFoundError) {
-      return respondWithError(request, requestMode, "unknown-template", 400);
+      return redirectWithError(request, "unknown-template");
     }
 
     if (error instanceof SeedRiskMatrixNotFoundError) {
-      return respondWithError(request, requestMode, "start-unavailable", 500);
+      return redirectWithError(request, "start-unavailable");
     }
 
     throw error;
   }
 }
 
-function getRequestMode(request: Request): "form" | "json" {
-  const contentType = request.headers.get("content-type") ?? "";
-  return contentType.startsWith("application/json") ? "json" : "form";
-}
-
-async function readRequestPayload(request: Request): Promise<unknown> {
-  const requestMode = getRequestMode(request);
-
-  if (requestMode === "json") {
-    return request.json();
-  }
-
+async function readFormPayload(request: Request): Promise<unknown> {
   const formData = await request.formData();
 
   return {
@@ -87,20 +71,8 @@ function getFormValue(formData: FormData, key: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-function respondWithError(
-  request: Request,
-  requestMode: "form" | "json",
-  errorCode: FormErrorCode,
-  status: number,
-): Response {
-  if (requestMode === "form") {
-    const redirectUrl = new URL("/", request.url);
-    redirectUrl.searchParams.set("error", errorCode);
-    return NextResponse.redirect(redirectUrl, { status: 303 });
-  }
-
-  return NextResponse.json(
-    { error: errorCode, message: FORM_ERROR_MESSAGES[errorCode] },
-    { status },
-  );
+function redirectWithError(request: Request, errorCode: FormErrorCode): Response {
+  const redirectUrl = new URL("/", request.url);
+  redirectUrl.searchParams.set("error", errorCode);
+  return NextResponse.redirect(redirectUrl, { status: 303 });
 }

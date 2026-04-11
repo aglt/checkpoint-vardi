@@ -31,8 +31,10 @@ to stable seeded `criterionId` values.
 app-owned composition seam for startup writes. It resolves the seeded checklist,
 resolves the fixed matrix, flattens criterion ids in seeded order, and calls the
 DB helper. `apps/web/app/api/assessments/route.ts` stays thin: it validates
-input, resolves the placeholder owner, calls the write seam, and redirects or
-returns typed output.
+input, resolves the placeholder owner, calls the write seam, and redirects the
+form-start flow. S1-03 intentionally keeps submit behavior as a plain form POST
+entry seam rather than introducing a separate typed client fetch path before
+walkthrough work exists.
 
 `/assessments/[assessmentId]` now exists only as a post-create readiness page.
 It loads through the existing `loadAssessmentReadModel` seam via a narrow
@@ -42,11 +44,10 @@ render criteria, answers, transfer controls, or walkthrough affordances. Those
 remain in scope for `S1-04` and later stories.
 
 This completion was verified locally with `pnpm test`, `pnpm typecheck`, and
-`pnpm lint` after installing workspace dependencies and manually running the
-`better-sqlite3` package install script so its native binding existed in this
-shell. This session used `node v25.6.1`; Node 22 remains the declared repo
-contract, but that exact runtime was not available in this shell during this
-session.
+`pnpm lint`. `pnpm-workspace.yaml` now explicitly allows the `better-sqlite3`
+install script so the native binding is built during normal workspace install.
+This session used `node v25.6.1`; Node 22 remains the declared repo contract,
+but that exact runtime was not available in this shell during this session.
 
 ## Goal
 

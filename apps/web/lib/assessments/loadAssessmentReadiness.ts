@@ -9,7 +9,7 @@ export interface AssessmentReadiness {
   readonly criterionCount: number;
 }
 
-// Narrow post-create readiness view for S1-03. Walkthrough rendering starts in S1-04.
+// Thin projection over loadAssessmentReadModel for the S1-03 readiness page only.
 export function loadAssessmentReadiness(
   params: LoadAssessmentReadModelParams,
 ): AssessmentReadiness {

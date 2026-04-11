@@ -4,7 +4,12 @@ import {
   type RiskMatrix,
   type SeedChecklist,
 } from "@vardi/checklists";
-import { createWorkplaceAssessment, type VardiDatabase } from "@vardi/db";
+import {
+  createWorkplaceAssessment,
+  type CreateWorkplaceAssessmentParams,
+  type CreateWorkplaceAssessmentResult,
+  type VardiDatabase,
+} from "@vardi/db";
 import type {
   StartAssessmentFromSeededTemplateInput,
   StartAssessmentFromSeededTemplateOutput,
@@ -16,6 +21,9 @@ export interface StartAssessmentFromSeededTemplateParams {
   readonly db: VardiDatabase;
   readonly ownerId: string;
   readonly input: StartAssessmentFromSeededTemplateInput;
+  readonly writeAssessment?: (
+    params: CreateWorkplaceAssessmentParams,
+  ) => CreateWorkplaceAssessmentResult;
   readonly seedRuntime?: {
     readonly getChecklistById?: (id: string) => SeedChecklist | undefined;
     readonly getRiskMatrixBySlug?: (slug: string) => RiskMatrix | undefined;
@@ -42,7 +50,8 @@ export function startAssessmentFromSeededTemplate(
   const checklist = resolveChecklist(params);
   const riskMatrix = resolveRiskMatrix(params);
   const criterionIds = flattenChecklistCriterionIds(checklist);
-  const result = createWorkplaceAssessment({
+  const writeAssessment = params.writeAssessment ?? createWorkplaceAssessment;
+  const result = writeAssessment({
     db: params.db,
     ownerId: params.ownerId,
     workplace: {

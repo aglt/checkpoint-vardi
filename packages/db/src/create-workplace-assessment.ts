@@ -34,10 +34,21 @@ export interface CreateWorkplaceAssessmentResult {
   readonly assessmentId: string;
 }
 
+export class EmptyAssessmentCriteriaError extends Error {
+  constructor() {
+    super("Assessment initialization requires at least one seeded criterion.");
+    this.name = "EmptyAssessmentCriteriaError";
+  }
+}
+
 // This is the package-owned transactional write seam for assessment start.
 export function createWorkplaceAssessment(
   params: CreateWorkplaceAssessmentParams,
 ): CreateWorkplaceAssessmentResult {
+  if (params.criterionIds.length === 0) {
+    throw new EmptyAssessmentCriteriaError();
+  }
+
   return params.db.transaction((tx) => {
     const workplaceId = randomUUID();
     const assessmentId = randomUUID();

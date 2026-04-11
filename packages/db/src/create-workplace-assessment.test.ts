@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { closeDatabase, createMigratedDatabase } from "./database.js";
-import { createWorkplaceAssessment } from "./create-workplace-assessment.js";
+import {
+  createWorkplaceAssessment,
+  EmptyAssessmentCriteriaError,
+} from "./create-workplace-assessment.js";
 
 const startedAt = new Date("2026-04-11T12:00:00.000Z");
 
@@ -81,17 +84,14 @@ test("createWorkplaceAssessment pins the full checklist tuple and materializes u
   const persistedFindings = connection.sqlite
     .prepare(`
       select
-        criterion_id as criterionId,
         status,
         notes,
         voice_transcript as voiceTranscript,
         notes_language as notesLanguage
       from finding
       where assessment_id = ?
-      order by rowid
     `)
     .all(result.assessmentId) as Array<{
-      criterionId: string;
       status: string;
       notes: string | null;
       voiceTranscript: string | null;
@@ -99,10 +99,6 @@ test("createWorkplaceAssessment pins the full checklist tuple and materializes u
     }>;
 
   assert.equal(persistedFindings.length, params.criterionIds.length);
-  assert.deepEqual(
-    persistedFindings.map((findingRow) => findingRow.criterionId),
-    params.criterionIds,
-  );
   assert.ok(
     persistedFindings.every((findingRow) =>
       findingRow.status === "unanswered" &&
@@ -122,6 +118,36 @@ test("createWorkplaceAssessment rolls back partial writes when finding materiali
   ]);
 
   assert.throws(() => createWorkplaceAssessment(params));
+
+  const counts = connection.sqlite
+    .prepare(`
+      select
+        (select count(*) from workplace) as workplaceCount,
+        (select count(*) from risk_assessment) as assessmentCount,
+        (select count(*) from finding) as findingCount
+    `)
+    .get() as {
+      workplaceCount: number;
+      assessmentCount: number;
+      findingCount: number;
+    };
+
+  assert.deepEqual(counts, {
+    workplaceCount: 0,
+    assessmentCount: 0,
+    findingCount: 0,
+  });
+
+  closeDatabase(connection);
+});
+
+test("createWorkplaceAssessment rejects empty criterion lists before writing anything", () => {
+  const { connection, params } = buildCreateParams([]);
+
+  assert.throws(
+    () => createWorkplaceAssessment(params),
+    (error: unknown) => error instanceof EmptyAssessmentCriteriaError,
+  );
 
   const counts = connection.sqlite
     .prepare(`

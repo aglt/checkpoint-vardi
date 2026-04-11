@@ -158,3 +158,34 @@ test("startAssessmentFromSeededTemplate persists a seeded assessment ready for w
 
   closeDatabase(connection);
 });
+
+test("startAssessmentFromSeededTemplate passes criterion ids to persistence in seeded order", () => {
+  const connection = createMigratedDatabase();
+  const expectedCriterionIds = seededChecklist.sections.flatMap((section) =>
+    section.criteria.map((criterion) => criterion.id),
+  );
+  let capturedCriterionIds: readonly string[] = [];
+
+  const result = startAssessmentFromSeededTemplate({
+    db: connection.db,
+    ownerId: "owner-1",
+    input: {
+      workplaceName: "Workshop",
+      workplaceAddress: "Austurberg 1",
+      workplaceArchetype: "construction",
+      checklistId: seededChecklist.id,
+    },
+    writeAssessment(params) {
+      capturedCriterionIds = params.criterionIds;
+      return {
+        workplaceId: "workplace-1",
+        assessmentId: "assessment-1",
+      };
+    },
+  });
+
+  assert.equal(result.assessmentId, "assessment-1");
+  assert.deepEqual(capturedCriterionIds, expectedCriterionIds);
+
+  closeDatabase(connection);
+});

@@ -64,6 +64,7 @@ export default async function StartAssessmentPage({
                 </div>
               ) : null}
 
+              {/* S1-03 intentionally uses a plain form POST so this MVP entry flow stays single-path and server-first. */}
               <form action="/api/assessments" className="space-y-5" method="post">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-900" htmlFor="workplaceName">

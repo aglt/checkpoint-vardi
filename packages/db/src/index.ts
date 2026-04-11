@@ -15,6 +15,7 @@ export {
 } from "./load-assessment-aggregate.js";
 export {
   createWorkplaceAssessment,
+  EmptyAssessmentCriteriaError,
   type CreateWorkplaceAssessmentParams,
   type CreateWorkplaceAssessmentResult,
 } from "./create-workplace-assessment.js";

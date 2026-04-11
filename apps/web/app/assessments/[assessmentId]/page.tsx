@@ -27,6 +27,7 @@ export default async function AssessmentReadinessPage({
     return (
       <main className="min-h-screen bg-[linear-gradient(180deg,#f3efe5_0%,#ebe2cf_100%)] px-6 py-10 text-slate-950">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+          {/* S1-03 stops at readiness metadata; walkthrough UI and navigation truth start in later stories. */}
           <section className="rounded-[2rem] border border-black/10 bg-white/80 p-8 shadow-[0_24px_70px_rgba(28,29,24,0.12)] backdrop-blur">
             <div className="space-y-3">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-600">
