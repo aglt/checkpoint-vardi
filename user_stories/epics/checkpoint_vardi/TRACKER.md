@@ -16,7 +16,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | ID    | Story                                                   | Status       | PR |
 |-------|---------------------------------------------------------|--------------|----|
 | S1-01 | Seed catalog foundation for assessment runtime          | done         | #3 |
-| S1-02 | Assessment domain and read model                        | done         |    |
+| S1-02 | Assessment domain and read model                        | done         | #4 |
 | S1-03 | Start assessment from seeded template                   | not_started  |    |
 | S1-04 | Assessment walkthrough form slice                       | not_started  |    |
 | S1-05 | Transfer non-compliant findings into risk register      | not_started  |    |
