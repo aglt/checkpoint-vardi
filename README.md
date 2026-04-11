@@ -40,7 +40,7 @@ packages/
   db/                 Drizzle ORM schema, migrations, typed client
   risk/               Risk matrix lookup + classify(matrixId, L, C)
   export/             docxtemplater templates (checklist, register, summary)
-  checklists/         Seed loader + vísir import normaliser
+  checklists/         Seed loader + vísir import normaliser + canonical seed assets
 ```
 
 Single deployable app. API lives inside apps/web under `app/api/*`.
@@ -75,12 +75,13 @@ Implementation now tracks inside this repo:
 ## Documentation
 
 The local story system is the implementation source of truth for day-to-day work.
-External handoff material can still be used as background reference:
+In-repo design and seed material lives here:
 
-- `CheckpointVardi_SystemDesign.docx` — product, regulatory, architectural narrative
-- `CheckpointVardi_ImplementationHandoff.docx` — broader handoff context
-- `handoff/seeds/` — checklist, legal reference, and risk matrix seed JSON
-- `handoff/diagrams/` — editable Mermaid sources for every diagram
+- `docs/handoff/CheckpointVardi_SystemDesign.md` — product, regulatory, architectural narrative
+- `docs/handoff/CheckpointVardi_ImplementationHandoff.md` — execution-oriented handoff and delivery plan
+- `docs/diagrams/` — editable Mermaid sources for the architecture and flow diagrams
+- `packages/checklists/assets/seeds/` — checklist, legal-reference, and risk-matrix seed JSON
+- `docs/archive/System_Design_Vindhlif.md` — archived alternate-name design draft
 
 ## License
 

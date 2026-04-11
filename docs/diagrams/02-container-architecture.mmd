@@ -1,0 +1,42 @@
+%% Container / Component Architecture
+flowchart TB
+    subgraph monorepo["pnpm monorepo · TypeScript · Node 22"]
+        direction TB
+        subgraph app["apps/web (Next.js 15, React 19)"]
+            pages["App router<br/>· /projects<br/>· /plans/:id<br/>· /plans/:id/assessments/:id<br/>· /capture/:finding<br/>· /library · /imports · /settings"]
+            api["Route handlers<br/>· /api/projects<br/>· /api/assessments<br/>· /api/findings<br/>· /api/risks<br/>· /api/accidents<br/>· /api/chemicals<br/>· /api/templates<br/>· /api/exports<br/>· /api/transcribe<br/>· /api/photos"]
+        end
+
+        subgraph packages["Shared packages"]
+            ui["packages/ui<br/>shadcn · Radix · CVA"]
+            schemas["packages/schemas<br/>Zod contracts"]
+            dbpkg["packages/db<br/>Drizzle ORM"]
+            risk["packages/risk<br/>matrix lookup"]
+            export["packages/export<br/>docxtemplater"]
+            checklists["packages/checklists<br/>parser bridge · importer"]
+        end
+    end
+
+    subgraph sidecar["services/doc-worker (Python 3.12)"]
+        fastapi["FastAPI app"]
+        whisper["faster-whisper"]
+        libreoffice["LibreOffice headless"]
+        parser["python-docx parser"]
+    end
+
+    db[("better-sqlite3 · Postgres")]
+    media[("Media storage")]
+
+    pages --> ui
+    pages --> schemas
+    api --> schemas
+    api --> dbpkg
+    api --> risk
+    api --> export
+    api --> checklists
+    dbpkg --> db
+    api --> media
+    api -->|"HTTP"| fastapi
+    fastapi --> whisper
+    fastapi --> libreoffice
+    fastapi --> parser

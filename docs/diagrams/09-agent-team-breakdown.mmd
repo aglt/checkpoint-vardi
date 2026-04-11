@@ -1,0 +1,29 @@
+%% Suggested agent team breakdown for parallel implementation
+flowchart TB
+    po([Product / Architect<br/>owns backlog, acceptance])
+
+    subgraph teams["Specialised agent teams"]
+        data["Data Team<br/>· seed extractor<br/>· parser bridge<br/>· legal catalogue<br/>· risk matrices"]
+        core["Core Team<br/>· Drizzle schema<br/>· migrations<br/>· Zod contracts<br/>· risk engine"]
+        front["Frontend Team<br/>· app router shell<br/>· shadcn design system<br/>· forms + i18n dict<br/>· TanStack Query"]
+        field["Field Team<br/>· capture flow<br/>· photo + geotag<br/>· voice + transcribe UI<br/>· offline PWA"]
+        exp["Export Team<br/>· docxtemplater<br/>· LibreOffice PDF<br/>· bundle builder"]
+        ops["Ops Team<br/>· docker compose<br/>· CI (lint/test/e2e)<br/>· observability<br/>· backups"]
+        qa["QA Team<br/>· Vitest units<br/>· Playwright flows<br/>· accessibility<br/>· Icelandic linguistic QA"]
+    end
+
+    po --> data
+    po --> core
+    po --> front
+    po --> field
+    po --> exp
+    po --> ops
+    po --> qa
+
+    data --> core
+    core --> front
+    core --> exp
+    front --> field
+    front --> qa
+    exp --> qa
+    ops --> qa

@@ -18,6 +18,8 @@ platform must remain reusable for real safety officers and future assignments.
 - Read this file.
 - Read `AGENTS.md` when running in Codex.
 - Read `docs/ARCHITECTURE_BOUNDARIES.md` when touching package boundaries.
+- Read `docs/handoff/CheckpointVardi_ImplementationHandoff.md` and `docs/handoff/CheckpointVardi_SystemDesign.md` when the change depends on broader product scope, architecture, import/export behavior, or delivery sequencing.
+- Read `packages/checklists/assets/seeds/manifest.json` first when working on checklist imports, legal references, or risk matrices.
 - Read the relevant skill under `.claude/skills/` for the area you are changing.
 - Read the active epic docs under `user_stories/epics/checkpoint_vardi/` before starting implementation work.
 

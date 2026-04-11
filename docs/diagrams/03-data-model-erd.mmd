@@ -1,0 +1,224 @@
+%% Data model — entity relationship diagram
+%% English structural columns, translations in sibling *_translation tables.
+erDiagram
+    user ||--o{ workplace : owns
+    workplace ||--|| safetyPlan : has
+    safetyPlan ||--o{ riskAssessment : contains
+    safetyPlan ||--o{ accident : logs
+    safetyPlan ||--o{ chemical : inventories
+    safetyPlan ||--o| emergencyPlan : has
+    safetyPlan ||--o{ policy : owns
+    safetyPlan ||--o{ incident : handles
+    safetyPlan ||--o| trainingPlan : has
+    safetyPlan ||--o{ reviewEvent : scheduled
+
+    riskAssessment }o--o{ checklistTemplate : uses
+    riskAssessment }o--|| riskMatrix : evaluatedWith
+    riskAssessment ||--o{ finding : contains
+    finding ||--o{ photo : has
+    finding ||--o| riskEntry : escalatesTo
+    riskAssessment ||--o| summary : concludedBy
+
+    checklistTemplate ||--o{ section : organizes
+    section ||--o{ criterion : has
+    criterion }o--o{ legalReference : cites
+
+    checklistTemplate ||--o{ checklistTemplateTranslation : tr
+    section ||--o{ sectionTranslation : tr
+    criterion ||--o{ criterionTranslation : tr
+    legalReference ||--o{ legalReferenceTranslation : tr
+    riskMatrix ||--o{ riskMatrixTranslation : tr
+
+    chemical ||--o{ sdsAttachment : has
+
+    accident }o--o{ criterion : triggersReviewOf
+
+    user {
+        text id PK
+        text displayName
+        text locale
+    }
+
+    workplace {
+        text id PK
+        text ownerId FK
+        text name
+        text address
+        text archetype "fixed|mobile|construction"
+        text primaryLanguage
+    }
+
+    safetyPlan {
+        text id PK
+        text workplaceId FK
+        text status
+        date createdAt
+        date reviewDueAt
+        text reviewCadence
+    }
+
+    riskAssessment {
+        text id PK
+        text safetyPlanId FK
+        text riskMatrixId FK
+        date startedAt
+        date completedAt
+        text status
+    }
+
+    checklistTemplate {
+        text id PK
+        text slug UK
+        text sourceUrl
+        text version
+        date importedAt
+    }
+
+    section {
+        text id PK
+        text templateId FK
+        int order
+    }
+
+    criterion {
+        text id PK
+        text sectionId FK
+        int order
+        text number
+        text category
+        json legalRefs
+    }
+
+    finding {
+        text id PK
+        text assessmentId FK
+        text criterionId FK
+        text status "ok|notOk|notApplicable|unanswered"
+        text notes
+        text voiceTranscript
+        text notesLanguage
+        date createdAt
+    }
+
+    riskEntry {
+        text id PK
+        text findingId FK
+        text hazard
+        text healthEffects
+        text whoAtRisk
+        int likelihood
+        int consequence
+        text riskLevel "low|medium|high"
+        text currentControls
+        text proposedAction
+        text controlHierarchy "eliminate|substitute|engineering|administrative|ppe"
+        int costEstimate
+        text owner
+        date dueDate
+        date completedAt
+    }
+
+    photo {
+        text id PK
+        text findingId FK
+        text path
+        real lat
+        real lon
+        date takenAt
+        text caption
+    }
+
+    summary {
+        text assessmentId PK
+        text companyName
+        text location
+        date date
+        text people
+        text method
+        text notes
+    }
+
+    riskMatrix {
+        text id PK
+        text slug UK
+        int likelihoodLevels
+        int consequenceLevels
+        json lookup
+    }
+
+    accident {
+        text id PK
+        text safetyPlanId FK
+        text type "accident|nearMiss"
+        date occurredAt
+        text severity
+        text description
+        text reporterName
+    }
+
+    chemical {
+        text id PK
+        text safetyPlanId FK
+        text commonName
+        text casNumber
+        text hazardStatements
+        text storageLocation
+        real quantity
+        text unit
+    }
+
+    sdsAttachment {
+        text id PK
+        text chemicalId FK
+        text language
+        text version
+        text path
+    }
+
+    emergencyPlan {
+        text safetyPlanId PK
+        text evacuationRoutes
+        text firstAidResources
+        text fireSuppression
+        date updatedAt
+    }
+
+    policy {
+        text id PK
+        text safetyPlanId FK
+        text kind "harassment|safety|other"
+        text title
+        text body
+        text version
+        date effectiveDate
+    }
+
+    incident {
+        text id PK
+        text safetyPlanId FK
+        text kind
+        date reportedAt
+        text status
+        text summary
+    }
+
+    trainingPlan {
+        text safetyPlanId PK
+        text induction
+        text ongoing
+        text languageCoverage
+    }
+
+    reviewEvent {
+        text id PK
+        text safetyPlanId FK
+        text trigger "scheduled|accident|change|regulation"
+        date dueAt
+        date completedAt
+        text outcome
+    }
+
+    legalReference {
+        text code PK
+        text url
+    }

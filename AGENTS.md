@@ -10,10 +10,17 @@ Read this file before making changes in this repository.
 
 ## Load context first
 
-- Read [CLAUDE.md](/Users/aegir/.codex/worktrees/5b49/Vardi/CLAUDE.md).
-- Read [docs/ARCHITECTURE_BOUNDARIES.md](/Users/aegir/.codex/worktrees/5b49/Vardi/docs/ARCHITECTURE_BOUNDARIES.md) when touching ownership or package placement.
-- Read the active epic docs in [user_stories/epics/checkpoint_vardi/EPIC.md](/Users/aegir/.codex/worktrees/5b49/Vardi/user_stories/epics/checkpoint_vardi/EPIC.md), [TRACKER.md](/Users/aegir/.codex/worktrees/5b49/Vardi/user_stories/epics/checkpoint_vardi/TRACKER.md), and [EXECUTION_PLAN.md](/Users/aegir/.codex/worktrees/5b49/Vardi/user_stories/epics/checkpoint_vardi/EXECUTION_PLAN.md).
+- Read `CLAUDE.md`.
+- Read `docs/ARCHITECTURE_BOUNDARIES.md` when touching ownership or package placement.
+- Read the active epic docs in `user_stories/epics/checkpoint_vardi/EPIC.md`, `TRACKER.md`, and `EXECUTION_PLAN.md`.
+- Read `docs/handoff/CheckpointVardi_ImplementationHandoff.md` and `docs/handoff/CheckpointVardi_SystemDesign.md` for broader product, architecture, and delivery context when the change needs it.
 - Read the matching skill under `.claude/skills/` before changing a feature area.
+
+## Reference assets
+
+- Editable Mermaid architecture sources live in `docs/diagrams/`.
+- Canonical seed JSON for checklist, legal-reference, and matrix work lives in `packages/checklists/assets/seeds/`.
+- The alternate-name design draft is archived at `docs/archive/System_Design_Vindhlif.md`.
 
 ## Repo rules
 

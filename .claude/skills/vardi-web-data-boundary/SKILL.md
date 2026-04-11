@@ -11,6 +11,8 @@ Use this skill when data crosses a boundary.
 
 - Read `../../../docs/ARCHITECTURE_BOUNDARIES.md`.
 - Read `../vardi-web-architecture/SKILL.md`.
+- For checklist, catalog, or import work, inspect `../../../packages/checklists/assets/seeds/manifest.json` first and then the specific seed JSON file you need.
+- Use `../../../docs/diagrams/03-data-model-erd.mmd` and `../../../docs/diagrams/05-checklist-import-sequence.mmd` when a data-model or import-flow reference would reduce guesswork.
 - Inspect the active story under `../../../user_stories/`.
 
 ## Boundary owners
@@ -28,6 +30,7 @@ Use this skill when data crosses a boundary.
 - Validate at the route boundary.
 - Route handlers call package code; they do not absorb business logic.
 - Keep database writes and reads behind `packages/db`.
+- Treat `packages/checklists/assets/seeds/` as the canonical in-repo source for checklist, legal-reference, and risk-matrix seed data.
 - If client-side fetching is required, hide URL strings and parsing behind a typed module.
 - Do not duplicate validation rules inline in components, pages, or route files.
 

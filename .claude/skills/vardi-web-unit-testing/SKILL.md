@@ -12,6 +12,10 @@ Use this skill when a change benefits from automated verification below the brow
 The repo is still early. If the story introduces the first tests for an area, add only the minimum
 test setup the area needs instead of scaffolding a full platform all at once.
 
+For import and catalog work, the canonical fixtures live under
+`../../../packages/checklists/assets/seeds/`. Reuse the smallest relevant seed file or slice of one
+instead of recreating parallel fake fixtures unless the test truly needs a minimized custom case.
+
 ## Preferred test shapes
 
 - pure package logic: focused unit tests
@@ -41,6 +45,7 @@ test setup the area needs instead of scaffolding a full platform all at once.
 - route parsing helpers
 - shared UI with meaningful interaction
 - dictionary and formatting helpers
+- seed normalization using `packages/checklists/assets/seeds/`
 
 ## Anti-patterns
 

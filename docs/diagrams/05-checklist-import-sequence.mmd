@@ -1,0 +1,24 @@
+%% Checklist template import — admin / power user
+sequenceDiagram
+    actor Admin
+    participant Web as apps/web
+    participant API as /api/templates
+    participant Worker as doc-worker (parser)
+    participant Checklists as packages/checklists
+    participant DB as Drizzle
+
+    Admin->>Web: Upload vísir .docx (or paste island.is URL)
+    Web->>API: POST /api/templates/import
+    alt URL provided
+        API->>API: fetch document
+    end
+    API->>Worker: POST /parse {file}
+    Worker->>Worker: python-docx walk tables
+    Worker-->>API: {sections:[{title, criteria:[{number,title,guidance,legalRefs}]}]}
+    API->>Checklists: normalize + validate with Zod
+    Checklists-->>API: canonical seed shape
+    API->>DB: upsert checklistTemplate, sections, criteria, criterionTranslation(is)
+    API->>DB: upsert legalReference rows for new codes
+    DB-->>API: counts
+    API-->>Web: import report (added / updated / skipped)
+    Web-->>Admin: success + diff summary

@@ -1,0 +1,18 @@
+{
+  "checklists": [
+    {
+      "slug": "woodworking-workshop",
+      "file": "woodworking-workshop.json",
+      "sections": 15,
+      "criteria": 66
+    },
+    {
+      "slug": "construction-site",
+      "file": "construction-site.json",
+      "sections": 14,
+      "criteria": 69
+    }
+  ],
+  "legalReferences": 10,
+  "riskMatrices": 3
+}

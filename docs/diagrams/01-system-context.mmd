@@ -1,0 +1,32 @@
+%% System Context — Vindhlíf
+%% Shows external actors and neighbouring systems that interact with the platform.
+flowchart LR
+    student([Student])
+    officer([Safety Officer])
+    foreman([Site Foreman])
+    inspector([Inspector / Teacher])
+
+    subgraph platform["Vindhlíf Platform"]
+        web["Web Application<br/>(apps/web)"]
+        worker["Document Worker<br/>(services/doc-worker)"]
+        db[("Database<br/>SQLite / Postgres")]
+        files[("Media Storage<br/>photos · audio · SDS")]
+    end
+
+    ver[/"Vinnueftirlitið<br/>island.is checklists"/]
+    reg[/"reglugerd.is<br/>legal references"/]
+    oira[/"OiRA<br/>(future)"/]
+
+    student -->|"browse · assess · export"| web
+    officer -->|"maintain safety plan"| web
+    foreman -->|"field capture"| web
+    inspector -->|"reads exports"| web
+
+    web --> db
+    web --> files
+    web -->|"parse · transcribe · pdf"| worker
+    worker --> files
+
+    web -.->|"import checklists"| ver
+    web -.->|"resolve legal refs"| reg
+    web -.->|"future integration"| oira

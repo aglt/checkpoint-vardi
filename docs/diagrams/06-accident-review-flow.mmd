@@ -1,0 +1,20 @@
+%% Accident / incident → review trigger flow
+flowchart TD
+    start([Incident occurs]) --> log[Log accident or near-miss<br/>POST /api/accidents]
+    log --> classify{Severity?}
+    classify -->|minor| store[(Store in accident log)]
+    classify -->|serious| notify[Flag for Vinnueftirlit notification]
+    notify --> store
+    store --> link[Link to affected criteria<br/>accident × criterion]
+    link --> review[Create reviewEvent<br/>trigger = accident]
+    review --> due[Set dueAt = now + 7 days]
+    due --> task[Appears on dashboard as action]
+    task --> reassess{Reassess affected<br/>risk entries?}
+    reassess -->|yes| update[Update riskEntry L, C, controls]
+    reassess -->|no| close[Complete review]
+    update --> close
+    close --> done([reviewEvent.completedAt set])
+
+    scheduled([Scheduled cadence<br/>annual or custom]) --> review
+    regulation([Regulation change]) --> review
+    change([Workplace change]) --> review

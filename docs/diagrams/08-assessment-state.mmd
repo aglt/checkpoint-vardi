@@ -1,0 +1,15 @@
+%% Risk assessment state machine
+stateDiagram-v2
+    [*] --> draft: create from template
+    draft --> walkthrough: begin step 1a
+    walkthrough --> walkthrough: answer criterion
+    walkthrough --> transferred: step 1b — non-compliant moved to register
+    transferred --> scoring: steps 2–5
+    scoring --> scoring: add hazard / L×C / controls
+    scoring --> summarised: step 6 summary filled
+    summarised --> exported: bundle generated
+    exported --> archived: plan reviewCadence rolls
+    archived --> draft: next cycle (reviewEvent)
+    walkthrough --> abandoned: user discards
+    scoring --> abandoned
+    abandoned --> [*]

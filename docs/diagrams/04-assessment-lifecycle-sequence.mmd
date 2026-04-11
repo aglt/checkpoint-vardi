@@ -1,0 +1,58 @@
+%% Assessment lifecycle — student / safety officer happy path
+sequenceDiagram
+    actor User as Student / Officer
+    participant Web as apps/web (UI)
+    participant API as Route handlers
+    participant DB as Drizzle / SQLite
+    participant Risk as packages/risk
+    participant Worker as doc-worker
+    participant Export as packages/export
+
+    User->>Web: Create workplace + safety plan
+    Web->>API: POST /api/projects
+    API->>DB: insert workplace, safetyPlan
+    DB-->>API: ids
+    API-->>Web: plan created
+
+    User->>Web: Pick checklist template (wood/construction)
+    Web->>API: POST /api/assessments {templateId}
+    API->>DB: insert riskAssessment, snapshot criteria
+    API-->>Web: assessment ready
+
+    loop For each criterion (step 1a)
+        User->>Web: Mark ok / notOk / n/a, notes, photo, voice
+        Web->>API: PATCH /api/findings/:id
+        API->>DB: upsert finding
+        alt voice note attached
+            Web->>API: POST /api/transcribe
+            API->>Worker: audio blob
+            Worker-->>API: Icelandic transcript
+            API->>DB: update finding.voiceTranscript
+        end
+    end
+
+    User->>Web: Transfer non-compliant (step 1b)
+    Web->>API: POST /api/risks/from-findings
+    API->>DB: insert riskEntry rows
+
+    loop Per risk entry (steps 2-5)
+        User->>Web: Fill hazard, health effects, L×C, controls, owner, due
+        Web->>API: PATCH /api/risks/:id
+        API->>Risk: classify(matrixId, L, C)
+        Risk-->>API: low|medium|high
+        API->>DB: persist
+    end
+
+    User->>Web: Complete summary (step 6)
+    Web->>API: PUT /api/assessments/:id/summary
+    API->>DB: upsert summary, set status=done
+
+    User->>Web: Export bundle
+    Web->>API: POST /api/exports
+    API->>DB: load assessment graph
+    API->>Export: render docx templates
+    Export-->>API: checklist.docx, register.docx, summary.docx
+    API->>Worker: convert to pdf
+    Worker-->>API: pdf files
+    API-->>Web: signed links
+    Web-->>User: download bundle

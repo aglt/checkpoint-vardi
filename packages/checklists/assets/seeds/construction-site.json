@@ -1,0 +1,1161 @@
+{
+  "slug": "construction-site",
+  "sourceFile": "5.Vinnuumhvefisvísir fyrir byggingarsvæði.docx",
+  "sourceUrl": null,
+  "version": "2026-04-11",
+  "translations": {
+    "is": {
+      "title": "Vinnuumhverfisvísir fyrir byggingarsvæði"
+    }
+  },
+  "sections": [
+    {
+      "order": 1,
+      "translations": {
+        "is": {
+          "title": "Vinnuverndarstarf"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "FL-17/2002",
+            "FL-21/2006",
+            "FL-24/2008",
+            "FL-25/2008",
+            "L-46/1980",
+            "Lb-1/2007",
+            "Lb-1/2008",
+            "Lb-1/2021",
+            "Lb-4/2007",
+            "Lb-5/2007",
+            "R-547/1996",
+            "Rg-540/2011",
+            "Rg-920/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Skipulag og virkni vinnuverndarstarfsins",
+              "guidance": "Er kerfisbundið vinnuverndarstarf fyrir hendi í fyrirtækinu? Er öryggistrúnaðarmaður/-vörður, öryggisnefnd til staðar? Hafa þeir sótt vinnuverndarnámskeið? Ef um stærri framkvæmdir er að ræða: Hefur vinnustaðurinn verið tilkynntur til Vinnueftirlitsins (VER) á þar til gerðu eyðublaði, í samræmi við ákvæði reglna nr. 547/1996? Hefur verkkaupi gert öryggis- og heilbrigðisáætlun á undirbúningsstigi verks? Er öryggis- og heilbrigðisáætlun verkkaupa viðhaldið á framkvæmdastigi verks? Er neyðaráætlun fyrir vinnustaðinn hluti af henni? Hefur verkkaupi skipað samræmingaraðila og tilkynnt til VER, þar sem fleiri en einn atvinnurekandi/vertaki starfar? Hefur verktaki/verktakar gert áætlun um öryggi og heilbrigði fyrir sína starfsmenn, þ.m.t. áhættumat og áætlun um heilsuvernd/forvarnir fyrir vinnusvæðið/-in og ferðir starfsfólks á milli þeirra, þegar við á? Áætlun um heilsuvernd/forvarnir skal m.a. innihalda: tímasetta áætlun um úrbætur byggða á áhættumati verktaka, stefnu og viðbragsáætlun vegna eineltis, kynferðislegrar áreitni, kynbundinnar áreitni og ofbeldis Tóku öryggistrúnaðarmenn og -verðir þátt í gerð áhættumatsins? Kom annað starfsfólk einnig að því? Aðkoma erlends starfsfólks? Er áhættumat verktaka uppfært eftir því sem verkinu vindur fram? Er öryggishandbók á staðnum? Hefur hún verið kynnt öllu starfsfólki, íslensku sem erlendu? Er leitað eftir utanaðkomandi ráðgjöf um áhættumat og forvarnir ef ekki er nægileg þekking innan vinnustaðarins? Eru reglulegar skoðunarferðir um vinnustaðinn/ vinnusvæðið og fundir í öryggisnefnd, fundargerðir? Er unnið markvisst að endurbótum? Er eftirfylgni? Er starfsfólk hvatt til að stunda líkamsrækt og heilbrigða lífshætti?"
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "R-547/1996",
+            "Rg-920/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Aðild fleiri atvinnurekenda að vinnustað og/eða verki",
+              "guidance": "Ábyrgð á vinnuverndarstarfi og vinnuaðstæðum, frumkvæðisskylda aðalverktaka. Ábyrgð atvinnurekanda á starfsfólki undir hans stjórn óháð ráðningarformi. Hefur aðalverktaki gert undirverktökum grein fyrir skyldum þeirra varðandi öryggi og heilbrigði við verkið? Hefur aðalverktaki upplýst undirverktaka um áhættur í vinnuumhverfinu og að fylgja skuli öryggisreglum sem gilda á vinnustaðnum? Tilnefna undirverktakar tengiliði við samræmingaraðila?"
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "L-46/1980",
+            "Lb-4/2007",
+            "Lb-5/2007",
+            "Rg-920/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Fræðsla/þjálfun - íslenskra og erlendra starfsmanna",
+              "guidance": "Fær nýráðið starfsfólk, íslenskt sem erlent, skipulagða fræðslu og þjálfun? Ef já, er vinnuvernd hluti af því? Er gengið úr skugga um að erlent starfsfólk hafi skilið þá fræðslu og leiðbeiningar sem það hefur fengið? Er það kannað á formlegan hátt þegar um sérlega hættuleg verk er að ræða? Fær allt starfsfólk reglubundna þjálfun og fræðslu í vinnuvernd, t.d. ef það flyst á milli starfa/staða, nýr búnaður eða efni eru tekin í notkun eða ný tækni innleidd?"
+            }
+          }
+        },
+        {
+          "number": "4",
+          "order": 4,
+          "legalRefs": [
+            "Lb-1",
+            "R-426/1999"
+          ],
+          "translations": {
+            "is": {
+              "title": "Ungt starfsfólk",
+              "guidance": "Aldursmörk, áhættumat, verkefni við hæfi, vinnutími, hvíld."
+            }
+          }
+        },
+        {
+          "number": "5",
+          "order": 5,
+          "legalRefs": [
+            "Lb-1/2001",
+            "Rg-931/2000"
+          ],
+          "translations": {
+            "is": {
+              "title": "Þungaðar konur eða m/barn á brjósti",
+              "guidance": "Áhættumat og verkefni við hæfi."
+            }
+          }
+        },
+        {
+          "number": "6",
+          "order": 6,
+          "legalRefs": [
+            "FL-30/2013",
+            "L-46/1980",
+            "Rg-920/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Vinnuslys",
+              "guidance": "Vinnuslys tilkynnt rafrænt á heimasíðu VER, www.vinnueftirlit.is. Greining slysahættu. Skráning og greining slysa og “næstum slysa”/óhappa. Endurskoðun áhættumats."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "translations": {
+        "is": {
+          "title": "Inniloft"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "FL-27/2006",
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Hita- og rakastig",
+              "guidance": "Hiti við innivinnu um 16-22° C eftir eðli vinnunnar, stundum allt að 24°C eftir aðstæðum. Ráðlagt hlutfallslegt rakastig um 30-50%. Koma skal í veg fyrir dragsúg og kulda, t.d. frá opnum dyrum/gluggum. Sjá leiðbeiningar VER um inniloft."
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "R-581/1995",
+            "Rg-367/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Loftræsting",
+              "guidance": "Afsog frá vélum og tækjum."
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Ryk",
+              "guidance": "Rykbinda vinnustaðinn eins og mögulegt er, regluleg þrif."
+            }
+          }
+        },
+        {
+          "number": "4",
+          "order": 4,
+          "legalRefs": [
+            "L-6/2002",
+            "Rg-326/2007"
+          ],
+          "translations": {
+            "is": {
+              "title": "Tóbaksvarnir",
+              "guidance": "Er vinnustaðurinn reyklaus? Reykingar bannaðar í öllum starfsmanna- og vinnurýmum. Leyfa má reykingar í sérstöku loftræstu afdrepi þar sem tryggt er að reykur berist ekki í önnur rými. Sérstakar undanþágur, sjá reglugerð."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "translations": {
+        "is": {
+          "title": "Efni og efnaáhrif"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "FL-23/2008",
+            "FL-39/2018",
+            "L-61/2013",
+            "R-497/1994",
+            "Rg-415/2014",
+            "Rg-530/2020",
+            "Rg-553/2004"
+          ],
+          "translations": {
+            "is": {
+              "title": "Varasöm og hættuleg efni",
+              "guidance": "Áhættumat vegna efnanotkunar. Öryggisblöð í 16 liðum á íslensku eða ensku. Atvinnurekandi þarf að tryggja að allir starfsmenn, íslenskir sem erlendir, fái kynningu á innihaldi þeirra á tungumáli sem þeir skilja. Merking á umbúðum og verklagsreglur. Fræðsla um meðferð og notkun efna. Fullnægjandi loftræsting. Viðeigandi persónuhlífar. Tilmæli um að skipta út hættulegum efnum, ef mögulegt er, fyrir hættuminni eða hættulaus efni. Eru notuð einhver efni sem geta valdið krabbameini?"
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "Rg-553/2004"
+          ],
+          "translations": {
+            "is": {
+              "title": "Geymsla efna",
+              "guidance": "Lokuð og læsanleg, loftræst geymsla fyrir hættuleg efni."
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "Rg-553/2004"
+          ],
+          "translations": {
+            "is": {
+              "title": "Neyðarbúnaður",
+              "guidance": "Augnskolunartæki."
+            }
+          }
+        },
+        {
+          "number": "4",
+          "order": 4,
+          "legalRefs": [
+            "Rg-430/2007"
+          ],
+          "translations": {
+            "is": {
+              "title": "Asbest",
+              "guidance": "Kannað hvort asbest sé í húsi eða lögnum áður en breytingar hefjast. Fengið leyfi VER til niðurrifs eða breytinga. Námskeið/réttindi til að rífa asbest."
+            }
+          }
+        },
+        {
+          "number": "5",
+          "order": 5,
+          "legalRefs": [
+            "Rg-510/2018"
+          ],
+          "translations": {
+            "is": {
+              "title": "Meðferð og geymsla sprengiefna",
+              "guidance": "Birgðabókhald, réttindi sprengistjóra, sprengiplan, Viðurkenndar geymslur í flokki 2, staðsetning skv. fyrirmælum lögreglu. Aðskilnaður sprengiefna. Geymslur afgirtar ef þær standa lengur en 12 mánuði."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "translations": {
+        "is": {
+          "title": "Hávaði"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "Rg-921/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Hávaðavarnir",
+              "guidance": "Atvinnurekandi skal taka tillit til tækniframfara og grípa til tiltækra ráðstafana til að koma í veg fyrir álag/hættu vegna hávaða við upptök hans. Áhersluröðun hávaðavarna: Við upptök – koma í veg fyrir myndun hávaðans. Yfirbygging véla/búnaðar. Skilveggir/skilrúm – aðskilja hljóðlátari starfsemi frá háværri. Stytting ómtíma – minnka bergmál. Takmarka veru starfsmanna í hávaðasamri vinnu – reglubundin hvíld frá hávaðasamri vinnu. Notkun heyrnarhlífa, þar til úrbætur hafa verið gerðar. Starfsfólk skal draga úr hávaða eins og kostur er og stuðla að því að þær ráðstafanir sem gerðar eru til að draga úr hávaða komi að notum."
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "Rg-921/2006",
+            "Sb-56"
+          ],
+          "translations": {
+            "is": {
+              "title": "Hávaðamörk og heyrnareftirlit",
+              "guidance": "Hávaðamörk fyrir hávaðasama vinnustaði gilda annars vegar fyrir daglegt 8 klst. álag vegna hávaða (LEX,8h) og hins vegar fyrir hámarkshljóðþrýsting (ppeak) þ.e.a.s. hávaðatoppa: Neðri viðbragðsmörk; 80 dB(A) LEX,8h, 112 Pa ppeak Fari hávaði yfir neðri viðbragðsmörk; skal atvinnurekandi sjá starfsfólki fyrir viðeigandi heyrnarhlífum og tryggja að starfsmenn fái upplýsingar og nægilega og viðeigandi þjálfun, skal starfsfólk eiga rétt á heyrnarmælingu ef áhættumat gefur til kynna að heilsu þess og öryggi sé hætta búin. Efri viðbragðsmörk; 85 dB(A) LEX,8h, 140 Pa ppeak Fari hávaði yfir efri viðbragðsmörkin; skal starfsfólk nota heyrnahlífar, skal atvinnurekandi tafarlaust ráðstafanir til að hávaði fari niður fyrir mörkin, skal atvinnurekandi setja upp viðeigandi viðvörunarmerki og afmarka þá staði og takmarka aðgang að þeim, skal starfsfólk eiga rétt á að læknir eða annar aðili með tilskilin réttindi athugi heyrn þess."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 5,
+      "translations": {
+        "is": {
+          "title": "Lýsing"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Almenn lýsing",
+              "guidance": "Hæfileg lýsing, fjöldi og staðsetning ljósgjafa, þrif ljósgjafa og glugga, dagsbirta."
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Sérlýsing",
+              "guidance": "Við krefjandi aðstæður skal lýsing aukin eftir þörfum."
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Umferðaleiðir utan dyra",
+              "guidance": "Hæfileg lýsing, fjöldi og staðsetning ljósgjafa."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "translations": {
+        "is": {
+          "title": "Titringur"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "Rg-920/2006",
+            "Rg-922/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Titringsvarnir",
+              "guidance": "Er dregið úr titringi við upptök, t.d. titringsdeyfar á vélar? Eru notaðar starfsaðferðir sem valda síður titringi? Er valinn viðeigandi búnaðar til vinnu? Fær starfsfólk reglubundna hvíld frá vinnu í titringi? Áhættumat og áætlun um heilsuvernd/forvarnir."
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "Rg-922/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Titringsmörk",
+              "guidance": "Mörk fyrir álag vegna vélræns titrings skiptast í mörk vegna handar- og handleggstitrings og vegna titrings í öllum líkamanum. Álag vegna vélræns titrings má aldrei fara yfir viðmiðunarmörk (sbr. þó 5. gr.)"
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "Rg-922/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Heilsufarsskoðun",
+              "guidance": "Fari titringsálag yfir viðmiðunarmörk eða þegar áhættumat gefur til kynna að heilsu og öryggi starfsfólks sé hætta búin skal atvinnurekandi sjá til þess að umræddu starfsfólki sé boðin heilsufarsskoðun."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 7,
+      "translations": {
+        "is": {
+          "title": "Verkstöðvar- - líkamlegt álag/ líkamsbeiting"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "FL-10/1989",
+            "FL-18/2005",
+            "R-499/1994"
+          ],
+          "translations": {
+            "is": {
+              "title": "Verkstöðvar/álag á hreyfi- og stoðkerfið",
+              "guidance": "Athuga vinnustöður og líkamsbeitingu við verkstöðvar (sbr. atriði 2-5), t.d. við: flutning og meðhöndlun efnis vinnu við járnabindingar. véla- og tækjavinnu handverk, t.d. samsetningu, slípun, límingu, málun og lökkun. Viðmið: Oftast unnið í olnbogahæð með beint bak og slakar axlir. Vinna fyrir ofan axlarhæð eða neðan hné varir stutt. Verkefnin nálægt líkamanum (35-45 cm mælt frá olnboga starfsmanns við líkamann að viðfangsefni, hámark 55-65 cm). Fjölbreytt verkefni, oft skipt um vinnustellingar og –hreyfingar."
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "FL-18/2005",
+            "FL-38/2018",
+            "R-492/1987",
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Staðsetning verkstöðva og aðgengi",
+              "guidance": "Staðsetning véla, vinnuborða og tækja, þannig að þægilegt aðgengi og flæði sé milli verkefna og verkþátta í vinnuferlinu. *reglur gilda fyrir vélar eldri en 1997, leiðb. gilda fyrir allar vélar"
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "FL-10/1989",
+            "FL-18/2005",
+            "FL-38/2018",
+            "R-499/1994",
+            "Rg-931/2000"
+          ],
+          "translations": {
+            "is": {
+              "title": "Að lyfta og bera hluti – léttitæki",
+              "guidance": "Meta þyngd/fjarlægð byrða og hversu oft þarf að lyfta, bera, ýta og draga. Eru nauðsynleg léttitæki s.s. lyftarar, vökvalyftur, hjólaborð og trillur til staðar? Athuga rými, vinnuhæð, vegalengdir o.s.frv."
+            }
+          }
+        },
+        {
+          "number": "4",
+          "order": 4,
+          "legalRefs": [
+            "FL-10/1989",
+            "FL-18/2005",
+            "FL-38/2018",
+            "R-499/1994",
+            "Rg-931/2000"
+          ],
+          "translations": {
+            "is": {
+              "title": "Skipulag vinn-unnar,einhæfni – fjölbreytni",
+              "guidance": "Er vinnan skipulögð þannig að líkamlegt álag sé fjölbreytt? Er verkvíxlun? Ef ekki hægt, eru þá tekin hlé? Tímaþröng?"
+            }
+          }
+        },
+        {
+          "number": "5",
+          "order": 5,
+          "legalRefs": [
+            "FL-10/1989",
+            "FL-18/2005",
+            "FL-38/2018",
+            "R-499/1994",
+            "Rg-931/2000"
+          ],
+          "translations": {
+            "is": {
+              "title": "Fræðsla – þjálfun",
+              "guidance": "Fræðsla, þjálfun í notkun léttitækja og líkamsbeitingu. Er starfsfólk meðvitað um rétta líkamsbeitingu og hæfilega þyngd byrða? Eru léttitækin notuð?"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "translations": {
+        "is": {
+          "title": "Félagslegur og andl. aðbúnaður"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "FL-13/1999",
+            "FL-32/2014",
+            "FL-35/2021",
+            "FL-36/2016",
+            "L-46/1980",
+            "Rg-1009/2015"
+          ],
+          "translations": {
+            "is": {
+              "title": "Stjórnun",
+              "guidance": "Stuðningur og hvatning í starfi. Umbun/viðurkenning fyrir vel unnin störf."
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "FL-13/1999",
+            "FL-32/2014",
+            "FL-35/2021",
+            "FL-36/2016",
+            "L-46/1980",
+            "Rg-1009/2015"
+          ],
+          "translations": {
+            "is": {
+              "title": "Athafnafrelsi, svigrúm, starfsþróun",
+              "guidance": "Möguleikar starfsfólks til að hafa áhrif á skipulag/ framkvæmd vinnunnar. Framgangur í starfi?"
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "FL-13/1999",
+            "FL-32/2014",
+            "FL-35/2021",
+            "FL-36/2016",
+            "L-46/1980",
+            "Rg-1009/2015"
+          ],
+          "translations": {
+            "is": {
+              "title": "Tilbreytingar-leysi, einhæfni, einvera við vinnu",
+              "guidance": "Umfang innihaldslítillar vinnu og/eða vinnu sem krefst stöðugrar athygli. Fagleg einangrun og/eða raunveruleg einangrun. Stuðningur frá starfsfólki og/eða yfirmönnum."
+            }
+          }
+        },
+        {
+          "number": "4",
+          "order": 4,
+          "legalRefs": [
+            "FL-13/1999",
+            "FL-32/2014",
+            "FL-35/2021",
+            "FL-36/2016",
+            "Rg-1009/2015"
+          ],
+          "translations": {
+            "is": {
+              "title": "Vinnutími",
+              "guidance": "Tímaþröng, yfirvinna, vaktavinna, lögbundnar hvíldir, hlé."
+            }
+          }
+        },
+        {
+          "number": "5",
+          "order": 5,
+          "legalRefs": [
+            "FL-13/1999",
+            "FL-32/2014",
+            "FL-35/2021",
+            "FL-36/2016",
+            "Rg-1009/2015"
+          ],
+          "translations": {
+            "is": {
+              "title": "Upplýsingaflæði, boðleiðir, samskipti",
+              "guidance": "Boðskipti á milli starfsfólks og á milli starfsfólks og stjórnenda. Samskiptavandamál, tungumálaörðugleikar, einelti, áreitni, ofbeldi, hótanir. Eru til stefna og viðbragðsáætlun um einelti/ofbeldi? Starfsmannafundir og fræðslufundir fyrir íslenskt jafnt sem erlent starfsfólk."
+            }
+          }
+        },
+        {
+          "number": "6",
+          "order": 6,
+          "legalRefs": [],
+          "translations": {
+            "is": {
+              "title": "Endurmenntun, símenntun",
+              "guidance": "Er skipulögð endurmenntun/námskeið hjá fyrirtækinu? Er þekkingarmiðlun innan vinnustaðarins?"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 9,
+      "translations": {
+        "is": {
+          "title": "Vinnusvæði - vinnurými"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "R-547/1996",
+            "R-707/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Aðkoma að vinnusvæði og afmörkun hættusvæða",
+              "guidance": "Vinnusvæði girt af. Komið í veg fyrir aðgang óviðkomandi. m.a. girðing/flaggalína umhverfis byggingakrana. Viðeigandi merkingar"
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Aðkoma sjúkra- og slökkviliðs",
+              "guidance": "Greiðar akstursleiðir, merkt hlið."
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Umferðaleiðir utan dyra",
+              "guidance": "Öruggar umferðar- og gönguleiðir utandyra. Athuga lýsingu, handrið, hálkuvarnir og hindrunarlausar umferðarleiðir o.fl. Er hrunhætta af þaki, svölum eða vinnupöllum?"
+            }
+          }
+        },
+        {
+          "number": "4",
+          "order": 4,
+          "legalRefs": [
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Aðgengi innan svæðis",
+              "guidance": "Gott aðgengi að byggingunni/vinnusvæðinu."
+            }
+          }
+        },
+        {
+          "number": "5",
+          "order": 5,
+          "legalRefs": [
+            "R-552/1996",
+            "R-707/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Öryggis- og heilbrigðismerki",
+              "guidance": "Skilti með merkingum er varða m.a. boð, bönn, og viðvaranir séu sett upp á viðeigandi stöðum, í samræmi við reglur um öryggis- og heilbrigðismerki á vinnustöðum."
+            }
+          }
+        },
+        {
+          "number": "6",
+          "order": 6,
+          "legalRefs": [
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Umferðarleiðir innan dyra",
+              "guidance": "Fallvarnir við stiga, stigapalla, plötubrúnir, svalir, lyftuhús og göt í gólfum, op í veggjum."
+            }
+          }
+        },
+        {
+          "number": "7",
+          "order": 7,
+          "legalRefs": [
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Rýmingarleiðir",
+              "guidance": "Greiðar, merktar útgönguleiðir, neyðarlýsing."
+            }
+          }
+        },
+        {
+          "number": "8",
+          "order": 8,
+          "legalRefs": [
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Geymslusvæði",
+              "guidance": "Timbur og annað byggingarefni, flekamót, pallaefni, byggingarhlutar. Stöflun og frágangur. Lýsing, aðgengi og umgengni."
+            }
+          }
+        },
+        {
+          "number": "9",
+          "order": 9,
+          "legalRefs": [
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Frágangur bendijárna",
+              "guidance": "Er gengið frá bendijárnum þannig að ekki skapist slysahætta?"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 10,
+      "translations": {
+        "is": {
+          "title": "Vélar og tæki"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "FL-1/2019",
+            "R-492/1987",
+            "R-707/1995",
+            "Rg-1005/2009",
+            "Rg-367/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Vélar",
+              "guidance": "Staðsetning og stöðugleiki, stjórnbúnaður, neyðarstöðvunar-búnaður, hlífabúnaður, viðvörunarmerkingar, þjálfun starfsfólks. CE-merking á vélum innfluttum 1997 og síðar. Aðstaða til viðgerða og þjónustu. Pallar, stigar og fallvarnir við þjónustustaði. Komið skal í veg fyrir ótímabæra gangsetningu meðan viðhalds- og viðgerðarvinna fer fram á hættusvæði. *reglur gilda f. vélar eldri en 1997, leiðb. gilda fyrir allar vélar."
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "R-571/2000",
+            "R-99/1996",
+            "Rg-1021/2017",
+            "Rg-1022/2017"
+          ],
+          "translations": {
+            "is": {
+              "title": "Loftþjöppur og hylki",
+              "guidance": "Reglubundið eftirlit með lofthylkjum og búnaði. Tæki innflutt 1997 eða seinna skulu vera CE-merkt. *í gildi fyrir þann búnað sem framleiddur var fyrir 27. nóvember 2017"
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "Lb-3",
+            "Rg-1005/2009",
+            "Rg-367/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Lyfti- og ásláttarbúnaður",
+              "guidance": "Ástand og umhirða t.d. víra, keðja, króka og stroffa. Öryggi á krók, endastopp, lyftigeta (W.L.L. eða S.W.L. = mesta leyfilega álag á búnaðinn), reglulegt viðhald, skoðanir VER. CE-merking."
+            }
+          }
+        },
+        {
+          "number": "4",
+          "order": 4,
+          "legalRefs": [
+            "Rg-367/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Tæki við vinnu í hæð",
+              "guidance": "Ávallt skal velja viðeigandi og örugg tæki þegar unnið er í hæð, t.d. skæralyftur, körfubíl eða körfulyftu."
+            }
+          }
+        },
+        {
+          "number": "5",
+          "order": 5,
+          "legalRefs": [
+            "R-204/1972",
+            "R-331/1989",
+            "R-547/1996",
+            "Rg-367/2006",
+            "Rg-729/2018"
+          ],
+          "translations": {
+            "is": {
+              "title": "Röra- og timburvinnupallar",
+              "guidance": "Röravinnupallar skulu vera af viðurkenndri gerð, merktir álagsflokki, með dagsetningu uppsetningar og nafni ábyrgðaraðila. Val á vinnupöllum, þ.m.t. timburvinnupöllum, skal vera í samræmi við álag og notkun. Einungis er heimilt að setja upp vinnupall, taka niður eða breyta verulega undir stjórn aðila sem er til þess hæfur og af starfsmönnum sem hafa fengið viðeigandi og sérstaka þjálfun í slíkum störfum með tilliti til þeirrar áhættu sem þeim fylgir. Viðvörunarmerki á ófullgerðum pöllum. *reglur gilda um röraverkpalla sem settir voru á markað fyrir 25. júlí 2018"
+            }
+          }
+        },
+        {
+          "number": "6",
+          "order": 6,
+          "legalRefs": [
+            "Lb-1/1991",
+            "R-547/1996",
+            "Rg-367/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Lausir stigar og tröppur",
+              "guidance": "Lausir stigar og tröppur notist einungis tímabundið og í skamman tíma í einu við minni háttar verk þar sem ekki þarf að beita afli. Áltröppur og –stigar skulu uppfylla staðal ÍST EN-131. Tröppur og stigar úr timbri skv. leiðbeiningum VER."
+            }
+          }
+        },
+        {
+          "number": "7",
+          "order": 7,
+          "legalRefs": [
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Uppsetning byggingakrana",
+              "guidance": "Tryggt undirlag og rétt uppsetning."
+            }
+          }
+        },
+        {
+          "number": "8",
+          "order": 8,
+          "legalRefs": [
+            "FL-37/2017",
+            "R-198/1983",
+            "R-388/1989",
+            "R-609/1999"
+          ],
+          "translations": {
+            "is": {
+              "title": "Vinnuvélar",
+              "guidance": "Réttindi stjórnenda vinnuvéla, reglubundnar vinnuvélaskoðanir. Vinnuvélaréttindi erlendra starfsmanna þurfa staðfestingu Vinnueftirlitsins."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 11,
+      "translations": {
+        "is": {
+          "title": "Persónuhlífar"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "R-497/1994",
+            "R-501/1994",
+            "Rg-728/2018"
+          ],
+          "translations": {
+            "is": {
+              "title": "Grunnkröfur",
+              "guidance": "Allar persónuhlífar CE-merktar og skv. viðkomandi ÍST EN staðli. Leiðbeiningar á íslensku. Nota skal persónuhlífar þegar ekki er hægt að koma við öðrum lausnum eða á meðan unnið er að fullnægjandi úrbótum. *í gildi fyrir þann búnað sem framleiddur var fyrir 25. júlí 2018"
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "R-547/1996",
+            "Rg-921/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Hávaði",
+              "guidance": "Heyrnarhlífar, ástand og umhirða, hæfa aðstæðum, áhættumat. Notkun heyrnarhlífa með útvarpi eða tækja fyrir tónlistarflutning hentar ekki þar sem hlusta þarf eftir varnaðarmerkjum eða aðsteðjandi hættu."
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "R-497/1994",
+            "Rg-390/2009"
+          ],
+          "translations": {
+            "is": {
+              "title": "Ryk",
+              "guidance": "Öndunargrímur – rykgrímur/ryksíur merktar P2 eða P3 eftir eðli vinnunnar. Mælt er með að nota grímu með loftdælu eða ferskloftsgrímu þegar unnið er í ryki lengur en 3 tíma á dag. Þá séu tekin hæfileg hlé m.t.t. líkamlegs álags."
+            }
+          }
+        },
+        {
+          "number": "4",
+          "order": 4,
+          "legalRefs": [
+            "R-497/1994",
+            "Rg-390/2009"
+          ],
+          "translations": {
+            "is": {
+              "title": "Lífræn leysiefni",
+              "guidance": "Öndunargrímur – gassíur merktar A2 eða A3 eftir eðli vinnunnar. Mælt er með að nota grímu með loftdælu eða ferskloftsgrímu þegar unnið er í leysiefnamengun lengur en 3 tíma á dag. Þá séu tekin hæfileg hlé m.t.t. líkamlegs álags."
+            }
+          }
+        },
+        {
+          "number": "5",
+          "order": 5,
+          "legalRefs": [
+            "FL-34/2018",
+            "R-497/1999",
+            "R-547/1996",
+            "Rg-367/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Vinna í hæð",
+              "guidance": "Öryggisbelti með línu – Gripbelti (fallbelti) með höggdeyfandi öryggislínu eða stuðningsbelti, eftir því sem við á. Farið skal eftir leiðbeiningum framleiðanda varðandi notkunarsvið og frágang línufestinga."
+            }
+          }
+        },
+        {
+          "number": "6",
+          "order": 6,
+          "legalRefs": [
+            "R-497/1994",
+            "R-547/1996"
+          ],
+          "translations": {
+            "is": {
+              "title": "Aðrar hættur",
+              "guidance": "Viðeigandi persónuhlífar, s.s. öryggishjálmar, öryggisskór, öryggisstígvél, hlífðargleraugu, andlitshlífar, hlífðarfatnaður vegna regns og kulda, endurskinsfatnaður, hlífðarhanskar/ vettlingar sem hæfa starfinu o.s.frv."
+            }
+          }
+        },
+        {
+          "number": "7",
+          "order": 7,
+          "legalRefs": [
+            "R-497/1994"
+          ],
+          "translations": {
+            "is": {
+              "title": "Umhirða/ endur-nýjun persónuhlífa",
+              "guidance": "Meðferð, geymsla og viðhald. Eftirlit með ástandi. Endurnýjun eftir því sem við á."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 12,
+      "translations": {
+        "is": {
+          "title": "Neyðarráðstafanir og forvarnir"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "Rg-920/2006"
+          ],
+          "translations": {
+            "is": {
+              "title": "Neyðaráætlun",
+              "guidance": "Áætlun liggur fyrir í fyrirtækinu um viðbrögð við bráðahættu, t.d. efnaslysa, eldsvoða eða náttúruhamfara. Áætlunin er kynnt reglulega öllu starfsfólki, íslensku sem erlendu, og æfingar haldnar. Sjá einnig kaflann Vinnuverndarstarf, neyðaráætlun er hluti af áætlun um öryggi og heilbrigði."
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Slökkvibúnaður",
+              "guidance": "Staðsetning, fjöldi, gerð, reglulegt viðhald. Samráð við eldvarnareftirlit."
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Skyndihjálpar-búnaður",
+              "guidance": "Staðsetning, fjöldi, gerð. Upplýsingar um skyndihjálp."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 13,
+      "translations": {
+        "is": {
+          "title": "Starfsmannarými"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "R-504/1999",
+            "R-547/1996",
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Kaffi/matstofa",
+              "guidance": "Búnaður, stærð, loftræsting."
+            }
+          }
+        },
+        {
+          "number": "2",
+          "order": 2,
+          "legalRefs": [
+            "R-504/1999",
+            "R-547/1996",
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Snyrtingar",
+              "guidance": "Búnaður, stærð, loftræsting, fjöldi miðað við fjölda starfsfólks og kyn."
+            }
+          }
+        },
+        {
+          "number": "3",
+          "order": 3,
+          "legalRefs": [
+            "R-504/1999",
+            "R-547/1996",
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Búningsaðstaða",
+              "guidance": "Læstir fataskápar eða fatahengi og læstar hirslur fyrir persónulega muni starfsfólks. Loftræsting, búnaður og stærð taki mið af fjölda starfsfólks. Kynjaskipt ef við á."
+            }
+          }
+        },
+        {
+          "number": "4",
+          "order": 4,
+          "legalRefs": [
+            "R-504/1999",
+            "R-547/1996",
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Anddyri",
+              "guidance": "Mottur, skórekkar, dyrapallur."
+            }
+          }
+        },
+        {
+          "number": "5",
+          "order": 5,
+          "legalRefs": [
+            "R-504/1999",
+            "R-547/1996",
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Þurrkaðstaða",
+              "guidance": "Stærð, upphitun, loftræsting, skápar eða snagar."
+            }
+          }
+        },
+        {
+          "number": "6",
+          "order": 6,
+          "legalRefs": [
+            "R-504/1999",
+            "R-547/1996",
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Þvottaaðstaða",
+              "guidance": "Stærð, búnaður."
+            }
+          }
+        },
+        {
+          "number": "7",
+          "order": 7,
+          "legalRefs": [
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Þrif og umgengni",
+              "guidance": "Reglubundin ræsting og umgengni."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "order": 14,
+      "translations": {
+        "is": {
+          "title": "Ræstiklefar/ skápar"
+        }
+      },
+      "criteria": [
+        {
+          "number": "1",
+          "order": 1,
+          "legalRefs": [
+            "R-547/1996",
+            "R-581/1995"
+          ],
+          "translations": {
+            "is": {
+              "title": "Ræstiklefi/skápur",
+              "guidance": "Aðgengi, búnaður, stærð, loftræsting, vatn og skolvaskur."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

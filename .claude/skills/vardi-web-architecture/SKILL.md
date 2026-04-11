@@ -12,8 +12,17 @@ Use this skill for any change where code placement or end-to-end shape matters.
 - Read `../../../AGENTS.md`.
 - Read `../../../CLAUDE.md`.
 - Read `../../../docs/ARCHITECTURE_BOUNDARIES.md`.
+- Read `../../../docs/handoff/CheckpointVardi_ImplementationHandoff.md` and `../../../docs/handoff/CheckpointVardi_SystemDesign.md` when the change affects product scope, core workflows, or cross-package design.
 - Read the active story under `../../../user_stories/`.
 - Pull in `../vardi-web-data-boundary/SKILL.md` when the change crosses a route or schema edge.
+
+## Reference material
+
+- `docs/handoff/CheckpointVardi_ImplementationHandoff.md`: execution-oriented backlog, schema, and API context
+- `docs/handoff/CheckpointVardi_SystemDesign.md`: rationale and broader system framing
+- `docs/diagrams/*.mmd`: editable Mermaid sources for architecture and flow references
+- `packages/checklists/assets/seeds/manifest.json`: seed catalog entry point
+- `packages/checklists/assets/seeds/*.json`: canonical in-repo source data for checklist, legal-reference, and matrix work
 
 ## Repo shape
 

@@ -182,7 +182,7 @@ git status
 - [ ] README quickstart commands work exactly as written
 - [ ] No legacy codename references anywhere in the working tree
 - [ ] No Icelandic strings hard-coded in `apps/web` component source
-- [ ] PR references `S0-01` and links to `CheckpointVardi_ImplementationHandoff.docx`
+- [ ] PR references `S0-01` and links to `docs/handoff/CheckpointVardi_ImplementationHandoff.md`
 - [ ] At least one reviewer (human or agent) has signed off
 - [ ] `main` is updated with a squash-merge commit message starting with
       `chore(foundations): runnable empty scaffold (S0-01)`
