@@ -7,17 +7,35 @@
 
 ## Current State
 
-No execution steps have been added yet.
+- Active step: `S0-01`
+- Active story file: `user_stories/epics/checkpoint_vardi/not_started/S0-01-foundations-scaffold.md`
 
-## How To Add The First Step
+## S0 - Foundations
 
-For each story, add:
+### Dependency Graph
 
-- step number and story name
-- status
-- story file path
-- start gate
-- what it unblocks
-- the implementation prompt for that step
+```text
+S0-01 (Runnable Empty Scaffold)
+```
 
-Keep prompts scoped to the story and list the skills that should be invoked.
+### Step S0-01: Foundations: runnable empty scaffold
+
+**Agent:** Single | **Complexity:** Medium
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S0-01-foundations-scaffold.md`
+**Start gate:** Ready.
+**Unblocks:** The first implementation stories that depend on a runnable repo baseline.
+
+**Prompt:**
+> Implement `S0-01` from `user_stories/epics/checkpoint_vardi/not_started/S0-01-foundations-scaffold.md`.
+>
+> Read `AGENTS.md`, `CLAUDE.md`, and `docs/ARCHITECTURE_BOUNDARIES.md` first.
+>
+> Keep scope to tooling, scripts, lockfile, typecheck, lint, test, build, and dev-server baseline
+> work only. Do not widen the story into schema, UI, feature, or product implementation.
+>
+> Invoke `$vardi-story-management` for any story-state updates. Use the relevant local skills for
+> architecture, tests, and frontend verification as needed.
+>
+> Verify the commands listed in the story and leave the repo in a clean state.
