@@ -1,0 +1,10 @@
+{
+  "extends": "@vardi/config/typescript/library",
+  "compilerOptions": {
+    "paths": {
+      "@vardi/ui/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}

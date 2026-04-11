@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vardi Web Unit Testing"
+  short_description: "Write Vitest tests for Vardi web layers"
+  default_prompt: "Use $vardi-web-unit-testing to add or review Vitest coverage for Vardi hooks, API client code, utilities, or components."

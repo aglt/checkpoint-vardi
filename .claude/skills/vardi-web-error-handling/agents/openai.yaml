@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vardi Web Error Handling"
+  short_description: "Keep Vardi web error flows consistent"
+  default_prompt: "Use $vardi-web-error-handling to align Vardi page errors, mutation toasts, and ApiError handling."

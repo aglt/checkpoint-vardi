@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vardi Web Hooks"
+  short_description: "Standardize Vardi TanStack Query hooks"
+  default_prompt: "Use $vardi-web-hooks to create or refactor a Vardi hook with the project query-key and invalidation conventions."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vardi Web E2E Testing"
+  short_description: "Write safe Playwright DEV tests for Vardi admin"
+  default_prompt: "Use $vardi-web-e2e-testing to add or review read-only Playwright tests for the Vardi admin console."

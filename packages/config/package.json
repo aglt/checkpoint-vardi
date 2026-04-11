@@ -1,0 +1,25 @@
+{
+  "name": "@vardi/config",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./eslint": "./eslint.config.mjs",
+    "./typescript/base": "./tsconfig.base.json",
+    "./typescript/library": "./tsconfig.library.json",
+    "./languages": "./src/supported-languages.ts"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'no tests yet'"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.0.0",
+    "typescript-eslint": "^8.0.0",
+    "typescript": "~5.7.0"
+  }
+}

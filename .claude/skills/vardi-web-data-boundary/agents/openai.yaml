@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vardi Web Data Boundary"
+  short_description: "Enforce Vardi API client and Zod boundaries"
+  default_prompt: "Use $vardi-web-data-boundary to add or review Vardi API client methods, schemas, and validated types."
