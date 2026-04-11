@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-03`
-- Most recently completed step: `S1-02`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-02-assessment-domain-and-read-model.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-03-start-assessment-from-seeded-template.md`
+- Next queued step: `S1-04`
+- Most recently completed step: `S1-03`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-03-start-assessment-from-seeded-template.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-04-assessment-walkthrough-form-slice.md`
 
 ## S0 - Foundations
 
@@ -88,16 +88,29 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 
 ### Step S1-03: Start assessment from seeded template
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-03-start-assessment-from-seeded-template.md`
-**Start gate:** Open after `S1-01` and `S1-02` are complete.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-03-start-assessment-from-seeded-template.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-04` by materializing runnable assessment instances.
+
+**Completion note:**
+> Verified locally on branch `feat/assessment-start-seeded-template`: added the
+> typed assessment-start contract in `@vardi/schemas`, the transactional
+> `createWorkplaceAssessment` write helper in `packages/db`, the app-owned
+> start-assessment composition seam, a guarded app SQLite bootstrap plus fixed
+> placeholder owner seam, the current MVP start entry route at `/`, the thin
+> `POST /api/assessments` route, and the read-only assessment readiness page.
+> Assessment creation now pins the full seeded checklist tuple and fixed
+> `course-3x3` matrix id, then materializes one unanswered persisted finding
+> row per seeded criterion in the flattened seeded order. Ran `pnpm test`,
+> `pnpm typecheck`, and `pnpm lint`. This session used `node v25.6.1`; Node 22
+> remains the declared repo contract, but was not directly re-verified here.
 
 ### Step S1-04: Assessment walkthrough form slice
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-04-assessment-walkthrough-form-slice.md`
-**Start gate:** Closed until `S1-03` is complete.
+**Start gate:** Open after `S1-03` is complete.
 **Unblocks:** `S1-05` by capturing persisted walkthrough answers and findings.
 
 ### Step S1-05: Transfer non-compliant findings into risk register
