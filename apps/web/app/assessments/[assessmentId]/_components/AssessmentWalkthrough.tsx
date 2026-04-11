@@ -1,8 +1,22 @@
 "use client";
 
 import React, { startTransition, useEffect, useRef, useState } from "react";
-import type { AssessmentWalkthroughStatus } from "@vardi/schemas";
+import type { SaveAssessmentCriterionStatus } from "@vardi/schemas";
 
+import {
+  beginCriterionSave,
+  buildInitialCriterionState,
+  canPersistCriterionDraft,
+  getAnsweredCount,
+  getAssessmentWalkthroughProgress,
+  isDirty,
+  reconcileCriterionSaveFailure,
+  reconcileCriterionSaveSuccess,
+  type CriterionClientState,
+  type CriterionDraft,
+  type CriterionStateMap,
+  updateCriterionDraftNotes,
+} from "@/lib/assessments/assessmentWalkthroughController";
 import type { AssessmentSectionReadModel } from "@/lib/assessments/loadAssessmentReadModel";
 import { saveAssessmentCriterionResponseAction } from "@/lib/assessments/saveAssessmentCriterionResponseAction";
 
@@ -15,26 +29,8 @@ interface AssessmentWalkthroughProps {
   readonly sections: readonly AssessmentSectionReadModel[];
 }
 
-type SaveState = "idle" | "saving" | "error";
-
-interface CriterionDraft {
-  readonly status: AssessmentWalkthroughStatus;
-  readonly notes: string;
-}
-
-interface CriterionClientState {
-  readonly saved: CriterionDraft;
-  readonly draft: CriterionDraft;
-  readonly saveState: SaveState;
-  readonly errorMessage: string | null;
-  readonly lastSavedAt: string | null;
-  readonly requestId: number;
-}
-
-type CriterionStateMap = Record<string, CriterionClientState>;
-
 const ANSWER_OPTIONS: ReadonlyArray<{
-  readonly value: Exclude<AssessmentWalkthroughStatus, "unanswered">;
+  readonly value: SaveAssessmentCriterionStatus;
   readonly label: string;
   readonly description: string;
 }> = [
@@ -82,25 +78,12 @@ export function AssessmentWalkthrough({
     [],
   );
 
-  const totalCriteria = sections.reduce(
-    (count, section) => count + section.criteria.length,
-    0,
-  );
-  const answeredCriteria = Object.values(criterionStates).reduce(
-    (count, state) => count + (state.draft.status === "unanswered" ? 0 : 1),
-    0,
-  );
-  const completedSections = sections.reduce(
-    (count, section) =>
-      count +
-      (getAnsweredCount(section.criteria, criterionStates) ===
-      section.criteria.length
-        ? 1
-        : 0),
-    0,
-  );
-  const progressPercentage =
-    totalCriteria === 0 ? 0 : Math.round((answeredCriteria / totalCriteria) * 100);
+  const {
+    totalCriteria,
+    answeredCriteria,
+    completedSections,
+    progressPercentage,
+  } = getAssessmentWalkthroughProgress(sections, criterionStates);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(115,138,92,0.18),transparent_34%),linear-gradient(180deg,#f7f1e6_0%,#efe5d1_54%,#e5dcc8_100%)] px-4 py-6 text-slate-950 sm:px-6 lg:px-8">
@@ -217,6 +200,8 @@ export function AssessmentWalkthrough({
                     return (
                       <article
                         className={getCriterionCardClassName(state)}
+                        data-criterion-id={criterion.id}
+                        data-selected-answer={state.draft.status}
                         key={criterion.id}
                       >
                         <div className="flex flex-col gap-4">
@@ -249,6 +234,10 @@ export function AssessmentWalkthrough({
                                   option.value,
                                   state.draft.status === option.value,
                                 )}
+                                data-answer-value={option.value}
+                                data-selected={
+                                  state.draft.status === option.value ? "true" : "false"
+                                }
                                 key={option.value}
                                 onClick={() => handleStatusSelect(criterion.id, option.value)}
                                 role="radio"
@@ -315,7 +304,7 @@ export function AssessmentWalkthrough({
 
   function handleStatusSelect(
     criterionId: string,
-    status: Exclude<AssessmentWalkthroughStatus, "unanswered">,
+    status: SaveAssessmentCriterionStatus,
   ) {
     const currentState = criterionStatesRef.current[criterionId];
 
@@ -332,26 +321,9 @@ export function AssessmentWalkthrough({
   function handleNotesChange(criterionId: string, notes: string) {
     clearPendingSave(criterionId);
 
-    setCriterionStates((current) => {
-      const criterionState = current[criterionId];
-
-      if (!criterionState) {
-        return current;
-      }
-
-      return {
-        ...current,
-        [criterionId]: {
-          ...criterionState,
-          draft: {
-            ...criterionState.draft,
-            notes,
-          },
-          saveState: criterionState.saveState === "error" ? "idle" : criterionState.saveState,
-          errorMessage: null,
-        },
-      };
-    });
+    setCriterionStates((current) =>
+      updateCriterionDraftNotes(current, criterionId, notes),
+    );
 
     scheduleSave(criterionId);
   }
@@ -360,7 +332,11 @@ export function AssessmentWalkthrough({
     clearPendingSave(criterionId);
     const criterionState = criterionStatesRef.current[criterionId];
 
-    if (!criterionState || !isDirty(criterionState)) {
+    if (
+      !criterionState ||
+      !isDirty(criterionState) ||
+      !canPersistCriterionDraft(criterionState.draft)
+    ) {
       return;
     }
 
@@ -371,7 +347,7 @@ export function AssessmentWalkthrough({
     clearPendingSave(criterionId);
     const criterionState = criterionStatesRef.current[criterionId];
 
-    if (!criterionState) {
+    if (!criterionState || !canPersistCriterionDraft(criterionState.draft)) {
       return;
     }
 
@@ -385,7 +361,11 @@ export function AssessmentWalkthrough({
       pendingSaveTimersRef.current[criterionId] = undefined;
       const criterionState = criterionStatesRef.current[criterionId];
 
-      if (!criterionState || !isDirty(criterionState)) {
+      if (
+        !criterionState ||
+        !isDirty(criterionState) ||
+        !canPersistCriterionDraft(criterionState.draft)
+      ) {
         return;
       }
 
@@ -405,27 +385,16 @@ export function AssessmentWalkthrough({
   function persistCriterion(criterionId: string, nextDraft: CriterionDraft) {
     clearPendingSave(criterionId);
 
+    if (!canPersistCriterionDraft(nextDraft)) {
+      return;
+    }
+
     let nextRequestId = 0;
 
     setCriterionStates((current) => {
-      const criterionState = current[criterionId];
-
-      if (!criterionState) {
-        return current;
-      }
-
-      nextRequestId = criterionState.requestId + 1;
-
-      return {
-        ...current,
-        [criterionId]: {
-          ...criterionState,
-          draft: nextDraft,
-          saveState: "saving",
-          errorMessage: null,
-          requestId: nextRequestId,
-        },
-      };
+      const startedSave = beginCriterionSave(current, criterionId, nextDraft);
+      nextRequestId = startedSave.requestId;
+      return startedSave.criterionStates;
     });
 
     if (nextRequestId === 0) {
@@ -443,31 +412,13 @@ export function AssessmentWalkthrough({
       .then((response) => {
         startTransition(() => {
           setCriterionStates((current) => {
-            const criterionState = current[criterionId];
-
-            if (!criterionState || criterionState.requestId !== nextRequestId) {
-              return current;
-            }
-
-            const savedDraft: CriterionDraft = {
-              status: response.status,
-              notes: response.notes ?? "",
-            };
-            const draftChangedSinceSend =
-              criterionState.draft.status !== nextDraft.status ||
-              criterionState.draft.notes !== nextDraft.notes;
-
-            return {
-              ...current,
-              [criterionId]: {
-                ...criterionState,
-                saved: savedDraft,
-                draft: draftChangedSinceSend ? criterionState.draft : savedDraft,
-                saveState: "idle",
-                errorMessage: null,
-                lastSavedAt: response.updatedAt,
-              },
-            };
+            return reconcileCriterionSaveSuccess(
+              current,
+              criterionId,
+              nextRequestId,
+              response,
+              nextDraft,
+            );
           });
         });
       })
@@ -479,51 +430,16 @@ export function AssessmentWalkthrough({
 
         startTransition(() => {
           setCriterionStates((current) => {
-            const criterionState = current[criterionId];
-
-            if (!criterionState || criterionState.requestId !== nextRequestId) {
-              return current;
-            }
-
-            return {
-              ...current,
-              [criterionId]: {
-                ...criterionState,
-                saveState: "error",
-                errorMessage,
-              },
-            };
+            return reconcileCriterionSaveFailure(
+              current,
+              criterionId,
+              nextRequestId,
+              errorMessage,
+            );
           });
         });
       });
   }
-}
-
-function buildInitialCriterionState(
-  sections: readonly AssessmentSectionReadModel[],
-): CriterionStateMap {
-  return Object.fromEntries(
-    sections.flatMap((section) =>
-      section.criteria.map((criterion) => {
-        const draft = {
-          status: criterion.response.status,
-          notes: criterion.response.notes ?? "",
-        } satisfies CriterionDraft;
-
-        return [
-          criterion.id,
-          {
-            saved: draft,
-            draft,
-            saveState: "idle",
-            errorMessage: null,
-            lastSavedAt: null,
-            requestId: 0,
-          } satisfies CriterionClientState,
-        ];
-      }),
-    ),
-  ) as CriterionStateMap;
 }
 
 function SummaryCard({
@@ -552,6 +468,8 @@ function SaveStatePill({ state }: { readonly state: CriterionClientState }) {
         ? "Saving..."
         : state.saveState === "error"
           ? "Save issue"
+          : state.draft.status === "unanswered" && state.draft.notes.length > 0
+            ? "Needs answer"
           : isDirty(state)
             ? "Unsaved"
             : state.saved.status === "unanswered" && state.saved.notes.length === 0
@@ -559,16 +477,6 @@ function SaveStatePill({ state }: { readonly state: CriterionClientState }) {
               : "Saved"}
     </div>
   );
-}
-
-function getAnsweredCount(
-  criteria: AssessmentSectionReadModel["criteria"],
-  criterionStates: CriterionStateMap,
-): number {
-  return criteria.reduce((count, criterion) => {
-    const state = criterionStates[criterion.id];
-    return count + (state && state.draft.status !== "unanswered" ? 1 : 0);
-  }, 0);
 }
 
 function getCriterionCardClassName(state: CriterionClientState): string {
@@ -583,7 +491,7 @@ function getCriterionCardClassName(state: CriterionClientState): string {
 }
 
 function getAnswerOptionClassName(
-  status: Exclude<AssessmentWalkthroughStatus, "unanswered">,
+  status: SaveAssessmentCriterionStatus,
   selected: boolean,
 ): string {
   const selectedClassName =
@@ -621,6 +529,10 @@ function getSaveMessage(state: CriterionClientState): string {
     return state.errorMessage ?? "We could not save this criterion.";
   }
 
+  if (state.draft.status === "unanswered" && state.draft.notes.length > 0) {
+    return "Select an answer before notes can be saved.";
+  }
+
   if (isDirty(state)) {
     return "Changes pending save.";
   }
@@ -638,13 +550,6 @@ function getSaveMessageClassName(state: CriterionClientState): string {
   return joinClasses(
     "text-sm leading-6",
     state.saveState === "error" ? "text-[#8a2f0d]" : "text-slate-600",
-  );
-}
-
-function isDirty(state: CriterionClientState): boolean {
-  return (
-    state.saved.status !== state.draft.status ||
-    state.saved.notes !== state.draft.notes
   );
 }
 

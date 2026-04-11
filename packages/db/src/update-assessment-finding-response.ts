@@ -3,13 +3,16 @@ import { and, eq } from "drizzle-orm";
 import type { VardiDatabase } from "./database.js";
 import { finding, type FindingRow } from "./schema.js";
 
+export type UpdatableFindingStatus = Exclude<FindingRow["status"], "unanswered">;
+
 export interface UpdateAssessmentFindingResponseParams {
   readonly db: VardiDatabase;
   readonly ownerId: string;
   readonly assessmentId: string;
   readonly criterionId: string;
-  readonly status: FindingRow["status"];
+  readonly status: UpdatableFindingStatus;
   readonly notes?: string | null;
+  readonly notesLanguage?: string | null;
   readonly updatedAt?: Date;
 }
 
@@ -34,7 +37,7 @@ export function updateAssessmentFindingResponse(
     .set({
       status: params.status,
       notes: normalizedNotes,
-      notesLanguage: normalizedNotes ? "is" : null,
+      notesLanguage: normalizedNotes ? params.notesLanguage ?? null : null,
       updatedAt,
     })
     .where(

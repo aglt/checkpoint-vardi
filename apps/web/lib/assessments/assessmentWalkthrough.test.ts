@@ -85,39 +85,23 @@ function seedWalkthroughAssessment() {
   };
 }
 
-test("walkthrough save route persists answers by stable criterion id", async () => {
+test("walkthrough save action persists answers by stable criterion id", async () => {
   const fixture = seedWalkthroughAssessment();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
-  const { PATCH } = await import(
-    "../../app/api/assessments/[assessmentId]/responses/route"
+  const { saveAssessmentCriterionResponseAction } = await import(
+    "./saveAssessmentCriterionResponseAction"
   );
 
-  const response = await PATCH(
-    new Request(
-      `http://localhost:3000/api/assessments/${fixture.assessmentId}/responses`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          criterionId: fixture.secondCriterion.id,
-          status: "notOk",
-          notes: "  Missing guard  ",
-        }),
-      },
-    ),
-    {
-      params: Promise.resolve({
-        assessmentId: fixture.assessmentId,
-      }),
+  const payload = await saveAssessmentCriterionResponseAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      criterionId: fixture.secondCriterion.id,
+      status: "notOk",
+      notes: "  Missing guard  ",
     },
-  );
+  });
 
-  assert.equal(response.status, 200);
-
-  const payload = await response.json();
   assert.equal(payload.criterionId, fixture.secondCriterion.id);
   assert.equal(payload.status, "notOk");
   assert.equal(payload.notes, "Missing guard");
@@ -185,6 +169,57 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
   );
   assert.match(markup, new RegExp(escapeRegExp("Already reviewed on-site.")));
   assert.match(markup, /Answers save immediately/);
+});
+
+test("assessment page re-renders with the persisted answer state selected", async () => {
+  const fixture = seedWalkthroughAssessment();
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const connection = createMigratedDatabase(fixture.databasePath);
+  updateAssessmentFindingResponse({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+    criterionId: fixture.firstCriterion.id,
+    status: "notApplicable",
+    notes: null,
+    updatedAt: new Date("2026-04-11T10:08:00.000Z"),
+  });
+  closeDatabase(connection);
+
+  const { default: AssessmentPage } = await import(
+    "../../app/assessments/[assessmentId]/page"
+  );
+  const markup = renderToStaticMarkup(
+    await AssessmentPage({
+      params: Promise.resolve({
+        assessmentId: fixture.assessmentId,
+      }),
+    }),
+  );
+
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp(`data-criterion-id="${fixture.firstCriterion.id}"`),
+        '[\\s\\S]*?',
+        escapeRegExp('data-answer-value="notApplicable"'),
+        '[\\s\\S]*?',
+        escapeRegExp('data-selected="true"'),
+      ].join(""),
+    ),
+  );
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp(`data-criterion-id="${fixture.firstCriterion.id}"`),
+        '[\\s\\S]*?',
+        escapeRegExp('data-selected-answer="notApplicable"'),
+      ].join(""),
+    ),
+  );
 });
 
 function escapeRegExp(value: string): string {

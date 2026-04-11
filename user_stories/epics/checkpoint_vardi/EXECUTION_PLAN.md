@@ -118,9 +118,11 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 > Verified locally on branch `codex/s1-04-assessment-walkthrough-form-slice`:
 > expanded `/assessments/[assessmentId]` from readiness-only into the seeded
 > walkthrough form slice, added the narrow owner-scoped finding update seam in
-> `packages/db`, added the schema-backed walkthrough save route and typed app
-> client helper, and now persist criterion answers and notes against stable
-> seeded `criterionId` values so refresh resumes the current walkthrough state.
+> `packages/db`, added the narrow server-action walkthrough save boundary plus
+> a deterministic app mutation helper, extracted the client save-state
+> controller into a targeted tested module, and now persist criterion answers
+> and notes against stable seeded `criterionId` values so refresh resumes the
+> current walkthrough state.
 > Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing workspace
 > dependencies in this worktree. This session used `node v25.6.1`; Node 22
 > remains the declared repo contract, but was not directly re-verified here.

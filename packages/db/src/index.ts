@@ -22,6 +22,7 @@ export {
 export {
   AssessmentFindingResponseNotFoundError,
   updateAssessmentFindingResponse,
+  type UpdatableFindingStatus,
   type UpdateAssessmentFindingResponseParams,
 } from "./update-assessment-finding-response.js";
 export {

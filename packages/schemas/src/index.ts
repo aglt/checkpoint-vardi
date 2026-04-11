@@ -28,6 +28,12 @@ export const assessmentWalkthroughStatusSchema = z.enum([
   "unanswered",
 ]);
 
+export const saveAssessmentCriterionStatusSchema = z.enum([
+  "ok",
+  "notOk",
+  "notApplicable",
+]);
+
 export const startAssessmentFromSeededTemplateInputSchema = z.object({
   workplaceName: z.preprocess(
     trimString,
@@ -53,7 +59,7 @@ export const saveAssessmentCriterionResponseInputSchema = z.object({
     trimString,
     z.string().min(1, "Criterion id is required.").max(200),
   ),
-  status: assessmentWalkthroughStatusSchema,
+  status: saveAssessmentCriterionStatusSchema,
   notes: z.preprocess(
     trimOptionalString,
     z.string().max(4000, "Notes must be 4000 characters or fewer.").optional(),
@@ -63,7 +69,7 @@ export const saveAssessmentCriterionResponseInputSchema = z.object({
 export const saveAssessmentCriterionResponseOutputSchema = z.object({
   assessmentId: z.string().min(1),
   criterionId: z.string().min(1),
-  status: assessmentWalkthroughStatusSchema,
+  status: saveAssessmentCriterionStatusSchema,
   notes: z.string().nullable(),
   updatedAt: z.string().datetime(),
 });
@@ -71,6 +77,9 @@ export const saveAssessmentCriterionResponseOutputSchema = z.object({
 export type WorkplaceArchetype = z.infer<typeof workplaceArchetypeSchema>;
 export type AssessmentWalkthroughStatus = z.infer<
   typeof assessmentWalkthroughStatusSchema
+>;
+export type SaveAssessmentCriterionStatus = z.infer<
+  typeof saveAssessmentCriterionStatusSchema
 >;
 export type StartAssessmentFromSeededTemplateInput = z.infer<
   typeof startAssessmentFromSeededTemplateInputSchema

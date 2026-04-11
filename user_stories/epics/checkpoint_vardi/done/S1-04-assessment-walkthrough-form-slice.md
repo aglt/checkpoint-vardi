@@ -27,21 +27,23 @@ which updates the pre-materialized `finding` row for a single
 bound to stable seeded `criterionId` values and preserves the S1-03 start flow
 decision to materialize one persisted finding per seeded criterion up front.
 
-`packages/schemas` now owns the walkthrough answer contract, and
-`apps/web/app/api/assessments/[assessmentId]/responses/route.ts` stays thin: it
-validates one criterion answer payload, resolves the placeholder owner through
-`getCurrentUser()`, calls the DB write seam, and returns a client-safe JSON
-response or error envelope. `apps/web/lib/assessments/saveAssessmentCriterionResponse`
-is the typed app helper for the client surface, keeping direct `fetch()` calls
-out of components.
+`packages/schemas` now owns the narrow walkthrough save contract for
+`ok`, `not ok`, and `not applicable`. The only transport boundary for this
+story is `apps/web/lib/assessments/saveAssessmentCriterionResponseAction.ts`,
+which resolves the placeholder owner through `getCurrentUser()` and passes that
+context into the deterministic app mutation seam at
+`apps/web/lib/assessments/saveAssessmentCriterionResponse.ts`. That helper
+validates the save payload and calls the DB write seam without inventing
+transport or locale policy of its own.
 
 The walkthrough UI is implemented as a feature-local client component that
 renders criterion title and guidance from seeded runtime data, provides the
 three supported answer states (`ok`, `not ok`, `not applicable`) plus notes,
 and auto-saves answers or notes back onto the existing persisted finding rows.
-Reload and resume behavior now comes from re-reading those same persisted rows
-through the existing read model, without widening into risk transfer, summary,
-or export work.
+Its draft and save-state orchestration now lives in a dedicated tested
+controller module so the rendering surface stays narrower. Reload and resume
+behavior comes from re-reading those same persisted rows through the existing
+read model, without widening into risk transfer, summary, or export work.
 
 This completion was verified locally with `pnpm test`, `pnpm typecheck`, and
 `pnpm lint` after installing workspace dependencies in this worktree. This

@@ -1,5 +1,6 @@
 import {
   AssessmentFindingResponseNotFoundError,
+  type VardiDatabase,
   updateAssessmentFindingResponse,
 } from "@vardi/db";
 import {
@@ -9,12 +10,12 @@ import {
   type SaveAssessmentCriterionResponseOutput,
 } from "@vardi/schemas";
 
-import { getDatabase } from "@/lib/server/db";
-import { getCurrentUser } from "@/lib/server/getCurrentUser";
-
 export interface SaveAssessmentCriterionResponseParams {
+  readonly db: VardiDatabase;
+  readonly ownerId: string;
   readonly assessmentId: string;
   readonly input: SaveAssessmentCriterionResponseInput;
+  readonly notesLanguage?: string | null;
 }
 
 export class SaveAssessmentCriterionResponseError extends Error {
@@ -36,9 +37,9 @@ export class SaveAssessmentCriterionResponseError extends Error {
   }
 }
 
-export async function saveAssessmentCriterionResponse(
+export function saveAssessmentCriterionResponse(
   params: SaveAssessmentCriterionResponseParams,
-): Promise<SaveAssessmentCriterionResponseOutput> {
+): SaveAssessmentCriterionResponseOutput {
   const parsedInput = saveAssessmentCriterionResponseInputSchema.safeParse(
     params.input,
   );
@@ -54,12 +55,13 @@ export async function saveAssessmentCriterionResponse(
 
   try {
     const updatedFinding = updateAssessmentFindingResponse({
-      db: getDatabase(),
-      ownerId: getCurrentUser().id,
+      db: params.db,
+      ownerId: params.ownerId,
       assessmentId: params.assessmentId,
       criterionId: parsedInput.data.criterionId,
       status: parsedInput.data.status,
       notes: parsedInput.data.notes ?? null,
+      notesLanguage: params.notesLanguage,
     });
 
     return saveAssessmentCriterionResponseOutputSchema.parse({

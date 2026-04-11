@@ -66,7 +66,7 @@ test("updateAssessmentFindingResponse persists status and normalized notes by cr
 
   assert.equal(updatedFinding.status, "notOk");
   assert.equal(updatedFinding.notes, "Missing blade guard");
-  assert.equal(updatedFinding.notesLanguage, "is");
+  assert.equal(updatedFinding.notesLanguage, null);
   assert.deepEqual(updatedFinding.updatedAt, savedAt);
 
   closeDatabase(connection);
