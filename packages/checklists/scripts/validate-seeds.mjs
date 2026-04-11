@@ -386,6 +386,12 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
+if (legalCatalog.unresolvedImportedReferences.length > 0) {
+  console.warn(
+    `Warning: ${legalCatalog.unresolvedImportedReferences.length} unresolved imported legal references remain. These preserve checklist linkage only and must not be treated as authoritative resolved legal titles in user-facing UI or exports until resolved.`,
+  );
+}
+
 console.log(
   `Validated ${manifest.checklists.length} checklists, ${legalCatalog.canonicalReferences.length} canonical legal references, ${legalCatalog.unresolvedImportedReferences.length} unresolved imported legal references, ${riskCatalog.matrices.length} risk matrices, and ${totalCriteria} total criteria.`,
 );

@@ -32,6 +32,7 @@ Read this file before making changes in this repository.
 - No raw SQL in app code. Keep database access in `packages/db`.
 - Keep changes inside the smallest owner directory that fits the problem.
 - When normalizing seed or runtime truth, keep structural normalization separate from behavior-changing domain-rule changes unless the active story explicitly authorizes both.
+- When seed catalogs include unresolved imported legal-reference placeholders, treat them as linkage-only records until resolved. Do not surface them as authoritative legal titles in user-facing UI or exports.
 
 ## Story tracking
 

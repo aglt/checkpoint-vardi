@@ -38,6 +38,9 @@ The web app depends on seeded domain data. Users will fill in assessment forms f
   - legal reference id or code
   - risk matrix id or slug
 - Validate that all checklist `legalRefs` resolve cleanly against the legal-reference catalog.
+- Keep a visible distinction between:
+  - canonical resolved legal references that may be surfaced to users as authoritative titles
+  - unresolved imported legal-reference placeholders that preserve linkage and validation only until separately resolved
 - Validate that risk matrices are complete and structurally valid.
 - Keep structural normalization separate from behavior-changing domain-rule changes unless the story explicitly authorizes both.
 - Keep provenance metadata only as metadata, not as the core runtime shape.
@@ -51,6 +54,7 @@ The web app depends on seeded domain data. Users will fill in assessment forms f
 - Sections and criteria have stable canonical ids suitable for DB seeding and foreign keys.
 - Every legal reference used by a checklist resolves to a canonical legal-reference entry.
 - Unresolved imported legal-reference placeholders, if any remain, are explicitly distinguished from canonical resolved references.
+- Unresolved imported legal-reference placeholders are not treated as authoritative user-facing legal titles in product UI or exports unless a later story resolves them.
 - No orphan legal references remain in checklist files.
 - Risk matrix seed data validates successfully.
 - Structural normalization does not silently change seed-driven product behavior unless the story explicitly authorizes that behavior change.
