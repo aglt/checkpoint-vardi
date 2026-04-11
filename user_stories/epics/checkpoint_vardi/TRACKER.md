@@ -9,10 +9,10 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 | ID   | Story                                 | Status      | PR |
 |------|---------------------------------------|-------------|----|
-| S0-01 | Foundations: runnable empty scaffold | not_started |    |
+| S0-01 | Foundations: runnable empty scaffold | done        |    |
 
 ---
 
 **Next up:**
 
-- Immediate start: `S0-01` makes the empty monorepo installable, runnable, and reviewable.
+- No next story is staged yet. Add the next story file before starting another implementation session.

@@ -1,4 +1,4 @@
-%% System Context — Vindhlíf
+%% System Context — Checkpoint Vardi
 %% Shows external actors and neighbouring systems that interact with the platform.
 flowchart LR
     student([Student])
@@ -6,7 +6,7 @@ flowchart LR
     foreman([Site Foreman])
     inspector([Inspector / Teacher])
 
-    subgraph platform["Vindhlíf Platform"]
+    subgraph platform["Checkpoint Vardi Platform"]
         web["Web Application<br/>(apps/web)"]
         worker["Document Worker<br/>(services/doc-worker)"]
         db[("Database<br/>SQLite / Postgres")]

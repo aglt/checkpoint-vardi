@@ -3,7 +3,7 @@ flowchart LR
     subgraph dev["Local dev (docker compose)"]
         devWeb["apps/web<br/>next dev :3000"]
         devWorker["doc-worker<br/>uvicorn :8000"]
-        devSqlite[("sqlite file<br/>./data/vindhlif.db")]
+        devSqlite[("sqlite file<br/>./data/checkpoint-vardi.db")]
         devMedia[("./media/")]
         devWeb --> devSqlite
         devWeb --> devMedia

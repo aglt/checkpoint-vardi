@@ -15,7 +15,7 @@ verify, and decide whether to proceed. That's what this platform does for work.
 
 - **Node.js 22+** — `nvm use` (see `.nvmrc`)
 - **pnpm 10** — `corepack enable && corepack prepare pnpm@10.6.5 --activate`
-- **Docker Desktop** — for the Python doc-worker sidecar (voice + PDF conversion)
+- **Docker Desktop** — optional for the later `doc-worker` sidecar; not needed for `S0-01`
 
 ## Quickstart
 
@@ -25,6 +25,7 @@ pnpm dev            # starts apps/web on http://localhost:3000
 pnpm typecheck
 pnpm lint
 pnpm test
+pnpm build
 ```
 
 ## Project Structure
@@ -81,7 +82,7 @@ In-repo design and seed material lives here:
 - `docs/handoff/CheckpointVardi_ImplementationHandoff.md` — execution-oriented handoff and delivery plan
 - `docs/diagrams/` — editable Mermaid sources for the architecture and flow diagrams
 - `packages/checklists/assets/seeds/` — checklist, legal-reference, and risk-matrix seed JSON
-- `docs/archive/System_Design_Vindhlif.md` — archived alternate-name design draft
+- `docs/archive/System_Design_AlternateNameDraft.md` — archived alternate-name design draft
 
 ## License
 

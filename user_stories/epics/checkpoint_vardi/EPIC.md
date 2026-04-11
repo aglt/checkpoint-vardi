@@ -8,7 +8,8 @@ epic's scope, guardrails, and sequencing once real stories are added.
 ## Current State
 
 - the story system exists locally under `user_stories/`
-- the first implementation story is now staged under `not_started/`
+- `S0-01` is complete and now lives under `done/`
+- no next implementation story is staged yet
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -16,8 +17,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S0 - Foundations**
-- Active story: `S0-01 - Foundations: runnable empty scaffold`
-- Story file: `user_stories/epics/checkpoint_vardi/not_started/S0-01-foundations-scaffold.md`
+- Most recently completed story: `S0-01 - Foundations: runnable empty scaffold`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S0-01-foundations-scaffold.md`
+- Next story: not yet staged
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -26,11 +28,11 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 ### S0 - Foundations
 
-The current first story is intentionally narrow: take the scaffold from "files on disk" to
+`S0-01` completed the narrow baseline step: take the scaffold from "files on disk" to
 "runnable empty project" without widening into feature work, schema work, or product behavior.
 
-This is the baseline step that lets later stories start from a trustworthy install, lint,
-typecheck, test, build, and dev-server loop.
+This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
+dev-server loop. The next story has not yet been staged in the epic tracker.
 
 ## Guardrails
 

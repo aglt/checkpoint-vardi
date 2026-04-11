@@ -9,8 +9,9 @@
     "./lib/*": "./src/lib/*.ts"
   },
   "scripts": {
-    "lint": "eslint src",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint --config ../../eslint.config.mjs src",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'no tests yet' && exit 0"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",

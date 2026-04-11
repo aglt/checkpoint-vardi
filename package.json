@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "pnpm --filter @vardi/web dev",
     "build": "pnpm --filter @vardi/web build",
-    "lint": "eslint . && pnpm -r lint",
+    "lint": "pnpm lint:boundaries && pnpm -r lint",
     "lint:boundaries": "eslint .",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test"

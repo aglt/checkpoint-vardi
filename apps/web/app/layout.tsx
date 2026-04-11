@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Checkpoint Varði",
+  title: "Checkpoint Vardi",
   description:
-    "Workplace safety management for Icelandic workplaces — checklists, risk assessments, and written safety plans.",
+    "Scaffold baseline for the Checkpoint Vardi workplace safety platform.",
 };
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <html lang="is">
+    <html lang="en">
       <body className="min-h-screen bg-background text-foreground antialiased">
         {children}
       </body>
