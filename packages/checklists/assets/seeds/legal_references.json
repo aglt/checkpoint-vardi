@@ -1,82 +1,1066 @@
 {
-  "L-46/1980": {
-    "url": "https://www.reglugerd.is/reglugerdir/eftir-raduneytum/felagsmalaraduneyti/nr/46",
-    "translations": {
-      "is": {
-        "title": "Lög um aðbúnað, hollustuhætti og öryggi á vinnustöðum"
+  "references": [
+    {
+      "id": "legal.FL-1-2019",
+      "code": "FL-1/2019",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-1/2019"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-10-1989",
+      "code": "FL-10/1989",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-10/1989"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-13-1999",
+      "code": "FL-13/1999",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-13/1999"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-17-2002",
+      "code": "FL-17/2002",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-17/2002"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-18-2005",
+      "code": "FL-18/2005",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-18/2005"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-21-2006",
+      "code": "FL-21/2006",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-21/2006"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-23-2008",
+      "code": "FL-23/2008",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-23/2008"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-24-2008",
+      "code": "FL-24/2008",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-24/2008"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-25-2008",
+      "code": "FL-25/2008",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-25/2008"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-26-2008",
+      "code": "FL-26/2008",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-26/2008"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-27-2006",
+      "code": "FL-27/2006",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-27/2006"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-30-2013",
+      "code": "FL-30/2013",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-30/2013"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-32-2014",
+      "code": "FL-32/2014",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-32/2014"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-34-2017",
+      "code": "FL-34/2017",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-34/2017"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-34-2018",
+      "code": "FL-34/2018",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-34/2018"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-35-2016",
+      "code": "FL-35/2016",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-35/2016"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-35-2021",
+      "code": "FL-35/2021",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-35/2021"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-36-2016",
+      "code": "FL-36/2016",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-36/2016"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-37-2017",
+      "code": "FL-37/2017",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-37/2017"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-38-2018",
+      "code": "FL-38/2018",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-38/2018"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-39-2018",
+      "code": "FL-39/2018",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-39/2018"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.FL-7-2000",
+      "code": "FL-7/2000",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "FL-7/2000"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.L-46-1980",
+      "code": "L-46/1980",
+      "url": "https://www.reglugerd.is/reglugerdir/eftir-raduneytum/felagsmalaraduneyti/nr/46",
+      "translations": {
+        "is": {
+          "title": "Lög um aðbúnað, hollustuhætti og öryggi á vinnustöðum"
+        }
+      }
+    },
+    {
+      "id": "legal.L-6-2002",
+      "code": "L-6/2002",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "L-6/2002"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.L-61-2013",
+      "code": "L-61/2013",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "L-61/2013"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-1",
+      "code": "Lb-1",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-1"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-1-1991",
+      "code": "Lb-1/1991",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-1/1991"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-1-2001",
+      "code": "Lb-1/2001",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-1/2001"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-1-2006",
+      "code": "Lb-1/2006",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-1/2006"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-1-2007",
+      "code": "Lb-1/2007",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-1/2007"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-1-2008",
+      "code": "Lb-1/2008",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-1/2008"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-1-2012",
+      "code": "Lb-1/2012",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-1/2012"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-1-2021",
+      "code": "Lb-1/2021",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-1/2021"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-2-2006",
+      "code": "Lb-2/2006",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-2/2006"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-3",
+      "code": "Lb-3",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-3"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-4-2007",
+      "code": "Lb-4/2007",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-4/2007"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Lb-5-2007",
+      "code": "Lb-5/2007",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Lb-5/2007"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-198-1983",
+      "code": "R-198/1983",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-198/1983"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-204-1972",
+      "code": "R-204/1972",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-204/1972"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-331-1989",
+      "code": "R-331/1989",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-331/1989"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-349-2004",
+      "code": "R-349/2004",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-349/2004"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-388-1989",
+      "code": "R-388/1989",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-388/1989"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-492-1987",
+      "code": "R-492/1987",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-492/1987"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-497-1994",
+      "code": "R-497/1994",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-497/1994"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-497-1999",
+      "code": "R-497/1999",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-497/1999"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-499-1994",
+      "code": "R-499/1994",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-499/1994"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-501-1994",
+      "code": "R-501/1994",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-501/1994"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-504-1999",
+      "code": "R-504/1999",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-504/1999"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-547-1996",
+      "code": "R-547/1996",
+      "url": "https://island.is/reglugerdir/nr/0547-1996",
+      "translations": {
+        "is": {
+          "title": "Reglur um hollustu og öryggi á byggingarvinnustöðum og aðra tímabundna mannvirkjagerð"
+        }
+      }
+    },
+    {
+      "id": "legal.R-552-1996",
+      "code": "R-552/1996",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-552/1996"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-571-2000",
+      "code": "R-571/2000",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-571/2000"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-581-1995",
+      "code": "R-581/1995",
+      "url": "https://island.is/reglugerdir/nr/0581-1995",
+      "translations": {
+        "is": {
+          "title": "Reglur um húsnæði vinnustaða"
+        }
+      }
+    },
+    {
+      "id": "legal.R-609-1999",
+      "code": "R-609/1999",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-609/1999"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-707-1995",
+      "code": "R-707/1995",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-707/1995"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-921-1996",
+      "code": "R-921/1996",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-921/1996"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.R-99-1996",
+      "code": "R-99/1996",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "R-99/1996"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-1005-2009",
+      "code": "Rg-1005/2009",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-1005/2009"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-1009-2015",
+      "code": "Rg-1009/2015",
+      "url": "https://island.is/reglugerdir/nr/1009-2015",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um aðgerðir gegn einelti, kynferðislegri áreitni, kynbundinni áreitni og ofbeldi á vinnustöðum"
+        }
+      }
+    },
+    {
+      "id": "legal.Rg-1021-2017",
+      "code": "Rg-1021/2017",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-1021/2017"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-1022-2017",
+      "code": "Rg-1022/2017",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-1022/2017"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-202-1952",
+      "code": "Rg-202/1952",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-202/1952"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-326-2007",
+      "code": "Rg-326/2007",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-326/2007"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-367-2006",
+      "code": "Rg-367/2006",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-367/2006"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-390-2009",
+      "code": "Rg-390/2009",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-390/2009"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-415-2014",
+      "code": "Rg-415/2014",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-415/2014"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-426-1999",
+      "code": "Rg-426/1999",
+      "url": "https://island.is/reglugerdir/nr/0426-1999",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um vinnu barna og unglinga"
+        }
+      }
+    },
+    {
+      "id": "legal.Rg-430-2007",
+      "code": "Rg-430/2007",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-430/2007"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-510-2018",
+      "code": "Rg-510/2018",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-510/2018"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-530-2020",
+      "code": "Rg-530/2020",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Reglur tengdar efnum og öryggisblöðum"
+        }
+      }
+    },
+    {
+      "id": "legal.Rg-540-2011",
+      "code": "Rg-540/2011",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-540/2011"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-553-2004",
+      "code": "Rg-553/2004",
+      "url": "https://island.is/reglugerdir/nr/0553-2004",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um verndun starfsmanna gegn hættu á heilsutjóni af völdum efna á vinnustöðum"
+        }
+      }
+    },
+    {
+      "id": "legal.Rg-728-2018",
+      "code": "Rg-728/2018",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-728/2018"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-729-2018",
+      "code": "Rg-729/2018",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-729/2018"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-730-2012",
+      "code": "Rg-730/2012",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Rg-730/2012"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
+      }
+    },
+    {
+      "id": "legal.Rg-920-2006",
+      "code": "Rg-920/2006",
+      "url": "https://island.is/reglugerdir/nr/0920-2006",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um skipulag og framkvæmd vinnuverndarstarfs á vinnustöðum"
+        }
+      }
+    },
+    {
+      "id": "legal.Rg-921-2006",
+      "code": "Rg-921/2006",
+      "url": "https://island.is/reglugerdir/nr/0921-2006",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um varnir gegn álagi vegna hávaða á vinnustöðum"
+        }
+      }
+    },
+    {
+      "id": "legal.Rg-922-2006",
+      "code": "Rg-922/2006",
+      "url": "https://island.is/reglugerdir/nr/0922-2006",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um varnir gegn álagi vegna vélræns titrings á vinnustöðum"
+        }
+      }
+    },
+    {
+      "id": "legal.Rg-931-2000",
+      "code": "Rg-931/2000",
+      "url": "https://island.is/reglugerdir/nr/0931-2000",
+      "translations": {
+        "is": {
+          "title": "Reglugerð um ráðstafanir til þess að auka öryggi og heilbrigði á vinnustöðum fyrir konur sem eru þungaðar, hafa nýlega alið barn eða hafa barn á brjósti"
+        }
+      }
+    },
+    {
+      "id": "legal.Sb-56",
+      "code": "Sb-56",
+      "url": null,
+      "translations": {
+        "is": {
+          "title": "Sb-56"
+        }
+      },
+      "metadata": {
+        "titleStatus": "placeholder",
+        "source": "derived-from-checklist-usage"
       }
     }
-  },
-  "Rg-920/2006": {
-    "url": "https://island.is/reglugerdir/nr/0920-2006",
-    "translations": {
-      "is": {
-        "title": "Reglugerð um skipulag og framkvæmd vinnuverndarstarfs á vinnustöðum"
-      }
-    }
-  },
-  "Rg-921/2006": {
-    "url": "https://island.is/reglugerdir/nr/0921-2006",
-    "translations": {
-      "is": {
-        "title": "Reglugerð um varnir gegn álagi vegna hávaða á vinnustöðum"
-      }
-    }
-  },
-  "Rg-922/2006": {
-    "url": "https://island.is/reglugerdir/nr/0922-2006",
-    "translations": {
-      "is": {
-        "title": "Reglugerð um varnir gegn álagi vegna vélræns titrings á vinnustöðum"
-      }
-    }
-  },
-  "Rg-553/2004": {
-    "url": "https://island.is/reglugerdir/nr/0553-2004",
-    "translations": {
-      "is": {
-        "title": "Reglugerð um verndun starfsmanna gegn hættu á heilsutjóni af völdum efna á vinnustöðum"
-      }
-    }
-  },
-  "R-547/1996": {
-    "url": "https://island.is/reglugerdir/nr/0547-1996",
-    "translations": {
-      "is": {
-        "title": "Reglur um hollustu og öryggi á byggingarvinnustöðum og aðra tímabundna mannvirkjagerð"
-      }
-    }
-  },
-  "Rg-1009/2015": {
-    "url": "https://island.is/reglugerdir/nr/1009-2015",
-    "translations": {
-      "is": {
-        "title": "Reglugerð um aðgerðir gegn einelti, kynferðislegri áreitni, kynbundinni áreitni og ofbeldi á vinnustöðum"
-      }
-    }
-  },
-  "R-581/1995": {
-    "url": "https://island.is/reglugerdir/nr/0581-1995",
-    "translations": {
-      "is": {
-        "title": "Reglur um húsnæði vinnustaða"
-      }
-    }
-  },
-  "Rg-426/1999": {
-    "url": "https://island.is/reglugerdir/nr/0426-1999",
-    "translations": {
-      "is": {
-        "title": "Reglugerð um vinnu barna og unglinga"
-      }
-    }
-  },
-  "Rg-931/2000": {
-    "url": "https://island.is/reglugerdir/nr/0931-2000",
-    "translations": {
-      "is": {
-        "title": "Reglugerð um ráðstafanir til þess að auka öryggi og heilbrigði á vinnustöðum fyrir konur sem eru þungaðar, hafa nýlega alið barn eða hafa barn á brjósti"
-      }
-    }
-  }
+  ]
 }

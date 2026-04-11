@@ -1,18 +1,30 @@
 {
   "checklists": [
     {
+      "id": "checklist.woodworking-workshop",
       "slug": "woodworking-workshop",
       "file": "woodworking-workshop.json",
+      "version": "2026-04-11",
+      "defaultLanguage": "is",
       "sections": 15,
       "criteria": 66
     },
     {
+      "id": "checklist.construction-site",
       "slug": "construction-site",
       "file": "construction-site.json",
+      "version": "2026-04-11",
+      "defaultLanguage": "is",
       "sections": 14,
       "criteria": 69
     }
   ],
-  "legalReferences": 10,
-  "riskMatrices": 3
+  "legalReferences": {
+    "file": "legal_references.json",
+    "count": 79
+  },
+  "riskMatrices": {
+    "file": "risk_matrices.json",
+    "count": 3
+  }
 }

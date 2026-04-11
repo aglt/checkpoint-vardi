@@ -1,8 +1,14 @@
 {
+  "id": "checklist.construction-site",
   "slug": "construction-site",
-  "sourceFile": "5.Vinnuumhvefisvísir fyrir byggingarsvæði.docx",
-  "sourceUrl": null,
   "version": "2026-04-11",
+  "defaultLanguage": "is",
+  "metadata": {
+    "source": {
+      "fileName": "5.Vinnuumhvefisvísir fyrir byggingarsvæði.docx",
+      "url": null
+    }
+  },
   "translations": {
     "is": {
       "title": "Vinnuumhverfisvísir fyrir byggingarsvæði"
@@ -10,6 +16,7 @@
   },
   "sections": [
     {
+      "id": "construction-site.section-01",
       "order": 1,
       "translations": {
         "is": {
@@ -18,6 +25,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-01.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -43,6 +51,7 @@
           }
         },
         {
+          "id": "construction-site.section-01.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -57,6 +66,7 @@
           }
         },
         {
+          "id": "construction-site.section-01.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -73,11 +83,12 @@
           }
         },
         {
+          "id": "construction-site.section-01.criterion-04",
           "number": "4",
           "order": 4,
           "legalRefs": [
             "Lb-1",
-            "R-426/1999"
+            "Rg-426/1999"
           ],
           "translations": {
             "is": {
@@ -87,6 +98,7 @@
           }
         },
         {
+          "id": "construction-site.section-01.criterion-05",
           "number": "5",
           "order": 5,
           "legalRefs": [
@@ -101,6 +113,7 @@
           }
         },
         {
+          "id": "construction-site.section-01.criterion-06",
           "number": "6",
           "order": 6,
           "legalRefs": [
@@ -118,6 +131,7 @@
       ]
     },
     {
+      "id": "construction-site.section-02",
       "order": 2,
       "translations": {
         "is": {
@@ -126,6 +140,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-02.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -140,6 +155,7 @@
           }
         },
         {
+          "id": "construction-site.section-02.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -154,6 +170,7 @@
           }
         },
         {
+          "id": "construction-site.section-02.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -167,6 +184,7 @@
           }
         },
         {
+          "id": "construction-site.section-02.criterion-04",
           "number": "4",
           "order": 4,
           "legalRefs": [
@@ -183,6 +201,7 @@
       ]
     },
     {
+      "id": "construction-site.section-03",
       "order": 3,
       "translations": {
         "is": {
@@ -191,6 +210,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-03.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -210,6 +230,7 @@
           }
         },
         {
+          "id": "construction-site.section-03.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -223,6 +244,7 @@
           }
         },
         {
+          "id": "construction-site.section-03.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -236,6 +258,7 @@
           }
         },
         {
+          "id": "construction-site.section-03.criterion-04",
           "number": "4",
           "order": 4,
           "legalRefs": [
@@ -249,6 +272,7 @@
           }
         },
         {
+          "id": "construction-site.section-03.criterion-05",
           "number": "5",
           "order": 5,
           "legalRefs": [
@@ -264,6 +288,7 @@
       ]
     },
     {
+      "id": "construction-site.section-04",
       "order": 4,
       "translations": {
         "is": {
@@ -272,6 +297,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-04.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -285,6 +311,7 @@
           }
         },
         {
+          "id": "construction-site.section-04.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -301,6 +328,7 @@
       ]
     },
     {
+      "id": "construction-site.section-05",
       "order": 5,
       "translations": {
         "is": {
@@ -309,6 +337,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-05.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -322,6 +351,7 @@
           }
         },
         {
+          "id": "construction-site.section-05.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -335,6 +365,7 @@
           }
         },
         {
+          "id": "construction-site.section-05.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -350,6 +381,7 @@
       ]
     },
     {
+      "id": "construction-site.section-06",
       "order": 6,
       "translations": {
         "is": {
@@ -358,6 +390,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-06.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -372,6 +405,7 @@
           }
         },
         {
+          "id": "construction-site.section-06.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -385,6 +419,7 @@
           }
         },
         {
+          "id": "construction-site.section-06.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -400,6 +435,7 @@
       ]
     },
     {
+      "id": "construction-site.section-07",
       "order": 7,
       "translations": {
         "is": {
@@ -408,6 +444,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-07.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -423,6 +460,7 @@
           }
         },
         {
+          "id": "construction-site.section-07.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -439,6 +477,7 @@
           }
         },
         {
+          "id": "construction-site.section-07.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -456,6 +495,7 @@
           }
         },
         {
+          "id": "construction-site.section-07.criterion-04",
           "number": "4",
           "order": 4,
           "legalRefs": [
@@ -473,6 +513,7 @@
           }
         },
         {
+          "id": "construction-site.section-07.criterion-05",
           "number": "5",
           "order": 5,
           "legalRefs": [
@@ -492,6 +533,7 @@
       ]
     },
     {
+      "id": "construction-site.section-08",
       "order": 8,
       "translations": {
         "is": {
@@ -500,6 +542,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-08.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -518,6 +561,7 @@
           }
         },
         {
+          "id": "construction-site.section-08.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -536,6 +580,7 @@
           }
         },
         {
+          "id": "construction-site.section-08.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -554,6 +599,7 @@
           }
         },
         {
+          "id": "construction-site.section-08.criterion-04",
           "number": "4",
           "order": 4,
           "legalRefs": [
@@ -571,6 +617,7 @@
           }
         },
         {
+          "id": "construction-site.section-08.criterion-05",
           "number": "5",
           "order": 5,
           "legalRefs": [
@@ -588,6 +635,7 @@
           }
         },
         {
+          "id": "construction-site.section-08.criterion-06",
           "number": "6",
           "order": 6,
           "legalRefs": [],
@@ -601,6 +649,7 @@
       ]
     },
     {
+      "id": "construction-site.section-09",
       "order": 9,
       "translations": {
         "is": {
@@ -609,6 +658,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-09.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -623,6 +673,7 @@
           }
         },
         {
+          "id": "construction-site.section-09.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -636,6 +687,7 @@
           }
         },
         {
+          "id": "construction-site.section-09.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -649,6 +701,7 @@
           }
         },
         {
+          "id": "construction-site.section-09.criterion-04",
           "number": "4",
           "order": 4,
           "legalRefs": [
@@ -662,6 +715,7 @@
           }
         },
         {
+          "id": "construction-site.section-09.criterion-05",
           "number": "5",
           "order": 5,
           "legalRefs": [
@@ -676,6 +730,7 @@
           }
         },
         {
+          "id": "construction-site.section-09.criterion-06",
           "number": "6",
           "order": 6,
           "legalRefs": [
@@ -689,6 +744,7 @@
           }
         },
         {
+          "id": "construction-site.section-09.criterion-07",
           "number": "7",
           "order": 7,
           "legalRefs": [
@@ -702,6 +758,7 @@
           }
         },
         {
+          "id": "construction-site.section-09.criterion-08",
           "number": "8",
           "order": 8,
           "legalRefs": [
@@ -715,6 +772,7 @@
           }
         },
         {
+          "id": "construction-site.section-09.criterion-09",
           "number": "9",
           "order": 9,
           "legalRefs": [
@@ -730,6 +788,7 @@
       ]
     },
     {
+      "id": "construction-site.section-10",
       "order": 10,
       "translations": {
         "is": {
@@ -738,6 +797,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-10.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -755,6 +815,7 @@
           }
         },
         {
+          "id": "construction-site.section-10.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -771,6 +832,7 @@
           }
         },
         {
+          "id": "construction-site.section-10.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -786,6 +848,7 @@
           }
         },
         {
+          "id": "construction-site.section-10.criterion-04",
           "number": "4",
           "order": 4,
           "legalRefs": [
@@ -799,6 +862,7 @@
           }
         },
         {
+          "id": "construction-site.section-10.criterion-05",
           "number": "5",
           "order": 5,
           "legalRefs": [
@@ -816,6 +880,7 @@
           }
         },
         {
+          "id": "construction-site.section-10.criterion-06",
           "number": "6",
           "order": 6,
           "legalRefs": [
@@ -831,6 +896,7 @@
           }
         },
         {
+          "id": "construction-site.section-10.criterion-07",
           "number": "7",
           "order": 7,
           "legalRefs": [
@@ -844,6 +910,7 @@
           }
         },
         {
+          "id": "construction-site.section-10.criterion-08",
           "number": "8",
           "order": 8,
           "legalRefs": [
@@ -862,6 +929,7 @@
       ]
     },
     {
+      "id": "construction-site.section-11",
       "order": 11,
       "translations": {
         "is": {
@@ -870,6 +938,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-11.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -885,6 +954,7 @@
           }
         },
         {
+          "id": "construction-site.section-11.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -899,6 +969,7 @@
           }
         },
         {
+          "id": "construction-site.section-11.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -913,6 +984,7 @@
           }
         },
         {
+          "id": "construction-site.section-11.criterion-04",
           "number": "4",
           "order": 4,
           "legalRefs": [
@@ -927,6 +999,7 @@
           }
         },
         {
+          "id": "construction-site.section-11.criterion-05",
           "number": "5",
           "order": 5,
           "legalRefs": [
@@ -943,6 +1016,7 @@
           }
         },
         {
+          "id": "construction-site.section-11.criterion-06",
           "number": "6",
           "order": 6,
           "legalRefs": [
@@ -957,6 +1031,7 @@
           }
         },
         {
+          "id": "construction-site.section-11.criterion-07",
           "number": "7",
           "order": 7,
           "legalRefs": [
@@ -972,6 +1047,7 @@
       ]
     },
     {
+      "id": "construction-site.section-12",
       "order": 12,
       "translations": {
         "is": {
@@ -980,6 +1056,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-12.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -993,6 +1070,7 @@
           }
         },
         {
+          "id": "construction-site.section-12.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -1006,6 +1084,7 @@
           }
         },
         {
+          "id": "construction-site.section-12.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -1021,6 +1100,7 @@
       ]
     },
     {
+      "id": "construction-site.section-13",
       "order": 13,
       "translations": {
         "is": {
@@ -1029,6 +1109,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-13.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
@@ -1044,6 +1125,7 @@
           }
         },
         {
+          "id": "construction-site.section-13.criterion-02",
           "number": "2",
           "order": 2,
           "legalRefs": [
@@ -1059,6 +1141,7 @@
           }
         },
         {
+          "id": "construction-site.section-13.criterion-03",
           "number": "3",
           "order": 3,
           "legalRefs": [
@@ -1074,6 +1157,7 @@
           }
         },
         {
+          "id": "construction-site.section-13.criterion-04",
           "number": "4",
           "order": 4,
           "legalRefs": [
@@ -1089,6 +1173,7 @@
           }
         },
         {
+          "id": "construction-site.section-13.criterion-05",
           "number": "5",
           "order": 5,
           "legalRefs": [
@@ -1104,6 +1189,7 @@
           }
         },
         {
+          "id": "construction-site.section-13.criterion-06",
           "number": "6",
           "order": 6,
           "legalRefs": [
@@ -1119,6 +1205,7 @@
           }
         },
         {
+          "id": "construction-site.section-13.criterion-07",
           "number": "7",
           "order": 7,
           "legalRefs": [
@@ -1134,6 +1221,7 @@
       ]
     },
     {
+      "id": "construction-site.section-14",
       "order": 14,
       "translations": {
         "is": {
@@ -1142,6 +1230,7 @@
       },
       "criteria": [
         {
+          "id": "construction-site.section-14.criterion-01",
           "number": "1",
           "order": 1,
           "legalRefs": [
