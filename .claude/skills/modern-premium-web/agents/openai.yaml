@@ -1,4 +1,4 @@
 interface:
   display_name: "Modern Premium Web"
-  short_description: "Design premium Vardi web and admin interfaces"
-  default_prompt: "Use $modern-premium-web to design or implement a premium Vardi web or admin interface."
+  short_description: "Design premium Vardi public and workspace UI"
+  default_prompt: "Use $modern-premium-web to design or implement a premium Vardi public page or workspace surface."

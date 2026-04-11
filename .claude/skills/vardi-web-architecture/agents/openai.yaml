@@ -1,4 +1,4 @@
 interface:
   display_name: "Vardi Web Architecture"
-  short_description: "Apply Vardi web architecture and boundaries"
-  default_prompt: "Use $vardi-web-architecture to plan or review a Vardi web change across app, hook, and API boundaries."
+  short_description: "Apply Vardi package ownership and boundaries"
+  default_prompt: "Use $vardi-web-architecture to plan or review a Vardi change across app, package, route, and persistence boundaries."

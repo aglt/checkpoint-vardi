@@ -47,6 +47,15 @@ Single deployable app. API lives inside apps/web under `app/api/*`.
 A Python FastAPI sidecar (`services/doc-worker`) will be added in stage S1 for
 Icelandic Whisper transcription and LibreOffice PDF conversion.
 
+## Story Tracking
+
+Implementation now tracks inside this repo:
+
+- `user_stories/epics/checkpoint_vardi/EPIC.md` — epic scope and phase design
+- `user_stories/epics/checkpoint_vardi/TRACKER.md` — story status and next-up order
+- `user_stories/epics/checkpoint_vardi/EXECUTION_PLAN.md` — session-by-session prompts
+- `AGENTS.md` — Codex-facing repo guide and local skill map
+
 ## Architecture Invariants
 
 - Code in **English**. Human content strings in **Icelandic** (and later en/pl).
@@ -65,11 +74,11 @@ Icelandic Whisper transcription and LibreOffice PDF conversion.
 
 ## Documentation
 
-The full product and implementation handoff lives outside this repo in the
-Verkefni IV workspace:
+The local story system is the implementation source of truth for day-to-day work.
+External handoff material can still be used as background reference:
 
 - `CheckpointVardi_SystemDesign.docx` — product, regulatory, architectural narrative
-- `CheckpointVardi_ImplementationHandoff.docx` — schemas, API, stories, agent teams
+- `CheckpointVardi_ImplementationHandoff.docx` — broader handoff context
 - `handoff/seeds/` — checklist, legal reference, and risk matrix seed JSON
 - `handoff/diagrams/` — editable Mermaid sources for every diagram
 

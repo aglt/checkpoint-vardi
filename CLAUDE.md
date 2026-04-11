@@ -16,8 +16,10 @@ platform must remain reusable for real safety officers and future assignments.
 ## Load context first
 
 - Read this file.
+- Read `AGENTS.md` when running in Codex.
 - Read `docs/ARCHITECTURE_BOUNDARIES.md` when touching package boundaries.
 - Read the relevant skill under `.claude/skills/` for the area you are changing.
+- Read the active epic docs under `user_stories/epics/checkpoint_vardi/` before starting implementation work.
 
 ## Hard rules
 
@@ -44,7 +46,13 @@ platform must remain reusable for real safety officers and future assignments.
 - Commit messages: imperative, scoped (`feat(risk): add 3x3 matrix lookup`).
 - Every PR: typecheck + lint + test green; acceptance criterion from the
   relevant user story referenced in the description.
-- Definition of Done lives in the Implementation Handoff document.
+- Definition of Done lives in the active story plus the tracker and execution plan under `user_stories/`.
+
+## Story tracking
+
+- Active epic: `user_stories/epics/checkpoint_vardi/`
+- Keep `EPIC.md`, `TRACKER.md`, `EXECUTION_PLAN.md`, and the story file in sync when story state changes.
+- Invoke `$vardi-story-management` whenever you add a story, move a story, or update story status.
 
 ## File ownership map
 

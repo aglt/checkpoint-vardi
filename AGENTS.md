@@ -1,0 +1,43 @@
+# Checkpoint Vardi Codex Guide
+
+Read this file before making changes in this repository.
+
+## What this repo is
+
+- One Next.js 15 App Router app in `apps/web`
+- Shared packages in `packages/*`
+- One active story system under `user_stories/`
+
+## Load context first
+
+- Read [CLAUDE.md](/Users/aegir/.codex/worktrees/5b49/Vardi/CLAUDE.md).
+- Read [docs/ARCHITECTURE_BOUNDARIES.md](/Users/aegir/.codex/worktrees/5b49/Vardi/docs/ARCHITECTURE_BOUNDARIES.md) when touching ownership or package placement.
+- Read the active epic docs in [user_stories/epics/checkpoint_vardi/EPIC.md](/Users/aegir/.codex/worktrees/5b49/Vardi/user_stories/epics/checkpoint_vardi/EPIC.md), [TRACKER.md](/Users/aegir/.codex/worktrees/5b49/Vardi/user_stories/epics/checkpoint_vardi/TRACKER.md), and [EXECUTION_PLAN.md](/Users/aegir/.codex/worktrees/5b49/Vardi/user_stories/epics/checkpoint_vardi/EXECUTION_PLAN.md).
+- Read the matching skill under `.claude/skills/` before changing a feature area.
+
+## Repo rules
+
+- English in code. Icelandic belongs in data or dictionaries, not source identifiers.
+- Every user-owned record needs `ownerId`.
+- Use sibling translation tables, not JSON columns, for localized content.
+- Shared packages never import each other.
+- No direct `fetch()` in components. Go through typed route/client helpers.
+- No raw SQL in app code. Keep database access in `packages/db`.
+- Keep changes inside the smallest owner directory that fits the problem.
+
+## Story tracking
+
+- The active epic lives in `user_stories/epics/checkpoint_vardi/`.
+- When story state changes, update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the story file in the same change.
+- Use `$vardi-story-management` whenever you add a story, move a story between folders, or change story status wording.
+
+## Local skills
+
+- `vardi-story-management`: keep story docs and folders in sync
+- `vardi-web-architecture`: package ownership, boundaries, and change design
+- `vardi-web-data-boundary`: schemas, route handlers, typed data flow
+- `vardi-web-hooks`: lean React hook usage for interactive surfaces
+- `vardi-web-error-handling`: consistent API and UI failure handling
+- `vardi-web-unit-testing`: scoped automated test patterns
+- `vardi-web-e2e-testing`: browser-level verification patterns when E2E exists
+- `modern-premium-web`: product-specific visual direction for public and workspace UI

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vardi Story Management"
+  short_description: "Keep epic trackers and story files in sync"
+  default_prompt: "Use $vardi-story-management to add a story, update story state, or scaffold a new epic while keeping all story documents aligned."

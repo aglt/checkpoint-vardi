@@ -1,3 +1,3 @@
 // @vardi/schemas — Zod contracts shared between UI and API route handlers.
-// Implementation lands with its corresponding user stories in the handoff document.
+// Implementation lands with its corresponding local user stories under user_stories/.
 export {};

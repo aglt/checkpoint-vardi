@@ -1,21 +1,20 @@
-# Claude Skills for Checkpoint Varði
+# Project Skills for Checkpoint Vardi
 
-These skills were adapted from the house `web` monorepo tooling and retargeted
-to Vardi's single-app layout. Before relying on any of them, check for any
-residual references to multi-app concepts (`admin`, `display`, `api-client`,
-`Firebase auth`) that do not exist in Vardi — those should be treated as
-out-of-scope and trimmed as the codebase takes shape.
+These local skills are written for Codex and for this repo's actual shape:
 
-Relevant skills at scaffold time:
+- one Next.js app in `apps/web`
+- shared packages in `packages/*`
+- local story tracking under `user_stories/`
 
-- `vardi-web-architecture` — top-level boundaries and data flow rules
-- `vardi-web-data-boundary` — Zod-first contracts (adapted: Next route handlers replace api-client package)
-- `vardi-web-hooks` — hook ownership and feature scoping
-- `vardi-web-unit-testing` — Vitest patterns
-- `vardi-web-e2e-testing` — Playwright patterns
-- `vardi-web-error-handling` — error surface and telemetry hooks
-- `modern-premium-web` — visual and interaction quality bar
+Core skills:
 
-Skills omitted on purpose (multi-app or Firebase-specific, not applicable):
-- admin-client-structure
-- console-environment-architecture
+- `vardi-story-management` — keep epic docs and story files synchronized
+- `vardi-web-architecture` — owner directories, package boundaries, change design
+- `vardi-web-data-boundary` — schema-first route and data contracts
+- `vardi-web-hooks` — lean hook usage for interactive surfaces
+- `vardi-web-error-handling` — consistent API and UI failure paths
+- `vardi-web-unit-testing` — scoped automated test guidance
+- `vardi-web-e2e-testing` — browser-level verification guidance when E2E exists
+- `modern-premium-web` — product-specific visual quality bar
+
+If a skill and the repo disagree, trust the repo and update the skill in the same change.
