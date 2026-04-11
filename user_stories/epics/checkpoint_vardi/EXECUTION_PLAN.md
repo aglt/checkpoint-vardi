@@ -62,7 +62,7 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 > `pnpm test`, `pnpm typecheck`, and `pnpm lint`. This session used
 > `node v25.6.1` because no Node 22 manager was available in the local shell;
 > Node 22 remains the declared repo contract, but was not directly
-> re-verified here.
+> re-verified here. Open PR: `#3`.
 
 ### Step S1-02: Assessment domain and read model
 
