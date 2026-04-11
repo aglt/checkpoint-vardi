@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "eslint --config ../../eslint.config.mjs src",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'no tests yet'"
+    "validate:seeds": "node ./scripts/validate-seeds.mjs",
+    "test": "node ./scripts/validate-seeds.mjs"
   },
   "devDependencies": {
     "@vardi/config": "workspace:*",

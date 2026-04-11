@@ -7,9 +7,11 @@
 
 ## Current State
 
-- Active step: none queued
+- Active step: none in progress
+- Next queued step: `S1-01`
 - Most recently completed step: `S0-01`
 - Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S0-01-foundations-scaffold.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-01-seed-catalog-foundation.md`
 
 ## S0 - Foundations
 
@@ -34,3 +36,76 @@ S0-01 (Runnable Empty Scaffold)
 > `http://localhost:3000` check, the story codename scan, the stricter legacy-name scan, and
 > `git status`. This session used `node v25.6.1` because no Node 22 manager was available in the
 > local shell; Node 22 remains the declared repo contract, but was not directly re-verified here.
+
+## S1 - MVP assessment workflow
+
+### Dependency Graph
+
+```text
+S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
+                 \
+                  -> S1-09 (only if a concrete S1 story needs narrow groundwork)
+```
+
+### Step S1-01: Seed catalog foundation for assessment runtime
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-01-seed-catalog-foundation.md`
+**Start gate:** Open after the completed S0 baseline.
+**Unblocks:** `S1-02` through `S1-08` by establishing canonical seed runtime truth.
+
+### Step S1-02: Assessment domain and read model
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-02-assessment-domain-and-read-model.md`
+**Start gate:** Closed until `S1-01` is complete.
+**Unblocks:** `S1-03` and the persisted assessment flow.
+
+### Step S1-03: Start assessment from seeded template
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-03-start-assessment-from-seeded-template.md`
+**Start gate:** Closed until `S1-01` and `S1-02` are complete.
+**Unblocks:** `S1-04` by materializing runnable assessment instances.
+
+### Step S1-04: Assessment walkthrough form slice
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-04-assessment-walkthrough-form-slice.md`
+**Start gate:** Closed until `S1-03` is complete.
+**Unblocks:** `S1-05` by capturing persisted walkthrough answers and findings.
+
+### Step S1-05: Transfer non-compliant findings into risk register
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-05-transfer-noncompliant-findings-into-risk-register.md`
+**Start gate:** Closed until `S1-04` is complete.
+**Unblocks:** `S1-06` by creating structured risk-entry rows.
+
+### Step S1-06: Risk classification engine and risk-entry editing
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-06-risk-classification-engine-and-editing.md`
+**Start gate:** Closed until `S1-01` and `S1-05` are complete.
+**Unblocks:** `S1-07` by making risk entries editable and classifiable.
+
+### Step S1-07: Summary form and export readiness
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-07-summary-form-and-export-readiness.md`
+**Start gate:** Closed until `S1-06` is complete.
+**Unblocks:** `S1-08` by defining when an assessment is export-ready.
+
+### Step S1-08: Report export for checklist, register, and summary
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-08-report-export-checklist-register-summary.md`
+**Start gate:** Closed until `S1-07` is complete.
+**Unblocks:** The assignment-ready MVP deliverable path.
+
+### Step S1-09: Foundation for broader safety-plan modules
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
+**Start gate:** Closed unless an active S1 story exposes a concrete need for narrow groundwork.
+**Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.

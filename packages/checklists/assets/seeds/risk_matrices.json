@@ -1,6 +1,7 @@
 {
   "matrices": [
     {
+      "id": "risk-matrix.simple-2x2",
       "slug": "simple-2x2",
       "likelihoodLevels": 2,
       "consequenceLevels": 2,
@@ -17,6 +18,7 @@
       }
     },
     {
+      "id": "risk-matrix.course-3x3",
       "slug": "course-3x3",
       "likelihoodLevels": 3,
       "consequenceLevels": 3,
@@ -38,6 +40,7 @@
       }
     },
     {
+      "id": "risk-matrix.guide-5x5",
       "slug": "guide-5x5",
       "likelihoodLevels": 5,
       "consequenceLevels": 5,

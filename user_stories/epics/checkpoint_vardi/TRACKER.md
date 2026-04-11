@@ -11,8 +11,28 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 |------|---------------------------------------|-------------|----|
 | S0-01 | Foundations: runnable empty scaffold | done        | #1 |
 
+## S1 - MVP assessment workflow
+
+| ID    | Story                                                   | Status       | PR |
+|-------|---------------------------------------------------------|--------------|----|
+| S1-01 | Seed catalog foundation for assessment runtime          | not_started  |    |
+| S1-02 | Assessment domain and read model                        | not_started  |    |
+| S1-03 | Start assessment from seeded template                   | not_started  |    |
+| S1-04 | Assessment walkthrough form slice                       | not_started  |    |
+| S1-05 | Transfer non-compliant findings into risk register      | not_started  |    |
+| S1-06 | Risk classification engine and risk-entry editing       | not_started  |    |
+| S1-07 | Summary form and export readiness                       | not_started  |    |
+| S1-08 | Report export for checklist, register, and summary      | not_started  |    |
+
+## S1/S2 - Stage bridge
+
+| ID    | Story                                          | Status       | PR |
+|-------|------------------------------------------------|--------------|----|
+| S1-09 | Foundation for broader safety-plan modules     | not_started  |    |
+
 ---
 
 **Next up:**
 
-- No next story is staged yet. Add the next story file before starting another implementation session.
+- `S1-01 - Seed catalog foundation for assessment runtime`
+- After `S1-01`, continue through `S1-02` to `S1-08` in dependency order and keep `S1-09` narrowly scoped and non-blocking.
