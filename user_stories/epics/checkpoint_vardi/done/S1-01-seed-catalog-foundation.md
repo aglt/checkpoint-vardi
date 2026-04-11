@@ -1,6 +1,6 @@
 # S1-01 - Seed catalog foundation for assessment runtime
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P0
@@ -9,6 +9,38 @@ Role: **Implementation source of truth** for seeded assessment runtime data.
 Depends on: S0-01
 
 ---
+
+## Context
+
+This story is complete. The normalized seed files already staged on `main`
+were preserved as the content baseline, and the finishing work landed a
+package-owned runtime seam in `@vardi/checklists` so later stories can read
+seeded checklist, legal-reference, and risk-matrix data without importing
+`assets/seeds/*` directly.
+
+The implementation stayed structural. It did not rewrite the seed datasets,
+change checklist behavior, infer legal authority, classify risk, or widen into
+UI, route, DB, or export work. Seed provenance remains under metadata, stable
+ids remain intact for checklist, section, criterion, legal reference, and risk
+matrix records, and ordering remains deterministic from manifest and source
+arrays for later export fidelity.
+
+The package seam now fails fast if runtime integrity drifts. In addition to the
+existing seed-validation CLI, package-local runtime tests prove that manifest
+file mismatches, checklist id or slug mismatches, risk-matrix id or slug
+duplication, and broken legal-reference integrity all throw during runtime
+catalog construction.
+
+Unresolved imported legal references remain explicitly unresolved linkage
+records with `resolutionStatus: "unresolved_imported_code"` and
+`metadata.displayMode: "code_only"`. They are preserved for checklist linkage
+and validation only and must not be treated as authoritative resolved legal
+titles in user-facing UI or exports until a later story resolves them.
+
+This completion was verified locally with `node v25.6.1` because the shell did
+not provide a Node 22 version manager. Node 22 remains the declared repo
+contract in `.nvmrc` and `package.json`, but that exact runtime was not
+re-verified in this session.
 
 ## Goal
 
@@ -69,6 +101,8 @@ This story intentionally shapes the seed truth so later stories can:
 - start assessments from a template
 - persist answers against stable criterion ids
 - derive exports in stable checklist order
+- rely on `@vardi/checklists` as the only supported runtime read seam for
+  seeded catalog data
 
 ## Execution Rules
 

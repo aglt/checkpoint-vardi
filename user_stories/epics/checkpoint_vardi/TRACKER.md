@@ -15,7 +15,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 | ID    | Story                                                   | Status       | PR |
 |-------|---------------------------------------------------------|--------------|----|
-| S1-01 | Seed catalog foundation for assessment runtime          | not_started  |    |
+| S1-01 | Seed catalog foundation for assessment runtime          | done         | #3 |
 | S1-02 | Assessment domain and read model                        | not_started  |    |
 | S1-03 | Start assessment from seeded template                   | not_started  |    |
 | S1-04 | Assessment walkthrough form slice                       | not_started  |    |
@@ -34,5 +34,5 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 **Next up:**
 
-- `S1-01 - Seed catalog foundation for assessment runtime`
-- After `S1-01`, continue through `S1-02` to `S1-08` in dependency order and keep `S1-09` narrowly scoped and non-blocking.
+- `S1-02 - Assessment domain and read model`
+- Continue through `S1-03` to `S1-08` in dependency order and keep `S1-09` narrowly scoped and non-blocking.

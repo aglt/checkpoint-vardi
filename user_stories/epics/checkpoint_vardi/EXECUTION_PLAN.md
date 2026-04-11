@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-01`
-- Most recently completed step: `S0-01`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S0-01-foundations-scaffold.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-01-seed-catalog-foundation.md`
+- Next queued step: `S1-02`
+- Most recently completed step: `S1-01`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-01-seed-catalog-foundation.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-02-assessment-domain-and-read-model.md`
 
 ## S0 - Foundations
 
@@ -49,16 +49,26 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 
 ### Step S1-01: Seed catalog foundation for assessment runtime
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-01-seed-catalog-foundation.md`
-**Start gate:** Open after the completed S0 baseline.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-01-seed-catalog-foundation.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-02` through `S1-08` by establishing canonical seed runtime truth.
+
+**Completion note:**
+> Verified locally on branch `feat/checklists-seed-catalog-foundation`: preserved
+> the normalized seed JSON baseline, added the `@vardi/checklists` runtime seam
+> as the only supported package read boundary, added fail-fast runtime
+> integrity tests for manifest drift and catalog mismatch, and ran
+> `pnpm test`, `pnpm typecheck`, and `pnpm lint`. This session used
+> `node v25.6.1` because no Node 22 manager was available in the local shell;
+> Node 22 remains the declared repo contract, but was not directly
+> re-verified here. Open PR: `#3`.
 
 ### Step S1-02: Assessment domain and read model
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-02-assessment-domain-and-read-model.md`
-**Start gate:** Closed until `S1-01` is complete.
+**Start gate:** Open after `S1-01` is complete.
 **Unblocks:** `S1-03` and the persisted assessment flow.
 
 ### Step S1-03: Start assessment from seeded template
