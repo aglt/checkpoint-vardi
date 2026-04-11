@@ -105,6 +105,7 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 > row per seeded criterion in the flattened seeded order. Ran `pnpm test`,
 > `pnpm typecheck`, and `pnpm lint`. This session used `node v25.6.1`; Node 22
 > remains the declared repo contract, but was not directly re-verified here.
+> PR: `#5`.
 
 ### Step S1-04: Assessment walkthrough form slice
 
