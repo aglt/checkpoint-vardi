@@ -8,16 +8,16 @@
     "start": "next start --port 3000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'no tests yet' && exit 0"
+    "test": "tsx --test \"lib/**/*.test.ts\""
   },
   "dependencies": {
-    "@vardi/ui": "workspace:*",
-    "@vardi/config": "workspace:*",
-    "@vardi/schemas": "workspace:*",
-    "@vardi/db": "workspace:*",
-    "@vardi/risk": "workspace:*",
-    "@vardi/export": "workspace:*",
     "@vardi/checklists": "workspace:*",
+    "@vardi/config": "workspace:*",
+    "@vardi/db": "workspace:*",
+    "@vardi/export": "workspace:*",
+    "@vardi/risk": "workspace:*",
+    "@vardi/schemas": "workspace:*",
+    "@vardi/ui": "workspace:*",
     "next": "^15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -30,6 +30,7 @@
     "eslint-config-next": "^15.5.15",
     "postcss": "^8.5.0",
     "tailwindcss": "^4.0.0",
+    "tsx": "^4.19.2",
     "typescript": "~5.7.0"
   }
 }
