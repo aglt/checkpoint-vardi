@@ -20,6 +20,11 @@ export {
   type CreateWorkplaceAssessmentResult,
 } from "./create-workplace-assessment.js";
 export {
+  AssessmentFindingResponseNotFoundError,
+  updateAssessmentFindingResponse,
+  type UpdateAssessmentFindingResponseParams,
+} from "./update-assessment-finding-response.js";
+export {
   assessmentStatuses,
   assessmentSummary,
   controlHierarchies,
