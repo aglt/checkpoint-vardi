@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-02`
-- Most recently completed step: `S1-01`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-01-seed-catalog-foundation.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-02-assessment-domain-and-read-model.md`
+- Next queued step: `S1-03`
+- Most recently completed step: `S1-02`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-02-assessment-domain-and-read-model.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-03-start-assessment-from-seeded-template.md`
 
 ## S0 - Foundations
 
@@ -66,16 +66,31 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 
 ### Step S1-02: Assessment domain and read model
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-02-assessment-domain-and-read-model.md`
-**Start gate:** Open after `S1-01` is complete.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-02-assessment-domain-and-read-model.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-03` and the persisted assessment flow.
+
+**Completion note:**
+> Verified locally on branch `feat/assessment-domain-read-model`: added the
+> first persisted assessment slice in `packages/db` with a replayable SQLite
+> migration, owner-scoped aggregate loading, unique constraints for response,
+> risk-entry, and summary rows, and an app-owned
+> `loadAssessmentReadModel` seam that composes persisted state with
+> `@vardi/checklists` seeded runtime data. The read seam preserves seeded
+> walkthrough order, defaults missing responses to `unanswered`, keeps summary
+> and risk-entry status as presence-only flags, and fails deterministically on
+> checklist tuple drift, orphaned criterion ids, and missing risk matrix ids.
+> Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint`. This session used
+> `node v25.6.1` because no Node 22 manager was available in the local shell;
+> Node 22 remains the declared repo contract, but was not directly re-verified
+> here.
 
 ### Step S1-03: Start assessment from seeded template
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-03-start-assessment-from-seeded-template.md`
-**Start gate:** Closed until `S1-01` and `S1-02` are complete.
+**Start gate:** Open after `S1-01` and `S1-02` are complete.
 **Unblocks:** `S1-04` by materializing runnable assessment instances.
 
 ### Step S1-04: Assessment walkthrough form slice
