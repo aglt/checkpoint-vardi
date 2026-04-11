@@ -8,17 +8,18 @@ import riskMatricesSource from "../assets/seeds/risk_matrices.json";
 import woodworkingWorkshopSource from "../assets/seeds/woodworking-workshop.json";
 
 import {
-  buildSeedRuntime,
   getLegalReferenceByCode,
   getLegalReferenceCatalog,
   getRiskMatrixBySlug,
   getSeedChecklistBySlug,
-  getSeedManifest,
   listLegalReferences,
   listRiskMatrices,
   listSeedChecklists,
+} from "./index.js";
+import {
+  buildSeedRuntime,
   type SeedRuntimeSourceData,
-} from "./runtime.js";
+} from "./internal/runtime-builder.js";
 
 function createSourceData(): SeedRuntimeSourceData {
   return JSON.parse(JSON.stringify({
@@ -39,12 +40,12 @@ function createSourceData(): SeedRuntimeSourceData {
 }
 
 test("public seam preserves manifest and source ordering", () => {
-  const manifest = getSeedManifest();
+  const sourceData = createSourceData();
   const summaries = listSeedChecklists();
 
   assert.deepEqual(
     summaries.map((summary) => summary.slug),
-    manifest.checklists.map((summary) => summary.slug),
+    sourceData.manifest.checklists.map((summary) => summary.slug as string),
   );
   assert.deepEqual(
     summaries.map((summary) => summary.slug),

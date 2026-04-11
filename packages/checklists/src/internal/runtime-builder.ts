@@ -1,134 +1,39 @@
-import constructionSiteSource from "../assets/seeds/construction-site.json";
-import legalReferencesSource from "../assets/seeds/legal_references.json";
-import manifestSource from "../assets/seeds/manifest.json";
-import riskMatricesSource from "../assets/seeds/risk_matrices.json";
-import woodworkingWorkshopSource from "../assets/seeds/woodworking-workshop.json";
+import constructionSiteSource from "../../assets/seeds/construction-site.json";
+import legalReferencesSource from "../../assets/seeds/legal_references.json";
+import manifestSource from "../../assets/seeds/manifest.json";
+import riskMatricesSource from "../../assets/seeds/risk_matrices.json";
+import woodworkingWorkshopSource from "../../assets/seeds/woodworking-workshop.json";
 
-export interface SeedTranslation {
-  readonly title: string;
-}
+import type {
+  CanonicalLegalReference,
+  LegalReference,
+  LegalReferenceCatalog,
+  RiskLevel,
+  RiskMatrix,
+  SeedChecklist,
+  SeedChecklistSummary,
+  UnresolvedImportedLegalReference,
+} from "../index.js";
 
-export interface SeedCriterionTranslation extends SeedTranslation {
-  readonly guidance: string;
-}
+type SeedChecklistSection = SeedChecklist["sections"][number];
+type SeedChecklistCriterion = SeedChecklistSection["criteria"][number];
+type ChecklistTitleTranslations = SeedChecklist["translations"];
+type CriterionTranslations = SeedChecklistCriterion["translations"];
 
-export interface SeedTitleTranslations {
-  readonly is: SeedTranslation;
-}
-
-export interface SeedCriterionTranslations {
-  readonly is: SeedCriterionTranslation;
-}
-
-export interface SeedChecklistMetadata {
-  readonly source: {
-    readonly fileName: string | null;
-    readonly url: string | null;
-  };
-}
-
-export interface SeedCriterion {
-  readonly id: string;
-  readonly number: string;
-  readonly order: number;
-  readonly legalRefs: readonly string[];
-  readonly translations: SeedCriterionTranslations;
-}
-
-export interface SeedSection {
-  readonly id: string;
-  readonly order: number;
-  readonly translations: SeedTitleTranslations;
-  readonly criteria: readonly SeedCriterion[];
-}
-
-export interface SeedChecklist {
-  readonly id: string;
-  readonly slug: string;
-  readonly version: string;
-  readonly defaultLanguage: string;
-  readonly metadata: SeedChecklistMetadata;
-  readonly translations: SeedTitleTranslations;
-  readonly sections: readonly SeedSection[];
-}
-
-export interface SeedChecklistSummary {
-  readonly id: string;
-  readonly slug: string;
-  readonly version: string;
-  readonly defaultLanguage: string;
-  readonly sections: number;
-  readonly criteria: number;
-  readonly translations: SeedTitleTranslations;
-}
-
-export interface SeedManifest {
-  readonly checklists: readonly SeedChecklistSummary[];
-  readonly legalReferences: {
-    readonly canonicalCount: number;
-    readonly unresolvedImportedCount: number;
-    readonly count: number;
-  };
-  readonly riskMatrices: {
-    readonly count: number;
-  };
-}
-
-export interface CanonicalLegalReference {
-  readonly id: string;
-  readonly code: string;
-  readonly url: string | null;
-  readonly translations: SeedTitleTranslations;
-  readonly resolutionStatus: "canonical_resolved";
-}
-
-export interface UnresolvedImportedLegalReference {
-  readonly id: string;
-  readonly code: string;
-  readonly url: string | null;
-  readonly translations: SeedTitleTranslations;
-  readonly resolutionStatus: "unresolved_imported_code";
-  readonly metadata: {
-    readonly source: "derived-from-checklist-usage";
-    readonly displayMode: "code_only";
-  };
-}
-
-export type LegalReference =
-  | CanonicalLegalReference
-  | UnresolvedImportedLegalReference;
-
-export interface LegalReferenceCatalog {
-  readonly canonicalReferences: readonly CanonicalLegalReference[];
-  readonly unresolvedImportedReferences: readonly UnresolvedImportedLegalReference[];
-  readonly allReferences: readonly LegalReference[];
-}
-
-export type RiskLevel = "low" | "medium" | "high";
-
-export interface RiskMatrix {
-  readonly id: string;
-  readonly slug: string;
-  readonly likelihoodLevels: number;
-  readonly consequenceLevels: number;
-  readonly lookup: Readonly<Record<string, RiskLevel>>;
-  readonly translations: SeedTitleTranslations;
-}
-
-export type RawTitleTranslations = {
+type RawTitleTranslations = {
   is: {
     title: unknown;
   };
 };
 
-export type RawCriterionTranslations = {
+type RawCriterionTranslations = {
   is: {
     title: unknown;
     guidance: unknown;
   };
 };
 
-export type RawChecklist = {
+type RawChecklist = {
   id: unknown;
   slug: unknown;
   version: unknown;
@@ -143,14 +48,14 @@ export type RawChecklist = {
   sections: RawSection[];
 };
 
-export type RawSection = {
+type RawSection = {
   id: unknown;
   order: unknown;
   translations: RawTitleTranslations;
   criteria: RawCriterion[];
 };
 
-export type RawCriterion = {
+type RawCriterion = {
   id: unknown;
   number: unknown;
   order: unknown;
@@ -158,7 +63,7 @@ export type RawCriterion = {
   translations: RawCriterionTranslations;
 };
 
-export type RawManifestChecklistEntry = {
+type RawManifestChecklistEntry = {
   id: unknown;
   slug: unknown;
   file: unknown;
@@ -168,7 +73,7 @@ export type RawManifestChecklistEntry = {
   criteria: unknown;
 };
 
-export type RawManifest = {
+type RawManifest = {
   checklists: RawManifestChecklistEntry[];
   legalReferences: {
     file: unknown;
@@ -182,7 +87,7 @@ export type RawManifest = {
   };
 };
 
-export type RawCanonicalLegalReference = {
+type RawCanonicalLegalReference = {
   id: unknown;
   code: unknown;
   url: unknown;
@@ -190,19 +95,19 @@ export type RawCanonicalLegalReference = {
   resolutionStatus: unknown;
 };
 
-export type RawUnresolvedImportedLegalReference = RawCanonicalLegalReference & {
+type RawUnresolvedImportedLegalReference = RawCanonicalLegalReference & {
   metadata: {
     source: unknown;
     displayMode: unknown;
   };
 };
 
-export type RawLegalReferenceCatalog = {
+type RawLegalReferenceCatalog = {
   canonicalReferences: RawCanonicalLegalReference[];
   unresolvedImportedReferences: RawUnresolvedImportedLegalReference[];
 };
 
-export type RawRiskMatrix = {
+type RawRiskMatrix = {
   id: unknown;
   slug: unknown;
   likelihoodLevels: unknown;
@@ -211,7 +116,7 @@ export type RawRiskMatrix = {
   translations: RawTitleTranslations;
 };
 
-export type RawRiskMatrixCatalog = {
+type RawRiskMatrixCatalog = {
   matrices: RawRiskMatrix[];
 };
 
@@ -225,9 +130,8 @@ export interface SeedRuntimeSourceData {
   readonly riskMatrices: RawRiskMatrixCatalog;
 }
 
-export type SeedRuntime = {
-  readonly manifest: SeedManifest;
-  readonly checklists: readonly SeedChecklist[];
+type SeedRuntime = {
+  readonly checklistSummaries: readonly SeedChecklistSummary[];
   readonly checklistById: ReadonlyMap<string, SeedChecklist>;
   readonly checklistBySlug: ReadonlyMap<string, SeedChecklist>;
   readonly legalReferenceCatalog: LegalReferenceCatalog;
@@ -239,23 +143,23 @@ export type SeedRuntime = {
 
 const allowedRiskLevels = new Set<RiskLevel>(["low", "medium", "high"]);
 
-const defaultSeedSourceData: SeedRuntimeSourceData = {
-  manifest: manifestSource as RawManifest,
-  checklists: [
-    {
-      file: "woodworking-workshop.json",
-      checklist: woodworkingWorkshopSource as RawChecklist,
-    },
-    {
-      file: "construction-site.json",
-      checklist: constructionSiteSource as RawChecklist,
-    },
-  ],
-  legalReferences: legalReferencesSource as RawLegalReferenceCatalog,
-  riskMatrices: riskMatricesSource as RawRiskMatrixCatalog,
-};
-
-const runtime = buildSeedRuntime(defaultSeedSourceData);
+export function createDefaultSeedRuntime(): SeedRuntime {
+  return buildSeedRuntime({
+    manifest: manifestSource as RawManifest,
+    checklists: [
+      {
+        file: "woodworking-workshop.json",
+        checklist: woodworkingWorkshopSource as RawChecklist,
+      },
+      {
+        file: "construction-site.json",
+        checklist: constructionSiteSource as RawChecklist,
+      },
+    ],
+    legalReferences: legalReferencesSource as RawLegalReferenceCatalog,
+    riskMatrices: riskMatricesSource as RawRiskMatrixCatalog,
+  });
+}
 
 export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime {
   const manifest = sourceData.manifest;
@@ -296,8 +200,7 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
   const seenManifestChecklistIds = new Set<string>();
   const seenManifestChecklistSlugs = new Set<string>();
   const seenManifestChecklistFiles = new Set<string>();
-  const builtChecklistSummaries: SeedChecklistSummary[] = [];
-  const builtChecklists: SeedChecklist[] = [];
+  const checklistSummaries: SeedChecklistSummary[] = [];
   const checklistById = new Map<string, SeedChecklist>();
   const checklistBySlug = new Map<string, SeedChecklist>();
 
@@ -364,7 +267,7 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
       `Seed manifest references unknown checklist file: ${checklistFile}`,
     );
 
-    const builtChecklist = buildChecklist(
+    const checklist = buildChecklist(
       rawChecklist,
       {
         id: checklistId,
@@ -378,25 +281,24 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
     );
 
     ensure(
-      !checklistById.has(builtChecklist.id),
-      `Duplicate checklist id in runtime catalog: ${builtChecklist.id}`,
+      !checklistById.has(checklist.id),
+      `Duplicate checklist id in runtime catalog: ${checklist.id}`,
     );
     ensure(
-      !checklistBySlug.has(builtChecklist.slug),
-      `Duplicate checklist slug in runtime catalog: ${builtChecklist.slug}`,
+      !checklistBySlug.has(checklist.slug),
+      `Duplicate checklist slug in runtime catalog: ${checklist.slug}`,
     );
 
-    checklistById.set(builtChecklist.id, builtChecklist);
-    checklistBySlug.set(builtChecklist.slug, builtChecklist);
-    builtChecklists.push(builtChecklist);
-    builtChecklistSummaries.push({
-      id: builtChecklist.id,
-      slug: builtChecklist.slug,
-      version: builtChecklist.version,
-      defaultLanguage: builtChecklist.defaultLanguage,
-      sections: builtChecklist.sections.length,
-      criteria: countChecklistCriteria(builtChecklist.sections),
-      translations: builtChecklist.translations,
+    checklistById.set(checklist.id, checklist);
+    checklistBySlug.set(checklist.slug, checklist);
+    checklistSummaries.push({
+      id: checklist.id,
+      slug: checklist.slug,
+      version: checklist.version,
+      defaultLanguage: checklist.defaultLanguage,
+      sections: checklist.sections.length,
+      criteria: countChecklistCriteria(checklist.sections),
+      translations: checklist.translations,
     });
   }
 
@@ -405,21 +307,8 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
     "Seed runtime checklist imports and manifest entries must stay aligned",
   );
 
-  const publicManifest: SeedManifest = {
-    checklists: builtChecklistSummaries,
-    legalReferences: {
-      canonicalCount: legalReferenceCatalog.catalog.canonicalReferences.length,
-      unresolvedImportedCount:
-        legalReferenceCatalog.catalog.unresolvedImportedReferences.length,
-      count: legalReferenceCatalog.catalog.allReferences.length,
-    },
-    riskMatrices: {
-      count: riskMatrixCatalog.riskMatrices.length,
-    },
-  };
-
   ensure(
-    publicManifest.legalReferences.canonicalCount ===
+    legalReferenceCatalog.catalog.canonicalReferences.length ===
       expectNonNegativeInteger(
         manifest.legalReferences.canonicalCount,
         "Seed manifest legalReferences.canonicalCount",
@@ -427,7 +316,7 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
     "Seed manifest canonical legal reference count does not match runtime catalog",
   );
   ensure(
-    publicManifest.legalReferences.unresolvedImportedCount ===
+    legalReferenceCatalog.catalog.unresolvedImportedReferences.length ===
       expectNonNegativeInteger(
         manifest.legalReferences.unresolvedImportedCount,
         "Seed manifest legalReferences.unresolvedImportedCount",
@@ -435,7 +324,7 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
     "Seed manifest unresolved imported legal reference count does not match runtime catalog",
   );
   ensure(
-    publicManifest.legalReferences.count ===
+    legalReferenceCatalog.catalog.allReferences.length ===
       expectNonNegativeInteger(
         manifest.legalReferences.count,
         "Seed manifest legalReferences.count",
@@ -443,7 +332,7 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
     "Seed manifest total legal reference count does not match runtime catalog",
   );
   ensure(
-    publicManifest.riskMatrices.count ===
+    riskMatrixCatalog.riskMatrices.length ===
       expectNonNegativeInteger(
         manifest.riskMatrices.count,
         "Seed manifest riskMatrices.count",
@@ -451,14 +340,13 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
     "Seed manifest risk matrix count does not match runtime catalog",
   );
 
-  deepFreeze(publicManifest);
-  deepFreeze(builtChecklists);
+  deepFreeze(checklistSummaries);
+  deepFreeze([...checklistById.values()]);
   deepFreeze(legalReferenceCatalog.catalog);
   deepFreeze(riskMatrixCatalog.riskMatrices);
 
   return {
-    manifest: publicManifest,
-    checklists: builtChecklists,
+    checklistSummaries,
     checklistById,
     checklistBySlug,
     legalReferenceCatalog: legalReferenceCatalog.catalog,
@@ -467,46 +355,6 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
     riskMatrixById: riskMatrixCatalog.riskMatrixById,
     riskMatrixBySlug: riskMatrixCatalog.riskMatrixBySlug,
   };
-}
-
-export function getSeedManifest(): SeedManifest {
-  return runtime.manifest;
-}
-
-export function listSeedChecklists(): readonly SeedChecklistSummary[] {
-  return runtime.manifest.checklists;
-}
-
-export function getSeedChecklistById(id: string): SeedChecklist | undefined {
-  return runtime.checklistById.get(id);
-}
-
-export function getSeedChecklistBySlug(slug: string): SeedChecklist | undefined {
-  return runtime.checklistBySlug.get(slug);
-}
-
-export function getLegalReferenceCatalog(): LegalReferenceCatalog {
-  return runtime.legalReferenceCatalog;
-}
-
-export function listLegalReferences(): readonly LegalReference[] {
-  return runtime.legalReferenceCatalog.allReferences;
-}
-
-export function getLegalReferenceByCode(code: string): LegalReference | undefined {
-  return runtime.legalReferenceByCode.get(code);
-}
-
-export function listRiskMatrices(): readonly RiskMatrix[] {
-  return runtime.riskMatrices;
-}
-
-export function getRiskMatrixById(id: string): RiskMatrix | undefined {
-  return runtime.riskMatrixById.get(id);
-}
-
-export function getRiskMatrixBySlug(slug: string): RiskMatrix | undefined {
-  return runtime.riskMatrixBySlug.get(slug);
 }
 
 function buildChecklist(
@@ -549,23 +397,27 @@ function buildChecklist(
     `Seed checklist ${checklistSlug} defaultLanguage does not match manifest (${manifestChecklist.defaultLanguage})`,
   );
 
+  ensure(
+    rawChecklist.metadata !== null &&
+      typeof rawChecklist.metadata === "object" &&
+      rawChecklist.metadata.source !== null &&
+      typeof rawChecklist.metadata.source === "object",
+    `Seed checklist ${checklistSlug}.metadata.source must be an object`,
+  );
+  expectNullableString(
+    rawChecklist.metadata.source.fileName,
+    `Seed checklist ${checklistSlug}.metadata.source.fileName`,
+  );
+  expectNullableString(
+    rawChecklist.metadata.source.url,
+    `Seed checklist ${checklistSlug}.metadata.source.url`,
+  );
+
   const checklist: SeedChecklist = {
     id: checklistId,
     slug: checklistSlug,
     version: checklistVersion,
     defaultLanguage,
-    metadata: {
-      source: {
-        fileName: expectNullableString(
-          rawChecklist.metadata?.source?.fileName,
-          `Seed checklist ${checklistSlug}.metadata.source.fileName`,
-        ),
-        url: expectNullableString(
-          rawChecklist.metadata?.source?.url,
-          `Seed checklist ${checklistSlug}.metadata.source.url`,
-        ),
-      },
-    },
     translations: buildTitleTranslations(
       rawChecklist.translations,
       `Seed checklist ${checklistSlug}.translations`,
@@ -591,14 +443,14 @@ function buildSections(
   checklistSlug: string,
   rawSections: RawSection[],
   legalReferenceByCode: ReadonlyMap<string, LegalReference>,
-): readonly SeedSection[] {
+): readonly SeedChecklistSection[] {
   ensure(
     Array.isArray(rawSections),
     `Seed checklist ${checklistSlug}.sections must be an array`,
   );
 
   const sectionIds = new Set<string>();
-  const sections: SeedSection[] = [];
+  const sections: SeedChecklistSection[] = [];
 
   for (const [sectionIndex, rawSection] of rawSections.entries()) {
     const sectionId = expectNonEmptyString(
@@ -620,13 +472,6 @@ function buildSections(
     );
     sectionIds.add(sectionId);
 
-    const criteria = buildCriteria(
-      checklistSlug,
-      sectionId,
-      rawSection.criteria,
-      legalReferenceByCode,
-    );
-
     sections.push({
       id: sectionId,
       order: sectionOrder,
@@ -634,7 +479,12 @@ function buildSections(
         rawSection.translations,
         `Seed checklist ${checklistSlug} section ${sectionId}.translations`,
       ),
-      criteria,
+      criteria: buildCriteria(
+        checklistSlug,
+        sectionId,
+        rawSection.criteria,
+        legalReferenceByCode,
+      ),
     });
   }
 
@@ -646,14 +496,14 @@ function buildCriteria(
   sectionId: string,
   rawCriteria: RawCriterion[],
   legalReferenceByCode: ReadonlyMap<string, LegalReference>,
-): readonly SeedCriterion[] {
+): readonly SeedChecklistCriterion[] {
   ensure(
     Array.isArray(rawCriteria),
     `Seed checklist ${checklistSlug} section ${sectionId}.criteria must be an array`,
   );
 
   const criterionIds = new Set<string>();
-  const criteria: SeedCriterion[] = [];
+  const criteria: SeedChecklistCriterion[] = [];
 
   for (const [criterionIndex, rawCriterion] of rawCriteria.entries()) {
     const criterionId = expectNonEmptyString(
@@ -675,13 +525,6 @@ function buildCriteria(
     );
     criterionIds.add(criterionId);
 
-    const legalRefs = buildLegalRefs(
-      checklistSlug,
-      criterionId,
-      rawCriterion.legalRefs,
-      legalReferenceByCode,
-    );
-
     criteria.push({
       id: criterionId,
       number: expectNonEmptyString(
@@ -689,7 +532,12 @@ function buildCriteria(
         `Seed checklist ${checklistSlug} criterion ${criterionId}.number`,
       ),
       order: criterionOrder,
-      legalRefs,
+      legalRefs: buildLegalRefs(
+        checklistSlug,
+        criterionId,
+        rawCriterion.legalRefs,
+        legalReferenceByCode,
+      ),
       translations: buildCriterionTranslations(
         rawCriterion.translations,
         `Seed checklist ${checklistSlug} criterion ${criterionId}.translations`,
@@ -998,7 +846,7 @@ function buildRiskMatrix(rawMatrix: RawRiskMatrix, index: number): RiskMatrix {
 function buildTitleTranslations(
   rawTranslations: RawTitleTranslations,
   label: string,
-): SeedTitleTranslations {
+): ChecklistTitleTranslations {
   ensure(
     rawTranslations !== null &&
       typeof rawTranslations === "object" &&
@@ -1017,7 +865,7 @@ function buildTitleTranslations(
 function buildCriterionTranslations(
   rawTranslations: RawCriterionTranslations,
   label: string,
-): SeedCriterionTranslations {
+): CriterionTranslations {
   ensure(
     rawTranslations !== null &&
       typeof rawTranslations === "object" &&
@@ -1037,7 +885,7 @@ function buildCriterionTranslations(
   };
 }
 
-function countChecklistCriteria(sections: readonly SeedSection[]): number {
+function countChecklistCriteria(sections: readonly SeedChecklistSection[]): number {
   return sections.reduce((count, section) => count + section.criteria.length, 0);
 }
 

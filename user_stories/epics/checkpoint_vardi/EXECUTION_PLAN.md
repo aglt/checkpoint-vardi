@@ -75,7 +75,7 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-03-start-assessment-from-seeded-template.md`
-**Start gate:** Closed until `S1-02` is complete.
+**Start gate:** Closed until `S1-01` and `S1-02` are complete.
 **Unblocks:** `S1-04` by materializing runnable assessment instances.
 
 ### Step S1-04: Assessment walkthrough form slice
@@ -96,7 +96,7 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-06-risk-classification-engine-and-editing.md`
-**Start gate:** Closed until `S1-05` is complete.
+**Start gate:** Closed until `S1-01` and `S1-05` are complete.
 **Unblocks:** `S1-07` by making risk entries editable and classifiable.
 
 ### Step S1-07: Summary form and export readiness
