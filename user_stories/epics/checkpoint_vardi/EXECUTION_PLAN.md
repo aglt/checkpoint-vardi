@@ -32,4 +32,5 @@ S0-01 (Runnable Empty Scaffold)
 > Verified locally on branch `chore/foundations-scaffold`: `pnpm install`, `pnpm typecheck`,
 > `pnpm lint`, `pnpm lint:boundaries`, `pnpm test`, `pnpm build`, `pnpm dev` with a successful
 > `http://localhost:3000` check, the story codename scan, the stricter legacy-name scan, and
-> `git status`.
+> `git status`. This session used `node v25.6.1` because no Node 22 manager was available in the
+> local shell; Node 22 remains the declared repo contract, but was not directly re-verified here.

@@ -26,6 +26,16 @@ The verified baseline now supports `pnpm install`, `pnpm typecheck`,
 `pnpm lint`, `pnpm test`, `pnpm build`, and `pnpm dev`, with the placeholder
 landing page served at `http://localhost:3000`.
 
+The placeholder app intentionally uses English-only source strings, `lang="en"`,
+and the ASCII form `Checkpoint Vardi` in app source so this scaffold story
+meets the Icelandic-content discipline acceptance criterion without introducing
+real localized product copy.
+
+This completion was validated locally with `node v25.6.1` because the shell did
+not provide `nvm` or another Node 22 manager. Node 22 remains the declared repo
+contract in `.nvmrc` and `package.json`, but that exact runtime was not
+re-verified in this session.
+
 ## User Story
 
 > **As a** developer joining the Checkpoint Vardi project,  

@@ -9,7 +9,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 | ID   | Story                                 | Status      | PR |
 |------|---------------------------------------|-------------|----|
-| S0-01 | Foundations: runnable empty scaffold | done        |    |
+| S0-01 | Foundations: runnable empty scaffold | done        | #1 |
 
 ---
 
