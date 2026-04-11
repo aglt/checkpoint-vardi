@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
@@ -17,13 +18,19 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/*": ["./*"],
+      "@vardi/checklists": ["../../packages/checklists/src/index.ts"],
+      "@vardi/config": ["../../packages/config/src/index.ts"],
+      "@vardi/db": ["../../packages/db/src/index.ts"],
+      "@vardi/export": ["../../packages/export/src/index.ts"],
+      "@vardi/risk": ["../../packages/risk/src/index.ts"],
+      "@vardi/schemas": ["../../packages/schemas/src/index.ts"],
       "@vardi/ui/*": ["../../packages/ui/src/*"],
+      "@vardi/checklists/*": ["../../packages/checklists/src/*"],
       "@vardi/config/*": ["../../packages/config/src/*"],
-      "@vardi/schemas/*": ["../../packages/schemas/src/*"],
       "@vardi/db/*": ["../../packages/db/src/*"],
-      "@vardi/risk/*": ["../../packages/risk/src/*"],
       "@vardi/export/*": ["../../packages/export/src/*"],
-      "@vardi/checklists/*": ["../../packages/checklists/src/*"]
+      "@vardi/risk/*": ["../../packages/risk/src/*"],
+      "@vardi/schemas/*": ["../../packages/schemas/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -1,12 +1,12 @@
-import tseslint from "typescript-eslint";
+import sharedConfig from "./packages/config/eslint.config.mjs";
 
-// Root ESLint config — architectural boundary enforcement only.
-// Code quality rules live in per-app configs (next lint).
+// Root ESLint config — shared parsing plus architectural boundary enforcement.
 //
 // Rules enforced:
 // 1. Shared packages must not import other @vardi/* packages or next/*
 // 2. Apps must not import other apps
 // 3. No deep imports into package internals (@vardi/*/src/*)
+// 4. apps/web must not call fetch() directly
 
 const noVardiImports = {
   group: ["@vardi/*", "@vardi/**"],
@@ -25,29 +25,7 @@ const noDeepImports = {
 };
 
 export default [
-  {
-    ignores: [
-      "**/node_modules/**",
-      "**/.next/**",
-      "**/dist/**",
-      "**/{eslint,prettier,postcss,tailwind,next,vitest,jest,playwright,drizzle}.config.*",
-      "**/playwright-report/**",
-      "**/test-results/**",
-    ],
-  },
-
-  {
-    files: ["**/*.{ts,tsx}"],
-    plugins: {
-      "@typescript-eslint": tseslint.plugin,
-    },
-    languageOptions: {
-      parser: tseslint.parser,
-    },
-    linterOptions: {
-      reportUnusedDisableDirectives: "off",
-    },
-  },
+  ...sharedConfig,
 
   // Shared packages must not cross-import or touch next/*
   {
@@ -100,6 +78,26 @@ export default [
       "no-restricted-imports": [
         "error",
         { patterns: [noDeepImports] },
+      ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.name='fetch']",
+          message:
+            "Do not call fetch() directly in apps/web. Use typed route or client helpers instead.",
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='globalThis'][callee.property.name='fetch']",
+          message:
+            "Do not call fetch() directly in apps/web. Use typed route or client helpers instead.",
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='window'][callee.property.name='fetch']",
+          message:
+            "Do not call fetch() directly in apps/web. Use typed route or client helpers instead.",
+        },
       ],
     },
   },

@@ -1,6 +1,6 @@
 # S0-01 - Foundations: runnable empty scaffold
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S0 - Foundations
 > **Epic:** Core Team - project bootstrap
 > **Priority:** P0 (blocks every other story)
@@ -13,20 +13,28 @@ Depends on: None
 
 ## Context
 
-The repository already contains the monorepo skeleton (see the initial scaffold
-commit). The file tree is in place, the ESLint boundaries are declared, and
-package manifests reference the house tooling, but nothing has been installed
-yet, no lockfile exists, and `pnpm dev` has never been run against this tree.
+This story is complete. The repository now has a committed `pnpm-lock.yaml`, a
+verified scaffold command set, workspace `test` scripts across the monorepo,
+shared and app-local ESLint wiring, a latent `fetch()` lint guard for
+`apps/web`, a buildable placeholder app, and cleaned legacy-name references.
 
-This story takes the scaffold from "files on disk" to "runnable empty project"
-so the rest of the handoff backlog has a trustworthy foundation to build on.
-It is intentionally small and boring. No features land here. The only outcome
-is a clean green pipeline on an empty app.
+The work stayed intentionally narrow: tooling, scripts, lockfile, lint, build,
+README baseline, and story/doc hygiene only. No feature, schema, auth, or
+product implementation landed here.
 
-When this story is done, any contributor can clone the repo, run `pnpm install`
-and `pnpm dev`, and see the placeholder landing page at `http://localhost:3000`
-with zero warnings. Every subsequent story in the handoff document then starts
-from a known-good baseline.
+The verified baseline now supports `pnpm install`, `pnpm typecheck`,
+`pnpm lint`, `pnpm test`, `pnpm build`, and `pnpm dev`, with the placeholder
+landing page served at `http://localhost:3000`.
+
+The placeholder app intentionally uses English-only source strings, `lang="en"`,
+and the ASCII form `Checkpoint Vardi` in app source so this scaffold story
+meets the Icelandic-content discipline acceptance criterion without introducing
+real localized product copy.
+
+This completion was validated locally with `node v25.6.1` because the shell did
+not provide `nvm` or another Node 22 manager. Node 22 remains the declared repo
+contract in `.nvmrc` and `package.json`, but that exact runtime was not
+re-verified in this session.
 
 ## User Story
 

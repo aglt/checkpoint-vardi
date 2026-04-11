@@ -2,7 +2,7 @@
 
 Workplace Safety Management Platform
 
-*Codename: Vindhlíf*
+*Archived alternate-name draft*
 
 *A reusable platform for statutory Icelandic workplace risk assessments
 and the broader written safety plan.*
@@ -62,7 +62,7 @@ are load-bearing for compliance with Act 46/1980 and Regulation
 
 **2. Executive Summary**
 
-Vindhlíf is a web application for preparing, maintaining, and producing
+Checkpoint Vardi is a web application for preparing, maintaining, and producing
 the written safety plan that Icelandic law requires of every workplace.
 It operationalises the statutory six-step risk assessment methodology
 issued by Vinnueftirlitið (the Administration of Occupational Safety and
@@ -820,7 +820,7 @@ deployment.
     data source or as an export target, and if so what is the canonical
     mapping between OiRA modules and the platform\'s checklist entities?
 
--   Does the user intend to host Vindhlíf as a single-user local tool, a
+-   Does the user intend to host the platform as a single-user local tool, a
     multi-tenant shared service, or both, and how does that intention
     affect the operational plan for Stage Three?
 

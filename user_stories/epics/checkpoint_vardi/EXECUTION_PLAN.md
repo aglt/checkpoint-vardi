@@ -7,8 +7,9 @@
 
 ## Current State
 
-- Active step: `S0-01`
-- Active story file: `user_stories/epics/checkpoint_vardi/not_started/S0-01-foundations-scaffold.md`
+- Active step: none queued
+- Most recently completed step: `S0-01`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S0-01-foundations-scaffold.md`
 
 ## S0 - Foundations
 
@@ -22,20 +23,14 @@ S0-01 (Runnable Empty Scaffold)
 
 **Agent:** Single | **Complexity:** Medium
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S0-01-foundations-scaffold.md`
-**Start gate:** Ready.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S0-01-foundations-scaffold.md`
+**Start gate:** Closed.
 **Unblocks:** The first implementation stories that depend on a runnable repo baseline.
 
-**Prompt:**
-> Implement `S0-01` from `user_stories/epics/checkpoint_vardi/not_started/S0-01-foundations-scaffold.md`.
->
-> Read `AGENTS.md`, `CLAUDE.md`, and `docs/ARCHITECTURE_BOUNDARIES.md` first.
->
-> Keep scope to tooling, scripts, lockfile, typecheck, lint, test, build, and dev-server baseline
-> work only. Do not widen the story into schema, UI, feature, or product implementation.
->
-> Invoke `$vardi-story-management` for any story-state updates. Use the relevant local skills for
-> architecture, tests, and frontend verification as needed.
->
-> Verify the commands listed in the story and leave the repo in a clean state.
+**Completion note:**
+> Verified locally on branch `chore/foundations-scaffold`: `pnpm install`, `pnpm typecheck`,
+> `pnpm lint`, `pnpm lint:boundaries`, `pnpm test`, `pnpm build`, `pnpm dev` with a successful
+> `http://localhost:3000` check, the story codename scan, the stricter legacy-name scan, and
+> `git status`. This session used `node v25.6.1` because no Node 22 manager was available in the
+> local shell; Node 22 remains the declared repo contract, but was not directly re-verified here.

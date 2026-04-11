@@ -11,7 +11,7 @@
     "./languages": "./src/supported-languages.ts"
   },
   "scripts": {
-    "lint": "eslint src",
+    "lint": "eslint --config ../../eslint.config.mjs src",
     "typecheck": "tsc --noEmit",
     "test": "echo 'no tests yet'"
   },

@@ -145,7 +145,7 @@ systems.
 Source: docs/diagrams/01-system-context.mmd
 
 +----------------------------------------------------------------------+
-| %% System Context --- Vindhlíf                                       |
+| %% System Context --- Checkpoint Vardi                               |
 |                                                                      |
 | %% Shows external actors and neighbouring systems that interact with |
 | the platform.                                                        |
@@ -160,7 +160,7 @@ Source: docs/diagrams/01-system-context.mmd
 |                                                                      |
 | inspector(\[Inspector / Teacher\])                                   |
 |                                                                      |
-| subgraph platform\[\"Vindhlíf Platform\"\]                           |
+| subgraph platform\[\"Checkpoint Vardi Platform\"\]                   |
 |                                                                      |
 | web\[\"Web Application\<br/\>(apps/web)\"\]                          |
 |                                                                      |
@@ -1360,7 +1360,7 @@ Source: docs/diagrams/07-deployment-topology.mmd
 |                                                                |
 | devWorker\[\"doc-worker\<br/\>uvicorn :8000\"\]                |
 |                                                                |
-| devSqlite\[(\"sqlite file\<br/\>./data/vindhlif.db\")\]        |
+| devSqlite\[(\"sqlite file\<br/\>./data/checkpoint-vardi.db\")\] |
 |                                                                |
 | devMedia\[(\"./media/\")\]                                     |
 |                                                                |

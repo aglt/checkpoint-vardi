@@ -20,7 +20,7 @@ Read this file before making changes in this repository.
 
 - Editable Mermaid architecture sources live in `docs/diagrams/`.
 - Canonical seed JSON for checklist, legal-reference, and matrix work lives in `packages/checklists/assets/seeds/`.
-- The alternate-name design draft is archived at `docs/archive/System_Design_Vindhlif.md`.
+- The alternate-name design draft is archived at `docs/archive/System_Design_AlternateNameDraft.md`.
 
 ## Repo rules
 
