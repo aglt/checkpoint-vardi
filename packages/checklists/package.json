@@ -10,10 +10,12 @@
     "lint": "eslint --config ../../eslint.config.mjs src",
     "typecheck": "tsc --noEmit",
     "validate:seeds": "node ./scripts/validate-seeds.mjs",
-    "test": "node ./scripts/validate-seeds.mjs"
+    "test:runtime": "tsx --test src/**/*.test.ts",
+    "test": "pnpm validate:seeds && pnpm test:runtime"
   },
   "devDependencies": {
     "@vardi/config": "workspace:*",
+    "tsx": "^4.19.2",
     "typescript": "~5.7.0"
   }
 }

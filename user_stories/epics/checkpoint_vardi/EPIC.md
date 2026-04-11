@@ -9,8 +9,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 
 - the story system exists locally under `user_stories/`
 - `S0-01` is complete and now lives under `done/`
-- `S1-01` through `S1-09` are now staged under `not_started/`
-- the next implementation story is `S1-01`
+- `S1-01` is complete and now lives under `done/`
+- `S1-02` through `S1-09` are now staged under `not_started/`
+- the next implementation story is `S1-02`
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -18,9 +19,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S0-01 - Foundations: runnable empty scaffold`
-- Story file: `user_stories/epics/checkpoint_vardi/done/S0-01-foundations-scaffold.md`
-- Next story: `S1-01 - Seed catalog foundation for assessment runtime`
+- Most recently completed story: `S1-01 - Seed catalog foundation for assessment runtime`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S1-01-seed-catalog-foundation.md`
+- Next story: `S1-02 - Assessment domain and read model`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -29,13 +30,14 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 ### S1 - MVP assessment workflow
 
-The next delivery slice is now staged as `S1-01` through `S1-08`. These stories move the repo from
+The next delivery slice is now staged as `S1-02` through `S1-08`. These stories move the repo from
 "runnable scaffold" to a teacher-deliverable assessment flow: seed truth, assessment data model,
 assessment start, walkthrough capture, transfer into the risk register, risk scoring, summary
 capture, and final exports.
 
-`S1-01` is the immediate next story because it creates the canonical seed runtime truth that every
-other S1 story depends on. `S1-09` exists as a narrow bridge story only if a concrete S1 need
+`S1-01` established the canonical seed runtime truth and the package-owned
+read seam that every later S1 story depends on. `S1-02` is now the immediate
+next story. `S1-09` exists as a narrow bridge story only if a concrete S1 need
 surfaces for broader platform groundwork.
 
 ### S0 - Foundations
@@ -44,7 +46,7 @@ surfaces for broader platform groundwork.
 "runnable empty project" without widening into feature work, schema work, or product behavior.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
-dev-server loop. The next staged story is `S1-01`.
+dev-server loop. The next staged story is `S1-02`.
 
 ## Guardrails
 

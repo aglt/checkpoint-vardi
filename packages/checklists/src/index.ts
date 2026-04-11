@@ -1,4 +1,31 @@
-// @vardi/checklists — Seed loader and parser bridge for Vinnueftirlit visir content.
-// Canonical seed assets live under packages/checklists/assets/seeds/.
-// Implementation lands with its corresponding local user stories under user_stories/.
-export {};
+// @vardi/checklists — Package-owned runtime seam for seeded checklist, legal,
+// and risk-matrix catalog data. Seed asset files remain internal details.
+export type {
+  CanonicalLegalReference,
+  LegalReference,
+  LegalReferenceCatalog,
+  RiskLevel,
+  RiskMatrix,
+  SeedChecklist,
+  SeedChecklistMetadata,
+  SeedChecklistSummary,
+  SeedCriterion,
+  SeedCriterionTranslations,
+  SeedManifest,
+  SeedSection,
+  SeedTitleTranslations,
+  SeedTranslation,
+  UnresolvedImportedLegalReference,
+} from "./runtime.js";
+export {
+  getLegalReferenceByCode,
+  getLegalReferenceCatalog,
+  getRiskMatrixById,
+  getRiskMatrixBySlug,
+  getSeedChecklistById,
+  getSeedChecklistBySlug,
+  getSeedManifest,
+  listLegalReferences,
+  listRiskMatrices,
+  listSeedChecklists,
+} from "./runtime.js";
