@@ -11,9 +11,9 @@ import {
   beginCriterionSave,
   buildInitialCriterionRiskEntryStatus,
   buildInitialCriterionState,
-  getAssessmentRiskTransferProgress,
   canPersistCriterionDraft,
   getAnsweredCount,
+  getAssessmentRiskTransferProgress,
   getAssessmentWalkthroughProgress,
   isDirty,
   markTransferredRiskEntriesPresent,
@@ -39,6 +39,7 @@ interface AssessmentWalkthroughProps {
   readonly checklistVersion: string;
   readonly riskMatrixTitle: string;
   readonly sections: readonly AssessmentSectionReadModel[];
+  readonly children?: React.ReactNode;
 }
 
 const ANSWER_OPTIONS: ReadonlyArray<{
@@ -70,6 +71,7 @@ export function AssessmentWalkthrough({
   checklistVersion,
   riskMatrixTitle,
   sections,
+  children,
 }: AssessmentWalkthroughProps) {
   const router = useRouter();
   const [criterionStates, setCriterionStates] = useState<CriterionStateMap>(
@@ -129,16 +131,19 @@ export function AssessmentWalkthrough({
             <div className="space-y-5">
               <div className="space-y-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-600">
-                  Walkthrough Form Slice
+                  Assessment Workflow
                 </p>
                 <div className="space-y-2">
+                  <p className="text-sm font-medium text-slate-600">
+                    {checklistTitle}
+                  </p>
                   <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
                     {workplaceName}
                   </h1>
                   <p className="max-w-3xl text-base leading-7 text-slate-700">
-                    {checklistTitle} is now live as the core walkthrough. Answers
-                    and notes save against the persisted assessment findings, so a
-                    refresh resumes exactly where the walkthrough left off.
+                    Complete the walkthrough here, then continue with transferred
+                    risk rows in the separate editor below without leaving the
+                    assessment page.
                   </p>
                 </div>
               </div>
@@ -251,7 +256,8 @@ export function AssessmentWalkthrough({
                   </h2>
                   <p className="text-sm leading-6 text-white/75">
                     Answers save immediately. Notes auto-save shortly after typing
-                    pauses, and a blur saves any remaining edits.
+                    pauses, and transferred risk rows continue as a separate
+                    manual-save editing step on this same page.
                   </p>
                 </div>
                 <div className="grid gap-2 text-sm text-white/80">
@@ -260,7 +266,7 @@ export function AssessmentWalkthrough({
                     slice.
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
-                    Risk transfer, scoring, summary capture, and export stay in
+                    Summary capture, export, and broader safety-plan work stay in
                     later stories.
                   </div>
                 </div>
@@ -406,6 +412,8 @@ export function AssessmentWalkthrough({
                 </div>
               </section>
             ))}
+
+            {children}
           </div>
         </div>
       </div>
@@ -561,15 +569,15 @@ export function AssessmentWalkthrough({
     })
       .then((response) => {
         startTransition(() => {
-          setCriterionStates((current) => {
-            return reconcileCriterionSaveSuccess(
+          setCriterionStates((current) =>
+            reconcileCriterionSaveSuccess(
               current,
               criterionId,
               nextRequestId,
               response,
               nextDraft,
-            );
-          });
+            ),
+          );
         });
       })
       .catch((error: unknown) => {
@@ -579,14 +587,14 @@ export function AssessmentWalkthrough({
             : "We could not save this walkthrough answer.";
 
         startTransition(() => {
-          setCriterionStates((current) => {
-            return reconcileCriterionSaveFailure(
+          setCriterionStates((current) =>
+            reconcileCriterionSaveFailure(
               current,
               criterionId,
               nextRequestId,
               errorMessage,
-            );
-          });
+            ),
+          );
         });
       });
   }
@@ -635,11 +643,11 @@ function SaveStatePill({ state }: { readonly state: CriterionClientState }) {
           ? "Save issue"
           : state.draft.status === "unanswered" && state.draft.notes.length > 0
             ? "Needs answer"
-          : isDirty(state)
-            ? "Unsaved"
-            : state.saved.status === "unanswered" && state.saved.notes.length === 0
-              ? "Not started"
-              : "Saved"}
+            : isDirty(state)
+              ? "Unsaved"
+              : state.saved.status === "unanswered" && state.saved.notes.length === 0
+                ? "Not started"
+                : "Saved"}
     </div>
   );
 }
@@ -823,7 +831,9 @@ function formatSavedAt(value: string): string {
   }).format(new Date(value));
 }
 
-function joinClasses(...classNames: ReadonlyArray<string | false | null | undefined>): string {
+function joinClasses(
+  ...classNames: ReadonlyArray<string | false | null | undefined>
+): string {
   return classNames.filter(Boolean).join(" ");
 }
 

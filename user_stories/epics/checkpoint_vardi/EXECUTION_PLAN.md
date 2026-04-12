@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-06`
-- Most recently completed step: `S1-05`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-05-transfer-noncompliant-findings-into-risk-register.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-06-risk-classification-engine-and-editing.md`
+- Next queued step: `S1-07`
+- Most recently completed step: `S1-06`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-06-risk-classification-engine-and-editing.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-07-summary-form-and-export-readiness.md`
 
 ## S0 - Foundations
 
@@ -152,16 +152,29 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 
 ### Step S1-06: Risk classification engine and risk-entry editing
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-06-risk-classification-engine-and-editing.md`
-**Start gate:** Open. `S1-01` and `S1-05` are complete.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-06-risk-classification-engine-and-editing.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-07` by making risk entries editable and classifiable.
+
+**Completion note:**
+> Verified locally on branch `feat/assessment-risk-entry-editing`: added the
+> pure `@vardi/risk` classifier and deterministic matrix tests, added the
+> strict risk-entry save contract plus owner-scoped DB update seam, extended
+> the composed assessment read model to surface transferred rows and reject
+> stale persisted classifications, and added an in-flow risk register editor on
+> `/assessments/[assessmentId]` that saves transferred rows with
+> server-derived `riskLevel` values from pinned seeded matrix truth.
+> Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing
+> workspace dependencies in this worktree. This session used `node v25.6.1`;
+> Node 22 remains the declared repo contract, but was not directly re-verified
+> here. PR: `#8`.
 
 ### Step S1-07: Summary form and export readiness
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-07-summary-form-and-export-readiness.md`
-**Start gate:** Closed until `S1-06` is complete.
+**Start gate:** Open. `S1-06` is complete.
 **Unblocks:** `S1-08` by defining when an assessment is export-ready.
 
 ### Step S1-08: Report export for checklist, register, and summary

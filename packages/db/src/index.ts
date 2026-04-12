@@ -14,6 +14,11 @@ export {
   type LoadAssessmentAggregateParams,
 } from "./load-assessment-aggregate.js";
 export {
+  loadAssessmentRiskEntryContext,
+  type AssessmentRiskEntryContext,
+  type LoadAssessmentRiskEntryContextParams,
+} from "./load-assessment-risk-entry-context.js";
+export {
   createWorkplaceAssessment,
   EmptyAssessmentCriteriaError,
   type CreateWorkplaceAssessmentParams,
@@ -25,6 +30,11 @@ export {
   type UpdatableFindingStatus,
   type UpdateAssessmentFindingResponseParams,
 } from "./update-assessment-finding-response.js";
+export {
+  AssessmentRiskEntryNotFoundError,
+  updateAssessmentRiskEntry,
+  type UpdateAssessmentRiskEntryParams,
+} from "./update-assessment-risk-entry.js";
 export {
   MissingRiskEntryHazardError,
   transferAssessmentFindingsToRiskRegister,

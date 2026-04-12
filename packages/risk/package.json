@@ -9,10 +9,12 @@
   "scripts": {
     "lint": "eslint --config ../../eslint.config.mjs src",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'no tests yet'"
+    "test": "tsx --test \"src/**/*.test.ts\""
   },
   "devDependencies": {
     "@vardi/config": "workspace:*",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.21.0",
     "typescript": "~5.7.0"
   }
 }
