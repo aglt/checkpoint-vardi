@@ -24,7 +24,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-07 | Summary form and export readiness                       | done         | #9 |
 | S1-08 | Report export for checklist, register, and summary      | done         | #10 |
 | S1-10 | Browser E2E foundation and blocked-readiness baseline   | done         | #12 |
-| S1-11 | Risk mitigation planning on risk entries                | done         |    |
+| S1-11 | Risk mitigation planning on risk entries                | done         | #13 |
 | S1-12 | Guided assessment progression and completion guards     | not_started  |    |
 | S1-13 | Explicit risk reasoning capture                         | not_started  |    |
 | S1-14 | Compliance-oriented export framing and assessment metadata | not_started |    |

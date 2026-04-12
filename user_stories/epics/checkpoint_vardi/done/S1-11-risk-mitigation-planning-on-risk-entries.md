@@ -12,7 +12,7 @@ Depends on: S1-08
 
 ## Context
 
-This story is complete. `S1-08` completed the teacher-deliverable MVP
+This story is complete and is tracked in PR `#13`. `S1-08` completed the teacher-deliverable MVP
 path: walkthrough, transfer, risk classification, summary, and export
 all run on persisted assessment truth. `S1-11` now extends that flow so
 the risk register can hold persisted mitigation planning owned by

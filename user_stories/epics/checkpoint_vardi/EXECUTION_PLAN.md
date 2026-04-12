@@ -264,7 +264,7 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing
 > workspace dependencies in this worktree. This session used
 > `node v25.6.1`; Node 22 remains the declared repo contract, but was
-> not directly re-verified here.
+> not directly re-verified here. PR: `#13`.
 
 ### Step S1-12: Guided assessment progression and completion guards
 
