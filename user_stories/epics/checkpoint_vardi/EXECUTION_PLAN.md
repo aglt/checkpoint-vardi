@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-08`
-- Most recently completed step: `S1-07`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-07-summary-form-and-export-readiness.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-08-report-export-checklist-register-summary.md`
+- Next queued step: `S1-10`
+- Most recently completed step: `S1-08`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-08-report-export-checklist-register-summary.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-10-browser-e2e-testing-foundation.md`
 
 ## S0 - Foundations
 
@@ -198,21 +198,36 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 ->
 
 ### Step S1-08: Report export for checklist, register, and summary
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-08-report-export-checklist-register-summary.md`
-**Start gate:** Open. `S1-07` is complete.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-08-report-export-checklist-register-summary.md`
+**Start gate:** Closed.
 **Unblocks:** The assignment-ready MVP deliverable path.
+
+**Completion note:**
+> Verified locally on branch `feat/assessment-report-export`: added the
+> strict export-trigger contract and bundle response shape in
+> `@vardi/schemas`, implemented package-owned Word/PDF rendering plus zip
+> bundling in `@vardi/export`, added the app-owned assessment export
+> mapping seam without widening `loadAssessmentReadModel`, and wired a
+> summary-surface download CTA that only generates exports from persisted
+> export-ready state. Checklist export now preserves seeded section and
+> criterion order, register export stays aligned with transferred and
+> evaluated risk entries, and summary export stays aligned with the
+> persisted step-6 summary row.
+> Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint`. This session used
+> `node v25.6.1`; Node 22 remains the declared repo contract, but was not
+> directly re-verified here. PR: `#10`.
 
 ### Step S1-10: Browser E2E testing foundation
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-10-browser-e2e-testing-foundation.md`
-**Start gate:** Closed until `S1-08` is complete.
+**Start gate:** Open. `S1-08` is complete.
 **Unblocks:** Truthful browser-level regression coverage for the current MVP workflow and future repo-local Playwright guidance.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless an active S1 story exposes a concrete need for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-08` export slice, the queued `S1-10` test foundation, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.

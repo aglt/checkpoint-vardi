@@ -569,6 +569,9 @@ test("assessment page renders the summary editor with workplace defaults and rea
   );
   assert.match(markup, /walkthrough items still need answers/);
   assert.match(markup, /Summary is still missing saved values/);
+  assert.match(markup, /Finish the readiness blockers above before export unlocks\./);
+  assert.match(markup, /Download Word \+ PDF bundle/);
+  assert.match(markup, /data-export-button-state="idle"/);
 });
 
 test("summary save round-trip persists the final summary and flips export readiness after the persisted flow is complete", async () => {
@@ -650,6 +653,11 @@ test("summary save round-trip persists the final summary and flips export readin
         escapeRegExp('value="2026-04-20"'),
       ].join(""),
     ),
+  );
+  assert.match(markup, /Download Word \+ PDF bundle/);
+  assert.match(
+    markup,
+    /Export uses the persisted checklist, risk register, and summary values\./,
   );
 });
 

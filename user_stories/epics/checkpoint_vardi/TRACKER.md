@@ -22,7 +22,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-05 | Transfer non-compliant findings into risk register      | done         | #7 |
 | S1-06 | Risk classification engine and risk-entry editing       | done         | #8 |
 | S1-07 | Summary form and export readiness                       | done         | #9 |
-| S1-08 | Report export for checklist, register, and summary      | not_started  |    |
+| S1-08 | Report export for checklist, register, and summary      | done         | #10 |
 | S1-10 | Browser E2E testing foundation                          | not_started  |    |
 
 ## S1/S2 - Stage bridge
@@ -35,6 +35,5 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 **Next up:**
 
-- `S1-08 - Report export for checklist, register, and summary`
-- Then `S1-10 - Browser E2E testing foundation` to add truthful Playwright coverage and repo-local Playwright skill guidance for the MVP flow.
-- Keep `S1-09` narrowly scoped and non-blocking unless an active S1 story exposes a concrete need for it.
+- `S1-10 - Browser E2E testing foundation`
+- Keep `S1-09` narrowly scoped and non-blocking unless `S1-10` or another active follow-up exposes a concrete need for it.
