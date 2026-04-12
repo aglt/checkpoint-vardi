@@ -106,10 +106,13 @@ data dumps.
 - unresolved-legal-ref representation tests
 - snapshot-style document-structure tests if that pattern already exists
 
-Validation completed locally with `pnpm test`, `pnpm typecheck`, and
-`pnpm lint` after installing workspace dependencies in this worktree.
-This session used `node v25.6.1`; Node 22 remains the declared repo
-contract, but was not directly re-verified in this shell.
+Validation completed locally under `node v22.22.2` with:
+
+- `pnpm --filter @vardi/export test`
+- `pnpm --filter @vardi/web exec tsx --test lib/assessments/generateAssessmentExportBundle.test.ts`
+- `pnpm test`
+- `pnpm typecheck`
+- `pnpm lint`
 
 ## Notes For Later Stories
 

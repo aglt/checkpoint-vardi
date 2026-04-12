@@ -338,10 +338,10 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > criterion-level export content without inventing authoritative titles.
 > Added targeted export-mapping and rendering tests for ordering,
 > provenance, mitigation separation, and unresolved legal-reference
-> handling, then ran `pnpm test`, `pnpm typecheck`, and `pnpm lint`
-> after installing workspace dependencies in this worktree. This session
-> used `node v25.6.1`; Node 22 remains the declared repo contract, but
-> was not directly re-verified here. PR: `#17`.
+> handling, then reran validation under `node v22.22.2` with
+> `pnpm --filter @vardi/export test`,
+> `pnpm --filter @vardi/web exec tsx --test lib/assessments/generateAssessmentExportBundle.test.ts`,
+> `pnpm test`, `pnpm typecheck`, and `pnpm lint`. PR: `#17`.
 
 ### Step S1-15: Sector/profile-specific assessment rules via seed-owned runtime extensions
 
