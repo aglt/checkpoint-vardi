@@ -17,8 +17,8 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-06` is complete and now lives under `done/`
 - `S1-07` is complete and now lives under `done/`
 - `S1-08` is complete and now lives under `done/`
-- `S1-09` remains staged under `not_started/`
-- the next implementation story is `S1-09`, only if a concrete post-MVP bridge is needed
+- `S1-09` and `S1-10` are now staged under `not_started/`
+- the next implementation story is `S1-10`
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -28,7 +28,7 @@ The active stage is currently:
 - **S1 - MVP assessment workflow**
 - Most recently completed story: `S1-08 - Report export for checklist, register, and summary`
 - Story file: `user_stories/epics/checkpoint_vardi/done/S1-08-report-export-checklist-register-summary.md`
-- Next story: `S1-09 - Foundation for broader safety-plan modules`
+- Next story: `S1-10 - Browser E2E testing foundation`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -37,10 +37,11 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 ### S1 - MVP assessment workflow
 
-The next delivery slice is now staged as `S1-02` through `S1-08`. These stories move the repo from
-"runnable scaffold" to a teacher-deliverable assessment flow: seed truth, assessment data model,
-assessment start, walkthrough capture, transfer into the risk register, risk scoring, summary
-capture, and final exports.
+The next delivery slice is now staged as `S1-02` through `S1-08`, followed by `S1-10` as the first
+browser-level proof layer. These stories move the repo from "runnable scaffold" to a
+teacher-deliverable assessment flow with truthful browser regression coverage: seed truth,
+assessment data model, assessment start, walkthrough capture, transfer into the risk register, risk
+scoring, summary capture, final exports, and then Playwright-backed end-to-end verification.
 
 `S1-01` established the canonical seed runtime truth and the package-owned
 read seam that every later S1 story depends on. `S1-02` established the narrow
@@ -58,9 +59,11 @@ assessment flow by persisting the step-6 summary and computing export
 readiness from persisted walkthrough, transfer, classification, and summary
 state. `S1-08` now completes the teacher-deliverable MVP path by mapping the
 persisted assessment state into deterministic checklist, register, and summary
-exports plus a downloadable Word/PDF bundle on the summary step. `S1-09`
-exists only as a narrow bridge story if a concrete post-MVP need now surfaces
-for broader platform groundwork.
+exports plus a downloadable Word/PDF bundle on the summary step. `S1-10`
+follows it to add Playwright-based browser-level proof for the real MVP flow
+and to capture repo-local Playwright usage guidance for future agents. `S1-09`
+exists only as a narrow bridge story if a concrete post-MVP need surfaces for
+broader platform groundwork.
 
 ### S0 - Foundations
 
@@ -68,7 +71,8 @@ for broader platform groundwork.
 "runnable empty project" without widening into feature work, schema work, or product behavior.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
-dev-server loop. The next staged story is `S1-09`, only if a concrete bridge need appears.
+dev-server loop. The next staged story is `S1-10`, while `S1-09` remains
+conditional and non-blocking.
 
 ## Guardrails
 

@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-09`
+- Next queued step: `S1-10`
 - Most recently completed step: `S1-08`
 - Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-08-report-export-checklist-register-summary.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-10-browser-e2e-testing-foundation.md`
 
 ## S0 - Foundations
 
@@ -42,7 +42,7 @@ S0-01 (Runnable Empty Scaffold)
 ### Dependency Graph
 
 ```text
-S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
+S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 -> S1-10
                  \
                   -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 ```
@@ -218,9 +218,16 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 > `node v25.6.1`; Node 22 remains the declared repo contract, but was not
 > directly re-verified here. PR: `#10`.
 
+### Step S1-10: Browser E2E testing foundation
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-10-browser-e2e-testing-foundation.md`
+**Start gate:** Open. `S1-08` is complete.
+**Unblocks:** Truthful browser-level regression coverage for the current MVP workflow and future repo-local Playwright guidance.
+
 ### Step S1-09: Foundation for broader safety-plan modules
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-08` export slice or a follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-08` export slice, the queued `S1-10` test foundation, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.
