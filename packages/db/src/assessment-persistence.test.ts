@@ -13,7 +13,6 @@ import {
   finding,
   riskAssessment,
   riskEntry,
-  safetyPlan,
   workplace,
 } from "./schema.js";
 
@@ -61,39 +60,8 @@ test("migrations replay cleanly on a fresh SQLite database", () => {
 
   assert.deepEqual(
     tableNames.map((row) => row.name),
-    ["finding", "risk_assessment", "risk_entry", "safety_plan", "summary", "workplace"],
+    ["finding", "risk_assessment", "risk_entry", "summary", "workplace"],
   );
-
-  closeDatabase(connection);
-});
-
-test("safety plan rows attach to workplaces and cascade on workplace delete", () => {
-  const connection = createMigratedDatabase();
-
-  connection.db.insert(workplace).values({
-    id: "workplace-1",
-    ownerId: "owner-1",
-    name: "Workshop",
-    address: "Austurberg 1",
-    archetype: "construction",
-    primaryLanguage: "is",
-  }).run();
-
-  connection.db.insert(safetyPlan).values({
-    id: "safety-plan-1",
-    ownerId: "owner-1",
-    workplaceId: "workplace-1",
-    status: "active",
-    createdAt: baseCreatedAt,
-    reviewDueAt: new Date("2027-04-11T09:05:00.000Z"),
-    reviewCadence: "yearly",
-  }).run();
-
-  assert.equal(connection.db.select().from(safetyPlan).all().length, 1);
-
-  connection.db.delete(workplace).run();
-
-  assert.equal(connection.db.select().from(safetyPlan).all().length, 0);
 
   closeDatabase(connection);
 });

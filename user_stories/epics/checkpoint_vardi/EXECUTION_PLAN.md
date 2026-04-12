@@ -229,9 +229,5 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 ->
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Open only for additive `packages/db` groundwork that does not
-touch the completed `S1-08` export seams, the queued `S1-10` browser-test
-seams, or any runtime assessment contracts.
-**Unblocks:** Only the additive persistence seam and architecture reference for
-the later explicit post-`S1-10` root/container story; it must remain
-non-blocking for the current MVP flow.
+**Start gate:** Closed unless the completed `S1-08` export slice, the queued `S1-10` test foundation, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.
