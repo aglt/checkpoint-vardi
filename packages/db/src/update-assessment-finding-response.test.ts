@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { closeDatabase, createMigratedDatabase } from "./database.js";
+import { closeDatabase, createBootstrappedDatabase } from "./database.js";
 import { updateAssessmentFindingResponse } from "./update-assessment-finding-response.js";
 import { finding, riskAssessment, workplace } from "./schema.js";
 
@@ -10,7 +10,7 @@ const createdAt = new Date("2026-04-11T09:05:00.000Z");
 const updatedAt = new Date("2026-04-11T09:10:00.000Z");
 
 function seedFindingFixture() {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values({
     id: "workplace-1",

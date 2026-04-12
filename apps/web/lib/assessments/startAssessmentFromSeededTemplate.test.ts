@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { getSeedChecklistById, getSeedChecklistBySlug, getRiskMatrixBySlug } from "@vardi/checklists";
-import { closeDatabase, createMigratedDatabase } from "@vardi/db/testing";
+import { closeDatabase, createBootstrappedDatabase } from "@vardi/db/testing";
 
 import {
   SeedChecklistNotFoundError,
@@ -34,7 +34,7 @@ function getRequiredRiskMatrix() {
 }
 
 test("startAssessmentFromSeededTemplate fails before DB writes when the checklist is unknown", () => {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   assert.throws(
     () =>
@@ -74,7 +74,7 @@ test("startAssessmentFromSeededTemplate fails before DB writes when the checklis
 });
 
 test("startAssessmentFromSeededTemplate fails before DB writes when the fixed matrix is missing", () => {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   assert.throws(
     () =>
@@ -118,7 +118,7 @@ test("startAssessmentFromSeededTemplate fails before DB writes when the fixed ma
 });
 
 test("startAssessmentFromSeededTemplate persists a seeded assessment ready for walkthrough startup", () => {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   const result = startAssessmentFromSeededTemplate({
     db: connection.db,
@@ -160,7 +160,7 @@ test("startAssessmentFromSeededTemplate persists a seeded assessment ready for w
 });
 
 test("startAssessmentFromSeededTemplate passes criterion ids to persistence in seeded order", () => {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
   const expectedCriterionIds = seededChecklist.sections.flatMap((section) =>
     section.criteria.map((criterion) => criterion.id),
   );

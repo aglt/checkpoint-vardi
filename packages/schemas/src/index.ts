@@ -79,6 +79,12 @@ export const saveAssessmentCriterionStatusSchema = z.enum([
   "notApplicable",
 ]);
 
+export const riskMitigationActionStatusSchema = z.enum([
+  "open",
+  "inProgress",
+  "done",
+]);
+
 export const startAssessmentFromSeededTemplateInputSchema = z.object({
   workplaceName: z.preprocess(
     trimString,
@@ -158,23 +164,69 @@ export const saveAssessmentRiskEntryInputSchema = z
         .max(4000, "Current controls must be 4000 characters or fewer.")
         .optional(),
     ),
-    proposedAction: z.preprocess(
-      trimOptionalString,
-      z
-        .string()
-        .max(4000, "Proposed action must be 4000 characters or fewer.")
-        .optional(),
-    ),
     costEstimate: z.preprocess(
       normalizeOptionalInteger,
       z.number().int().nonnegative().optional(),
     ),
-    responsibleOwner: z.preprocess(
+  })
+  .strict();
+
+export const createAssessmentRiskMitigationActionInputSchema = z
+  .object({
+    riskEntryId: z.preprocess(
+      trimString,
+      z.string().min(1, "Risk entry id is required.").max(200),
+    ),
+    description: z.preprocess(
+      trimString,
+      z
+        .string()
+        .min(1, "Description is required.")
+        .max(4000, "Description must be 4000 characters or fewer."),
+    ),
+    assigneeName: z.preprocess(
       trimOptionalString,
-      z.string().max(200, "Responsible owner must be 200 characters or fewer.").optional(),
+      z
+        .string()
+        .max(200, "Assignee name must be 200 characters or fewer.")
+        .optional(),
     ),
     dueDate: optionalDateOnlySchema,
-    completedAt: optionalDateOnlySchema,
+    status: riskMitigationActionStatusSchema,
+  })
+  .strict();
+
+export const updateAssessmentRiskMitigationActionInputSchema = z
+  .object({
+    mitigationActionId: z.preprocess(
+      trimString,
+      z.string().min(1, "Mitigation action id is required.").max(200),
+    ),
+    description: z.preprocess(
+      trimString,
+      z
+        .string()
+        .min(1, "Description is required.")
+        .max(4000, "Description must be 4000 characters or fewer."),
+    ),
+    assigneeName: z.preprocess(
+      trimOptionalString,
+      z
+        .string()
+        .max(200, "Assignee name must be 200 characters or fewer.")
+        .optional(),
+    ),
+    dueDate: optionalDateOnlySchema,
+    status: riskMitigationActionStatusSchema,
+  })
+  .strict();
+
+export const deleteAssessmentRiskMitigationActionInputSchema = z
+  .object({
+    mitigationActionId: z.preprocess(
+      trimString,
+      z.string().min(1, "Mitigation action id is required.").max(200),
+    ),
   })
   .strict();
 
@@ -247,17 +299,28 @@ export const saveAssessmentRiskEntryOutputSchema = z.object({
   consequence: z.number().int().positive().nullable(),
   riskLevel: z.enum(["low", "medium", "high"]).nullable(),
   currentControls: z.string().nullable(),
-  proposedAction: z.string().nullable(),
   costEstimate: z.number().int().nonnegative().nullable(),
-  responsibleOwner: z.string().nullable(),
+});
+
+export const savedAssessmentRiskMitigationActionOutputSchema = z.object({
+  assessmentId: z.string().min(1),
+  mitigationActionId: z.string().min(1),
+  riskEntryId: z.string().min(1),
+  description: z.string().min(1),
+  assigneeName: z.string().nullable(),
   dueDate: z
     .string()
     .refine(isDateOnlyValue, "Date must use YYYY-MM-DD format.")
     .nullable(),
-  completedAt: z
-    .string()
-    .refine(isDateOnlyValue, "Date must use YYYY-MM-DD format.")
-    .nullable(),
+  status: riskMitigationActionStatusSchema,
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export const deleteAssessmentRiskMitigationActionOutputSchema = z.object({
+  assessmentId: z.string().min(1),
+  riskEntryId: z.string().min(1),
+  mitigationActionId: z.string().min(1),
 });
 
 export const saveAssessmentSummaryOutputSchema = z.object({
@@ -335,6 +398,9 @@ export type SaveAssessmentCriterionResponseOutput = z.infer<
 export type SaveAssessmentRiskEntryInput = z.infer<
   typeof saveAssessmentRiskEntryInputSchema
 >;
+export type RiskMitigationActionStatus = z.infer<
+  typeof riskMitigationActionStatusSchema
+>;
 export type AssessmentSummaryRequiredField = z.infer<
   typeof assessmentSummaryRequiredFieldSchema
 >;
@@ -344,8 +410,23 @@ export type AssessmentExportReadiness = z.infer<
 export type SaveAssessmentSummaryInput = z.infer<
   typeof saveAssessmentSummaryInputSchema
 >;
+export type CreateAssessmentRiskMitigationActionInput = z.infer<
+  typeof createAssessmentRiskMitigationActionInputSchema
+>;
+export type UpdateAssessmentRiskMitigationActionInput = z.infer<
+  typeof updateAssessmentRiskMitigationActionInputSchema
+>;
+export type DeleteAssessmentRiskMitigationActionInput = z.infer<
+  typeof deleteAssessmentRiskMitigationActionInputSchema
+>;
 export type SaveAssessmentRiskEntryOutput = z.infer<
   typeof saveAssessmentRiskEntryOutputSchema
+>;
+export type SavedAssessmentRiskMitigationActionOutput = z.infer<
+  typeof savedAssessmentRiskMitigationActionOutputSchema
+>;
+export type DeleteAssessmentRiskMitigationActionOutput = z.infer<
+  typeof deleteAssessmentRiskMitigationActionOutputSchema
 >;
 export type SaveAssessmentSummaryOutput = z.infer<
   typeof saveAssessmentSummaryOutputSchema

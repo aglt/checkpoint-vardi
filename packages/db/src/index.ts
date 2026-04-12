@@ -8,16 +8,30 @@ export {
   type LoadAssessmentAggregateParams,
 } from "./load-assessment-aggregate.js";
 export {
+  loadAssessmentRiskMitigationActions,
+  type LoadAssessmentRiskMitigationActionsParams,
+} from "./load-assessment-risk-mitigation-actions.js";
+export {
   loadAssessmentRiskEntryContext,
   type AssessmentRiskEntryContext,
   type LoadAssessmentRiskEntryContextParams,
 } from "./load-assessment-risk-entry-context.js";
+export {
+  AssessmentRiskMitigationActionNotFoundError,
+  loadAssessmentRiskMitigationActionContext,
+  type AssessmentRiskMitigationActionContext,
+  type LoadAssessmentRiskMitigationActionContextParams,
+} from "./load-assessment-risk-mitigation-action-context.js";
 export {
   createWorkplaceAssessment,
   EmptyAssessmentCriteriaError,
   type CreateWorkplaceAssessmentParams,
   type CreateWorkplaceAssessmentResult,
 } from "./create-workplace-assessment.js";
+export {
+  createAssessmentRiskMitigationAction,
+  type CreateAssessmentRiskMitigationActionParams,
+} from "./create-assessment-risk-mitigation-action.js";
 export {
   AssessmentFindingResponseNotFoundError,
   updateAssessmentFindingResponse,
@@ -29,6 +43,14 @@ export {
   updateAssessmentRiskEntry,
   type UpdateAssessmentRiskEntryParams,
 } from "./update-assessment-risk-entry.js";
+export {
+  updateAssessmentRiskMitigationAction,
+  type UpdateAssessmentRiskMitigationActionParams,
+} from "./update-assessment-risk-mitigation-action.js";
+export {
+  deleteAssessmentRiskMitigationAction,
+  type DeleteAssessmentRiskMitigationActionParams,
+} from "./delete-assessment-risk-mitigation-action.js";
 export {
   AssessmentSummaryNotFoundError,
   upsertAssessmentSummary,
@@ -48,6 +70,8 @@ export {
   findingStatuses,
   riskAssessment,
   riskEntry,
+  riskMitigationAction,
+  riskMitigationActionStatuses,
   riskLevels,
   workplace,
   workplaceArchetypes,
@@ -55,5 +79,6 @@ export {
   type FindingRow,
   type RiskAssessmentRow,
   type RiskEntryRow,
+  type RiskMitigationActionRow,
   type WorkplaceRow,
 } from "./schema.js";

@@ -7,7 +7,7 @@ import test from "node:test";
 import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
   loadAssessmentAggregate,
   riskEntry,
@@ -52,7 +52,7 @@ function seedTransferredRiskEntryFixture() {
     throw new Error("Expected checklist fixture to contain at least two transferable criteria.");
   }
 
-  const connection = createMigratedDatabase(databasePath);
+  const connection = createBootstrappedDatabase(databasePath);
   const assessment = createWorkplaceAssessment({
     db: connection.db,
     ownerId: "owner-1",
@@ -111,7 +111,7 @@ async function transferCriteria(
     assessmentId: fixture.assessmentId,
   });
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const aggregate = loadAssessmentAggregate({
     db: connection.db,
     ownerId: "owner-1",
@@ -167,11 +167,7 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
       likelihood: 2,
       consequence: 3,
       currentControls: "  Safety signage  ",
-      proposedAction: "  Install a replacement guard  ",
       costEstimate: 25000,
-      responsibleOwner: "  Workshop lead  ",
-      dueDate: "2026-04-20",
-      completedAt: "2026-04-22",
     },
   });
 
@@ -185,14 +181,10 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
     consequence: 3,
     riskLevel: "high",
     currentControls: "Safety signage",
-    proposedAction: "Install a replacement guard",
     costEstimate: 25000,
-    responsibleOwner: "Workshop lead",
-    dueDate: "2026-04-20",
-    completedAt: "2026-04-22",
   });
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const projection = loadAssessmentRiskRegisterProjection({
     db: connection.db,
     ownerId: "owner-1",
@@ -203,8 +195,6 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
   assert.ok(persistedRiskEntry);
   assert.equal(persistedRiskEntry?.hazard, "Table saw without guard");
   assert.equal(persistedRiskEntry?.savedRiskLevel, "high");
-  assert.equal(persistedRiskEntry?.dueDate, "2026-04-20");
-  assert.equal(persistedRiskEntry?.completedAt, "2026-04-22");
 
   closeDatabase(connection);
 });
@@ -231,17 +221,13 @@ test("saveAssessmentRiskEntryAction leaves risk level null until both scores are
       likelihood: 2,
       consequence: undefined,
       currentControls: undefined,
-      proposedAction: undefined,
       costEstimate: undefined,
-      responsibleOwner: undefined,
-      dueDate: undefined,
-      completedAt: undefined,
     },
   });
 
   assert.equal(output.riskLevel, null);
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const projection = loadAssessmentRiskRegisterProjection({
     db: connection.db,
     ownerId: "owner-1",
@@ -263,7 +249,7 @@ test("saveAssessmentRiskEntry rejects client-supplied riskLevel and missing rows
     fixture.targetCriterion.id,
   ]);
   const riskEntryId = transferredRiskEntryIds[fixture.targetCriterion.id];
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const { SaveAssessmentRiskEntryError, saveAssessmentRiskEntry } = await import(
     "./saveAssessmentRiskEntry"
   );
@@ -308,7 +294,7 @@ test("saveAssessmentRiskEntry rejects client-supplied riskLevel and missing rows
 
 test("saveAssessmentRiskEntry maps deterministic integrity failures to a client-safe error", async () => {
   const fixture = seedTransferredRiskEntryFixture();
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const { SaveAssessmentRiskEntryError, saveAssessmentRiskEntry } = await import(
     "./saveAssessmentRiskEntry"
   );
@@ -349,7 +335,7 @@ test("saveAssessmentRiskEntryAction does not depend on unrelated stale rows in t
   ]);
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   connection.sqlite
     .prepare(`
       update risk_entry
@@ -376,7 +362,7 @@ test("saveAssessmentRiskEntryAction does not depend on unrelated stale rows in t
   assert.equal(output.riskEntryId, transferredRiskEntryIds[fixture.targetCriterion.id]);
   assert.equal(output.riskLevel, "medium");
 
-  const projectionConnection = createMigratedDatabase(fixture.databasePath);
+  const projectionConnection = createBootstrappedDatabase(fixture.databasePath);
   const projection = loadAssessmentRiskRegisterProjection({
     db: projectionConnection.db,
     ownerId: "owner-1",

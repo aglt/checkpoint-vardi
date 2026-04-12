@@ -100,12 +100,8 @@ export function transferAssessmentFindingsToRiskRegister(
             consequence: null,
             riskLevel: null,
             currentControls: null,
-            proposedAction: null,
             controlHierarchy: null,
             costEstimate: null,
-            responsibleOwner: null,
-            dueDate: null,
-            completedAt: null,
           };
         }),
       ).run();

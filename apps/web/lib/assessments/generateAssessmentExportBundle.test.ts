@@ -8,8 +8,9 @@ import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   assessmentSummary,
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
+  riskMitigationAction,
   riskEntry,
 } from "@vardi/db/testing";
 
@@ -60,7 +61,7 @@ function seedExportAssessmentFixture() {
     throw new Error("Expected seeded checklist to contain an unresolved legal reference.");
   }
 
-  const connection = createMigratedDatabase(databasePath);
+  const connection = createBootstrappedDatabase(databasePath);
   const assessment = createWorkplaceAssessment({
     db: connection.db,
     ownerId: "owner-1",
@@ -94,7 +95,7 @@ function seedExportAssessmentFixture() {
 function prepareExportReadyState(
   fixture: ReturnType<typeof seedExportAssessmentFixture>,
 ) {
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   connection.sqlite
     .prepare(`
       update finding
@@ -144,13 +145,34 @@ function prepareExportReadyState(
     consequence: 3,
     riskLevel: "high",
     currentControls: "Daily pre-start checks",
-    proposedAction: "Install compliant guard and lockout procedure",
     controlHierarchy: null,
     costEstimate: 42000,
-    responsibleOwner: "Site foreman",
-    dueDate: new Date("2026-04-25T00:00:00.000Z"),
-    completedAt: null,
   }).run();
+
+  connection.db.insert(riskMitigationAction).values([
+    {
+      id: "action-2",
+      riskEntryId: "risk-entry-1",
+      ownerId: "owner-1",
+      description: "Brief the site crew on the new lockout flow",
+      assigneeName: "Safety coordinator",
+      dueDate: null,
+      status: "done",
+      createdAt: new Date("2026-04-20T08:05:00.000Z"),
+      updatedAt: new Date("2026-04-20T08:05:00.000Z"),
+    },
+    {
+      id: "action-1",
+      riskEntryId: "risk-entry-1",
+      ownerId: "owner-1",
+      description: "Install compliant guard and lockout procedure",
+      assigneeName: "Site foreman",
+      dueDate: new Date("2026-04-25T00:00:00.000Z"),
+      status: "open",
+      createdAt: new Date("2026-04-20T08:00:00.000Z"),
+      updatedAt: new Date("2026-04-20T08:00:00.000Z"),
+    },
+  ]).run();
 
   connection.db.insert(assessmentSummary).values({
     assessmentId: fixture.assessmentId,
@@ -170,7 +192,7 @@ test("buildAssessmentExportDocuments preserves checklist order and maps summary/
   const fixture = seedExportAssessmentFixture();
   prepareExportReadyState(fixture);
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const readModel = loadAssessmentReadModel({
     db: connection.db,
     ownerId: "owner-1",
@@ -207,6 +229,22 @@ test("buildAssessmentExportDocuments preserves checklist order and maps summary/
     riskRegisterProjection.entries.map((entry) => entry.id),
   );
   assert.equal(documents.register.entries[0]?.riskLevel, "High");
+  assert.deepEqual(documents.register.entries[0]?.mitigationActions, [
+    {
+      id: "action-1",
+      description: "Install compliant guard and lockout procedure",
+      assigneeName: "Site foreman",
+      dueDate: "2026-04-25",
+      statusLabel: "Open",
+    },
+    {
+      id: "action-2",
+      description: "Brief the site crew on the new lockout flow",
+      assigneeName: "Safety coordinator",
+      dueDate: "",
+      statusLabel: "Done",
+    },
+  ]);
 
   const unresolvedExportCriterion = documents.checklist.sections
     .flatMap((section) => section.criteria)
@@ -228,7 +266,7 @@ test("generateAssessmentExportBundle returns a bundle manifest and typed not-rea
   const readyFixture = seedExportAssessmentFixture();
   prepareExportReadyState(readyFixture);
 
-  const readyConnection = createMigratedDatabase(readyFixture.databasePath);
+  const readyConnection = createBootstrappedDatabase(readyFixture.databasePath);
   const successOutput = await generateAssessmentExportBundle({
     db: readyConnection.db,
     ownerId: "owner-1",
@@ -247,7 +285,7 @@ test("generateAssessmentExportBundle returns a bundle manifest and typed not-rea
   closeDatabase(readyConnection);
 
   const blockedFixture = seedExportAssessmentFixture();
-  const blockedConnection = createMigratedDatabase(blockedFixture.databasePath);
+  const blockedConnection = createBootstrappedDatabase(blockedFixture.databasePath);
 
   await assert.rejects(
     async () =>

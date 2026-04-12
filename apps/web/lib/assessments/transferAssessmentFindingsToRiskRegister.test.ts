@@ -4,7 +4,7 @@ import test, { mock } from "node:test";
 import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
   updateAssessmentFindingResponse,
 } from "@vardi/db/testing";
@@ -47,7 +47,7 @@ function seedAssessmentFixture() {
     throw new Error("Expected checklist fixture to contain at least two criteria.");
   }
 
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
   const result = createWorkplaceAssessment({
     db: connection.db,
     ownerId: "owner-1",
@@ -79,7 +79,7 @@ function seedAssessmentFixture() {
 }
 
 test("transferAssessmentFindingsToRiskRegister builds seeded hazard titles for persisted notOk criteria", () => {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
   const capturedHazardByCriterionId: Array<Readonly<Record<string, string>>> = [];
 
   const output = transferAssessmentFindingsToRiskRegister({
@@ -266,7 +266,7 @@ test("transferAssessmentFindingsToRiskRegister persists transferred risk entries
 });
 
 test("transferAssessmentFindingsToRiskRegister validates input and missing assessments", () => {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   assert.throws(
     () =>

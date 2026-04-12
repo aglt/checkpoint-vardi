@@ -56,16 +56,27 @@ CREATE TABLE IF NOT EXISTS risk_entry (
   consequence INTEGER,
   risk_level TEXT CHECK (risk_level IN ('low', 'medium', 'high')),
   current_controls TEXT,
-  proposed_action TEXT,
   control_hierarchy TEXT CHECK (control_hierarchy IN ('eliminate', 'substitute', 'engineering', 'administrative', 'ppe')),
-  cost_estimate INTEGER,
-  responsible_owner TEXT,
-  due_date INTEGER,
-  completed_at INTEGER
+  cost_estimate INTEGER
 );
 
 CREATE INDEX IF NOT EXISTS risk_entry_owner_idx ON risk_entry (owner_id);
 CREATE UNIQUE INDEX IF NOT EXISTS risk_entry_finding_unique ON risk_entry (finding_id);
+
+CREATE TABLE IF NOT EXISTS risk_mitigation_action (
+  id TEXT PRIMARY KEY NOT NULL,
+  risk_entry_id TEXT NOT NULL REFERENCES risk_entry (id) ON DELETE CASCADE,
+  owner_id TEXT NOT NULL,
+  description TEXT NOT NULL,
+  assignee_name TEXT,
+  due_date INTEGER,
+  status TEXT NOT NULL CHECK (status IN ('open', 'inProgress', 'done')),
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS risk_mitigation_action_owner_idx ON risk_mitigation_action (owner_id);
+CREATE INDEX IF NOT EXISTS risk_mitigation_action_risk_entry_idx ON risk_mitigation_action (risk_entry_id);
 
 CREATE TABLE IF NOT EXISTS summary (
   assessment_id TEXT PRIMARY KEY NOT NULL REFERENCES risk_assessment (id) ON DELETE CASCADE,

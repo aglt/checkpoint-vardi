@@ -58,11 +58,16 @@ export interface RegisterEntryReport {
   readonly consequence: string;
   readonly riskLevel: string;
   readonly currentControls: string;
-  readonly proposedAction: string;
   readonly costEstimate: string;
-  readonly responsibleOwner: string;
+  readonly mitigationActions: readonly RegisterMitigationActionReport[];
+}
+
+export interface RegisterMitigationActionReport {
+  readonly id: string;
+  readonly description: string;
+  readonly assigneeName: string;
   readonly dueDate: string;
-  readonly completedAt: string;
+  readonly statusLabel: string;
 }
 
 export interface RegisterReportDocument extends AssessmentReportHeader {
@@ -316,11 +321,11 @@ export async function renderRegisterReportDocx(
       createKeyValueParagraph("Consequence", toDisplayValue(entry.consequence)),
       createKeyValueParagraph("Risk level", toDisplayValue(entry.riskLevel)),
       createKeyValueParagraph("Current controls", toDisplayValue(entry.currentControls)),
-      createKeyValueParagraph("Proposed action", toDisplayValue(entry.proposedAction)),
       createKeyValueParagraph("Cost estimate", toDisplayValue(entry.costEstimate)),
-      createKeyValueParagraph("Responsible owner", toDisplayValue(entry.responsibleOwner)),
-      createKeyValueParagraph("Due date", toDisplayValue(entry.dueDate)),
-      createKeyValueParagraph("Completed at", toDisplayValue(entry.completedAt)),
+      createKeyValueParagraph(
+        "Mitigation actions",
+        formatRegisterMitigationActions(entry.mitigationActions),
+      ),
     );
   }
 
@@ -355,11 +360,12 @@ export async function renderRegisterReportPdf(
       writePdfKeyValue(pdf, "Consequence", toDisplayValue(entry.consequence));
       writePdfKeyValue(pdf, "Risk level", toDisplayValue(entry.riskLevel));
       writePdfKeyValue(pdf, "Current controls", toDisplayValue(entry.currentControls));
-      writePdfKeyValue(pdf, "Proposed action", toDisplayValue(entry.proposedAction));
       writePdfKeyValue(pdf, "Cost estimate", toDisplayValue(entry.costEstimate));
-      writePdfKeyValue(pdf, "Responsible owner", toDisplayValue(entry.responsibleOwner));
-      writePdfKeyValue(pdf, "Due date", toDisplayValue(entry.dueDate));
-      writePdfKeyValue(pdf, "Completed at", toDisplayValue(entry.completedAt));
+      writePdfKeyValue(
+        pdf,
+        "Mitigation actions",
+        formatRegisterMitigationActions(entry.mitigationActions),
+      );
     }
   });
 }
@@ -533,4 +539,24 @@ function writePdfKeyValue(
 
 function toDisplayValue(value: string | null | undefined): string {
   return value && value.trim().length > 0 ? value : EMPTY_VALUE;
+}
+
+function formatRegisterMitigationActions(
+  actions: readonly RegisterMitigationActionReport[],
+): string {
+  if (actions.length === 0) {
+    return "No saved mitigation actions.";
+  }
+
+  return actions
+    .map((action, index) => {
+      const detailParts = [
+        `Status: ${action.statusLabel}`,
+        action.assigneeName.trim().length > 0 ? `Assignee: ${action.assigneeName}` : null,
+        action.dueDate.trim().length > 0 ? `Due: ${action.dueDate}` : null,
+      ].filter((value): value is string => value != null);
+
+      return `${index + 1}. ${action.description} (${detailParts.join("; ")})`;
+    })
+    .join("\n");
 }

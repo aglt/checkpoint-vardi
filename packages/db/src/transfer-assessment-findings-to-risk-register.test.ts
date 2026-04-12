@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { closeDatabase, createMigratedDatabase } from "./database.js";
+import { closeDatabase, createBootstrappedDatabase } from "./database.js";
 import {
   MissingRiskEntryHazardError,
   transferAssessmentFindingsToRiskRegister,
@@ -13,7 +13,7 @@ const createdAt = new Date("2026-04-12T09:05:00.000Z");
 const updatedAt = new Date("2026-04-12T09:10:00.000Z");
 
 function seedTransferFixture() {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values({
     id: "workplace-1",
@@ -117,12 +117,8 @@ test("transferAssessmentFindingsToRiskRegister inserts only missing notOk risk r
     consequence: null,
     riskLevel: null,
     currentControls: null,
-    proposedAction: null,
     controlHierarchy: null,
     costEstimate: null,
-    responsibleOwner: null,
-    dueDate: null,
-    completedAt: null,
   }).run();
 
   const result = transferAssessmentFindingsToRiskRegister({
@@ -153,9 +149,7 @@ test("transferAssessmentFindingsToRiskRegister inserts only missing notOk risk r
         likelihood,
         consequence,
         risk_level as riskLevel,
-        current_controls as currentControls,
-        proposed_action as proposedAction,
-        responsible_owner as responsibleOwner
+        current_controls as currentControls
       from risk_entry
       order by finding_id
     `)
@@ -169,8 +163,6 @@ test("transferAssessmentFindingsToRiskRegister inserts only missing notOk risk r
       consequence: number | null;
       riskLevel: string | null;
       currentControls: string | null;
-      proposedAction: string | null;
-      responsibleOwner: string | null;
     }>;
 
   assert.equal(persistedEntries.length, 2);
@@ -184,8 +176,6 @@ test("transferAssessmentFindingsToRiskRegister inserts only missing notOk risk r
     consequence: null,
     riskLevel: null,
     currentControls: null,
-    proposedAction: null,
-    responsibleOwner: null,
   });
   assert.deepEqual(persistedEntries[1], {
     ownerId: "owner-1",
@@ -197,8 +187,6 @@ test("transferAssessmentFindingsToRiskRegister inserts only missing notOk risk r
     consequence: null,
     riskLevel: null,
     currentControls: null,
-    proposedAction: null,
-    responsibleOwner: null,
   });
 
   closeDatabase(connection);

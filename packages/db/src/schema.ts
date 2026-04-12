@@ -4,6 +4,7 @@ export const workplaceArchetypes = ["fixed", "mobile", "construction"] as const;
 export const assessmentStatuses = ["draft", "completed"] as const;
 export const findingStatuses = ["ok", "notOk", "notApplicable", "unanswered"] as const;
 export const riskLevels = ["low", "medium", "high"] as const;
+export const riskMitigationActionStatuses = ["open", "inProgress", "done"] as const;
 export const controlHierarchies = [
   "eliminate",
   "substitute",
@@ -90,16 +91,33 @@ export const riskEntry = sqliteTable(
     consequence: integer("consequence"),
     riskLevel: text("risk_level", { enum: riskLevels }),
     currentControls: text("current_controls"),
-    proposedAction: text("proposed_action"),
     controlHierarchy: text("control_hierarchy", { enum: controlHierarchies }),
     costEstimate: integer("cost_estimate"),
-    responsibleOwner: text("responsible_owner"),
-    dueDate: integer("due_date", { mode: "timestamp_ms" }),
-    completedAt: integer("completed_at", { mode: "timestamp_ms" }),
   },
   (table) => ({
     ownerIdx: index("risk_entry_owner_idx").on(table.ownerId),
     findingUnique: uniqueIndex("risk_entry_finding_unique").on(table.findingId),
+  }),
+);
+
+export const riskMitigationAction = sqliteTable(
+  "risk_mitigation_action",
+  {
+    id: text("id").primaryKey(),
+    riskEntryId: text("risk_entry_id")
+      .notNull()
+      .references(() => riskEntry.id, { onDelete: "cascade" }),
+    ownerId: text("owner_id").notNull(),
+    description: text("description").notNull(),
+    assigneeName: text("assignee_name"),
+    dueDate: integer("due_date", { mode: "timestamp_ms" }),
+    status: text("status", { enum: riskMitigationActionStatuses }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (table) => ({
+    ownerIdx: index("risk_mitigation_action_owner_idx").on(table.ownerId),
+    riskEntryIdx: index("risk_mitigation_action_risk_entry_idx").on(table.riskEntryId),
   }),
 );
 
@@ -126,4 +144,5 @@ export type WorkplaceRow = typeof workplace.$inferSelect;
 export type RiskAssessmentRow = typeof riskAssessment.$inferSelect;
 export type FindingRow = typeof finding.$inferSelect;
 export type RiskEntryRow = typeof riskEntry.$inferSelect;
+export type RiskMitigationActionRow = typeof riskMitigationAction.$inferSelect;
 export type AssessmentSummaryRow = typeof assessmentSummary.$inferSelect;

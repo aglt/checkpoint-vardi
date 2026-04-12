@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { eq } from "drizzle-orm";
 
-import { closeDatabase, createMigratedDatabase } from "./database.js";
+import { closeDatabase, createBootstrappedDatabase } from "./database.js";
 import {
   AssessmentRiskEntryNotFoundError,
   updateAssessmentRiskEntry,
@@ -12,11 +12,9 @@ import { finding, riskAssessment, riskEntry, workplace } from "./schema.js";
 
 const startedAt = new Date("2026-04-12T09:00:00.000Z");
 const createdAt = new Date("2026-04-12T09:05:00.000Z");
-const dueDate = new Date("2026-04-20T00:00:00.000Z");
-const completedAt = new Date("2026-04-22T00:00:00.000Z");
 
 function seedRiskEntryFixture() {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values([
     {
@@ -127,12 +125,8 @@ function seedRiskEntryFixture() {
       consequence: null,
       riskLevel: null,
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
     {
       id: "risk-entry-owner-1-b",
@@ -145,12 +139,8 @@ function seedRiskEntryFixture() {
       consequence: null,
       riskLevel: null,
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
     {
       id: "risk-entry-owner-2",
@@ -163,12 +153,8 @@ function seedRiskEntryFixture() {
       consequence: null,
       riskLevel: null,
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
   ]).run();
 
@@ -190,11 +176,7 @@ test("updateAssessmentRiskEntry updates only the owner-scoped transferred row an
     consequence: 3,
     derivedRiskLevel: "high",
     currentControls: "Signage in place",
-    proposedAction: "Install a replacement guard",
     costEstimate: 25000,
-    responsibleOwner: "Workshop lead",
-    dueDate,
-    completedAt,
   });
 
   assert.equal(updatedRiskEntry.id, "risk-entry-owner-1-a");
@@ -206,11 +188,7 @@ test("updateAssessmentRiskEntry updates only the owner-scoped transferred row an
   assert.equal(updatedRiskEntry.consequence, 3);
   assert.equal(updatedRiskEntry.riskLevel, "high");
   assert.equal(updatedRiskEntry.currentControls, "Signage in place");
-  assert.equal(updatedRiskEntry.proposedAction, "Install a replacement guard");
   assert.equal(updatedRiskEntry.costEstimate, 25000);
-  assert.equal(updatedRiskEntry.responsibleOwner, "Workshop lead");
-  assert.deepEqual(updatedRiskEntry.dueDate, dueDate);
-  assert.deepEqual(updatedRiskEntry.completedAt, completedAt);
 
   const untouchedRiskEntry = connection.db
     .select()

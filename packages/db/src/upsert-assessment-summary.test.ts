@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { eq } from "drizzle-orm";
 
-import { closeDatabase, createMigratedDatabase } from "./database.js";
+import { closeDatabase, createBootstrappedDatabase } from "./database.js";
 import {
   AssessmentSummaryNotFoundError,
   upsertAssessmentSummary,
@@ -14,7 +14,7 @@ const startedAt = new Date("2026-04-12T09:00:00.000Z");
 const assessmentDate = new Date("2026-04-20T00:00:00.000Z");
 
 function seedAssessmentFixture() {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values([
     {

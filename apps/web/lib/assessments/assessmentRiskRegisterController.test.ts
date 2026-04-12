@@ -30,11 +30,8 @@ const riskEntries: readonly AssessmentRiskRegisterEntryProjection[] = [
     classificationState: "staleRiskLevel",
     classificationMessage: "Saved classification is stale. Save this entry to repair it.",
     currentControls: null,
-    proposedAction: null,
     costEstimate: null,
-    responsibleOwner: null,
-    dueDate: null,
-    completedAt: null,
+    mitigationActions: [],
   },
 ] as const;
 
@@ -73,11 +70,7 @@ test("risk-entry controller updates drafts and clears stale warnings after a suc
       consequence: 3,
       riskLevel: "high",
       currentControls: null,
-      proposedAction: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
     edited["risk-entry-1"]!.draft,
   );

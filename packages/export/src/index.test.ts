@@ -59,11 +59,16 @@ function createSampleDocuments(): AssessmentReportDocuments {
           consequence: "3",
           riskLevel: "High",
           currentControls: "Safety signage",
-          proposedAction: "Install replacement guard",
           costEstimate: "25000",
-          responsibleOwner: "Workshop lead",
-          dueDate: "2026-04-25",
-          completedAt: "",
+          mitigationActions: [
+            {
+              id: "action-1",
+              description: "Install replacement guard",
+              assigneeName: "Workshop lead",
+              dueDate: "2026-04-25",
+              statusLabel: "Open",
+            },
+          ],
         },
       ],
     },
@@ -118,6 +123,7 @@ test("renderAssessmentReportFiles creates valid docx and pdf outputs for all thr
   assert.match(checklistDocumentXml ?? "", /Missing table saw guard/);
   assert.match(registerDocumentXml ?? "", /Table saw without guard/);
   assert.match(registerDocumentXml ?? "", /Install replacement guard/);
+  assert.match(registerDocumentXml ?? "", /Mitigation actions/);
   assert.match(summaryDocumentXml ?? "", /Student assessor/);
   assert.match(summaryDocumentXml ?? "", /Guarding and dust extraction/);
   assert.match(
