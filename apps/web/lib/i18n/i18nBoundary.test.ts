@@ -31,10 +31,10 @@ test("shared i18n modules stay free of Next and server-only imports", () => {
   assert.doesNotMatch(mvpCopySource, /server-only/);
 });
 
-test("request language resolution stays in the explicit server module", () => {
+test("request language default stays in the explicit server module without reading browser headers", () => {
   const requestAppLanguageSource = readSiblingFile("./requestAppLanguage.server.ts");
 
-  assert.match(requestAppLanguageSource, /from\s+["']next\/headers["']/);
+  assert.doesNotMatch(requestAppLanguageSource, /from\s+["']next\/headers["']/);
 });
 
 test("client components do not import the request language server module", () => {
