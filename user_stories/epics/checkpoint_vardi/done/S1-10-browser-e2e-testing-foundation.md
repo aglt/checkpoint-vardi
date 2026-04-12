@@ -12,7 +12,7 @@ Depends on: S1-08
 
 ## Context
 
-This story is complete. `S1-08` already established the full persisted
+This story is complete and is now open in PR `#12`. `S1-08` already established the full persisted
 MVP assessment flow and export-readiness surface; `S1-10` now adds a
 truthful browser-level verification seam on top of that existing flow
 without reviving `S1-09`, adding `safety_plan`, or widening the root

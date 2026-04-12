@@ -239,7 +239,7 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 ->
 > stall in `saving`.
 > Ran `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e`. This
 > session used `node v25.6.1`; Node 22 remains the declared repo contract, but
-> was not directly re-verified here.
+> was not directly re-verified here. PR: `#12`.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
