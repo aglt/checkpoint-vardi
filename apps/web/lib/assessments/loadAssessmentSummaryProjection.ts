@@ -13,6 +13,10 @@ import {
   type AssessmentRiskRegisterProjection,
   type AssessmentRiskRegisterEntryProjection,
 } from "./loadAssessmentRiskRegisterProjection";
+import {
+  buildAssessmentSummaryPrioritizedEntries,
+  type AssessmentSummaryPrioritizedEntry,
+} from "./assessmentSummaryPriorityEntries";
 
 export interface LoadAssessmentSummaryProjectionParams {
   readonly db: VardiDatabase;
@@ -39,15 +43,7 @@ export interface AssessmentSummaryFormValues {
   readonly notes: string;
 }
 
-export interface AssessmentSummaryPrioritizedEntry {
-  readonly id: string;
-  readonly criterionNumber: string;
-  readonly criterionTitle: string;
-  readonly sectionTitle: string;
-  readonly hazard: string;
-  readonly savedRiskLevel: AssessmentRiskRegisterEntryProjection["savedRiskLevel"];
-  readonly classificationState: AssessmentRiskRegisterEntryProjection["classificationState"];
-}
+export type { AssessmentSummaryPrioritizedEntry } from "./assessmentSummaryPriorityEntries";
 
 export interface AssessmentSummaryProjection {
   readonly assessmentId: string;
@@ -106,7 +102,9 @@ export function loadAssessmentSummaryProjection(
         notes: savedSummary.notes ?? defaultSummary.notes,
       },
     },
-    prioritizedEntries: buildPrioritizedEntries(riskRegisterProjection.entries),
+    prioritizedEntries: buildAssessmentSummaryPrioritizedEntries(
+      riskRegisterProjection.entries,
+    ),
     readiness: buildAssessmentExportReadiness({
       findings: aggregate.findings,
       riskRegisterProjection,
@@ -141,31 +139,6 @@ function toSavedSummaryValues(
     method: summary?.method ?? null,
     notes: summary?.notes ?? null,
   };
-}
-
-function buildPrioritizedEntries(
-  entries: readonly AssessmentRiskRegisterEntryProjection[],
-): readonly AssessmentSummaryPrioritizedEntry[] {
-  return entries
-    .map((entry, index) => ({
-      index,
-      entry,
-      sortOrder: getPrioritySortOrder(entry),
-    }))
-    .sort((left, right) =>
-      left.sortOrder === right.sortOrder
-        ? left.index - right.index
-        : left.sortOrder - right.sortOrder,
-    )
-    .map(({ entry }) => ({
-      id: entry.id,
-      criterionNumber: entry.criterionNumber,
-      criterionTitle: entry.criterionTitle,
-      sectionTitle: entry.sectionTitle,
-      hazard: entry.hazard.length > 0 ? entry.hazard : entry.criterionTitle,
-      savedRiskLevel: entry.savedRiskLevel,
-      classificationState: entry.classificationState,
-    }));
 }
 
 function buildAssessmentExportReadiness(params: {
@@ -257,23 +230,6 @@ function buildAssessmentExportReadiness(params: {
       missingFields: missingSummaryFields,
     },
   };
-}
-
-function getPrioritySortOrder(
-  entry: AssessmentRiskRegisterEntryProjection,
-): number {
-  if (entry.classificationState !== "ready" || entry.savedRiskLevel == null) {
-    return 3;
-  }
-
-  switch (entry.savedRiskLevel) {
-    case "high":
-      return 0;
-    case "medium":
-      return 1;
-    case "low":
-      return 2;
-  }
 }
 
 function isSummaryFieldMissing(

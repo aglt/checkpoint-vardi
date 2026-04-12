@@ -13,6 +13,7 @@ import {
   type AssessmentSummaryClientState,
   type AssessmentSummaryDraft,
 } from "@/lib/assessments/assessmentSummaryController";
+import type { AssessmentSummaryPrioritizedEntry } from "@/lib/assessments/assessmentSummaryPriorityEntries";
 import type { AppLanguage } from "@/lib/i18n/appLanguage";
 import {
   getAssessmentProgressionBlockerMessages,
@@ -37,16 +38,15 @@ interface AssessmentSummaryEditorProps {
   readonly assessmentId: string;
   readonly language: AppLanguage;
   readonly summary: AssessmentSummaryProjection["summary"];
-  readonly prioritizedEntries: AssessmentSummaryProjection["prioritizedEntries"];
 }
 
 export function AssessmentSummaryEditor({
   assessmentId,
   language,
   summary,
-  prioritizedEntries,
 }: AssessmentSummaryEditorProps) {
-  const { progression, refreshProgression } = useAssessmentProgression();
+  const { progression, refreshProgression, summaryPrioritizedEntries } =
+    useAssessmentProgression();
   const copy = getAssessmentSummaryStaticCopy(language);
   const readiness = progression.exportReadiness;
   const summaryStep = progression.summary;
@@ -339,13 +339,13 @@ export function AssessmentSummaryEditor({
                 </p>
               </div>
 
-              {prioritizedEntries.length === 0 ? (
+              {summaryPrioritizedEntries.length === 0 ? (
                 <div className="rounded-[1.4rem] border border-dashed border-black/12 bg-[#fbf7ef] px-4 py-4 text-sm leading-6 text-slate-600">
                   {copy.priority.empty}
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {prioritizedEntries.map((entry) => (
+                  {summaryPrioritizedEntries.map((entry) => (
                     <article
                       className="rounded-[1.3rem] border border-black/8 bg-[#fbf7ef] px-3 py-3"
                       data-priority-state={entry.classificationState}
@@ -657,7 +657,7 @@ function ReadinessRow({
 
 function getPriorityBadgeClassName(
   riskLevel: "low" | "medium" | "high" | null,
-  state: AssessmentSummaryEditorProps["prioritizedEntries"][number]["classificationState"],
+  state: AssessmentSummaryPrioritizedEntry["classificationState"],
 ): string {
   if (state === "staleRiskLevel" || state === "invalidClassification") {
     return "inline-flex shrink-0 items-center rounded-full border border-[#d7b778] bg-[#fff2d4] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#805312]";

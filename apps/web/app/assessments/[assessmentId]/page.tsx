@@ -59,6 +59,7 @@ export default async function AssessmentWalkthroughPage({
       <AssessmentProgressionProvider
         assessmentId={readModel.assessment.id}
         initialProgression={progression}
+        initialSummaryPrioritizedEntries={summaryProjection.prioritizedEntries}
       >
         <AssessmentWalkthrough
           assessmentId={readModel.assessment.id}
@@ -73,18 +74,14 @@ export default async function AssessmentWalkthroughPage({
             assessmentId={readModel.assessment.id}
             entries={riskRegisterProjection.entries}
             language={language}
-            riskMatrixConsequenceLevels={
-              riskRegisterProjection.riskMatrix.consequenceLevels
-            }
-            riskMatrixLikelihoodLevels={
-              riskRegisterProjection.riskMatrix.likelihoodLevels
+            riskMatrixSeverityChoices={
+              riskRegisterProjection.riskMatrix.severityChoices
             }
             riskMatrixTitle={riskRegisterProjection.riskMatrix.title}
           />
           <AssessmentSummaryEditor
             assessmentId={readModel.assessment.id}
             language={language}
-            prioritizedEntries={summaryProjection.prioritizedEntries}
             summary={summaryProjection.summary}
           />
         </AssessmentWalkthrough>

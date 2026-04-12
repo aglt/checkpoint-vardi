@@ -13,9 +13,9 @@ import type {
   AssessmentRiskRegisterProjection,
 } from "./loadAssessmentRiskRegisterProjection";
 import type {
-  AssessmentSummaryPrioritizedEntry,
   AssessmentSummaryProjection,
 } from "./loadAssessmentSummaryProjection";
+import type { AssessmentSummaryPrioritizedEntry } from "./assessmentSummaryPriorityEntries";
 
 export interface BuildAssessmentExportDocumentsParams {
   readonly readModel: AssessmentReadModel;

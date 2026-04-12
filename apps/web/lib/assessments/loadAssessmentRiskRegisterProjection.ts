@@ -48,6 +48,16 @@ export interface AssessmentRiskRegisterEntryProjection {
   readonly mitigationActions: readonly AssessmentRiskMitigationActionProjection[];
 }
 
+export interface AssessmentRiskSeverityChoiceOptionProjection {
+  readonly likelihood: number;
+  readonly consequence: number;
+}
+
+export interface AssessmentRiskSeverityChoiceGroupProjection {
+  readonly riskLevel: RiskLevel;
+  readonly options: readonly AssessmentRiskSeverityChoiceOptionProjection[];
+}
+
 export interface AssessmentRiskMitigationActionProjection {
   readonly id: string;
   readonly description: string;
@@ -63,6 +73,7 @@ export interface AssessmentRiskRegisterProjection {
     readonly title: string;
     readonly likelihoodLevels: number;
     readonly consequenceLevels: number;
+    readonly severityChoices: readonly AssessmentRiskSeverityChoiceGroupProjection[];
   };
   readonly entries: readonly AssessmentRiskRegisterEntryProjection[];
 }
@@ -106,6 +117,7 @@ export function loadAssessmentRiskRegisterProjection(
       title: riskMatrix.translations.is.title,
       likelihoodLevels: riskMatrix.likelihoodLevels,
       consequenceLevels: riskMatrix.consequenceLevels,
+      severityChoices: buildRiskSeverityChoices(riskMatrix),
     },
     entries: readModel.sections.flatMap((section) =>
       section.criteria.flatMap((criterion) => {
@@ -133,6 +145,40 @@ export function loadAssessmentRiskRegisterProjection(
       }),
     ),
   };
+}
+
+function buildRiskSeverityChoices(
+  riskMatrix: RiskMatrix,
+): readonly AssessmentRiskSeverityChoiceGroupProjection[] {
+  const groupedOptions = new Map<RiskLevel, AssessmentRiskSeverityChoiceOptionProjection[]>(
+    (["low", "medium", "high"] as const).map((riskLevel) => [riskLevel, []]),
+  );
+
+  for (let likelihood = 1; likelihood <= riskMatrix.likelihoodLevels; likelihood += 1) {
+    for (
+      let consequence = 1;
+      consequence <= riskMatrix.consequenceLevels;
+      consequence += 1
+    ) {
+      const riskLevel = riskMatrix.lookup[`${likelihood},${consequence}`];
+
+      if (!riskLevel) {
+        throw new Error(
+          `Risk matrix ${riskMatrix.id} is missing lookup for ${likelihood},${consequence}.`,
+        );
+      }
+
+      groupedOptions.get(riskLevel)?.push({
+        likelihood,
+        consequence,
+      });
+    }
+  }
+
+  return (["low", "medium", "high"] as const).map((riskLevel) => ({
+    riskLevel,
+    options: groupedOptions.get(riskLevel) ?? [],
+  }));
 }
 
 function buildRiskRegisterEntryProjection(

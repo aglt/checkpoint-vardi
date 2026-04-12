@@ -1,6 +1,6 @@
 # S1-18 - Risk severity choice alignment with the reference workflow
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P1
@@ -12,24 +12,27 @@ Depends on: S1-08
 
 ## Context
 
-The current MVP assessment flow persists risk classification truth and export
-truth correctly enough for the existing stories, but the user-facing severity
-experience does not match the reference workflow the product is being compared
-against.
+This story is complete and is tracked in PR `#18`. The risk-severity owner stayed in
+`apps/web/lib/assessments/loadAssessmentRiskRegisterProjection.ts` and
+`apps/web/app/assessments/[assessmentId]/_components/RiskRegisterEditor.tsx`,
+where the app now derives deterministic grouped severity choices from the
+pinned matrix and renders them as named `low | medium | high` choices with the
+exact saved `likelihood + consequence` pair still visible.
 
-Today the app asks the user for numeric `Likelihood` and `Consequence` inputs in
-`RiskRegisterEditor`, then shows app-owned labels such as `Saved level` and
-English values like `High`. The reference workflow instead presents a named
-severity choice using user-facing labels such as:
+Persistence remained unchanged: `risk_entry` still stores `likelihood`,
+`consequence`, and server-derived `riskLevel`, with no client-only severity
+field or schema change. The same saved `riskLevel` label mapping now drives the
+risk-register badge and the summary priority panel so the live UI stays aligned
+with the saved state for the same row, while export generation stayed out of
+scope and untouched.
 
-- `Lág`
-- `Miðlungs`
-- `Há`
+The localized user-facing severity labels for this slice are now:
 
-This story exists to close that product gap honestly. It should not fake the
-experience with client-only relabeling that drifts from saved state, and it
-should not silently turn into the broader mixed-language cleanup story tracked
-separately in `S1-17`.
+- `is`: `Lág`, `Miðlungs`, `Há`
+- `en`: `Low`, `Medium`, `High`
+
+Verification ran locally under `node v22.22.2` with `pnpm test`,
+`pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e`.
 
 ## Goal
 

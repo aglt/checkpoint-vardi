@@ -23,7 +23,8 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-13` is complete and now lives under `done/`
 - `S1-14` is complete and now lives under `done/`
 - `S1-17` is complete and now lives under `done/`
-- `S1-09` and `S1-15` through `S1-18` are staged under `not_started/`
+- `S1-18` is complete and now lives under `done/`
+- `S1-09` and `S1-15` through `S1-16` are staged under `not_started/`
 - the next implementation story is `S1-15`
 - the maintenance workflow is defined by `$vardi-story-management`
 
@@ -32,8 +33,8 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S1-14 - Compliance-oriented export framing and assessment metadata`
-- Story file: `user_stories/epics/checkpoint_vardi/done/S1-14-compliance-oriented-export-framing-and-assessment-metadata.md`
+- Most recently completed story: `S1-18 - Risk severity choice alignment with the reference workflow`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S1-18-risk-severity-choice-alignment.md`
 - Next story: `S1-15 - Sector/profile-specific assessment rules via seed-owned runtime extensions`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
@@ -91,7 +92,11 @@ browser-proof queue with a later stable regression once those
 flow-shaping slices settle, while `S1-17` now completes the focused
 language-consistency follow-up that removes mixed app-language copy from
 the current MVP web flow and `S1-18` is the separate
-severity-alignment repair for the screenshot-backed named risk choice.
+severity-alignment repair for the screenshot-backed named risk choice. It now
+lands as an app-owned grouped severity choice in the risk register, keeps the
+exact saved likelihood/consequence pair explicit, and keeps the summary
+priority badge aligned with the same saved `riskLevel` mapping without widening
+into export-language changes.
 `S1-09` still exists only as a narrow bridge story if a concrete
 post-MVP need surfaces for broader platform groundwork.
 
@@ -102,11 +107,10 @@ post-MVP need surfaces for broader platform groundwork.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. Stage One now has its first browser-proof baseline through
-`S1-14` plus the current app-language consistency follow-up through `S1-17`;
-the next staged story is `S1-15`, `S1-16` remains the later browser-export
-regression proof once the runtime-rule slice settles, `S1-18` tracks the
-named severity-choice alignment gap, and `S1-09` stays conditional and
-non-blocking.
+`S1-14` plus the current app-language consistency and severity-alignment
+follow-ups through `S1-17` and `S1-18`; the next staged story is `S1-15`,
+`S1-16` remains the later browser-export regression proof once the
+runtime-rule slice settles, and `S1-09` stays conditional and non-blocking.
 
 ## Guardrails
 
