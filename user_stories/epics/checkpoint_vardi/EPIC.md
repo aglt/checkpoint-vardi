@@ -18,7 +18,7 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-07` is complete and now lives under `done/`
 - `S1-08` is complete and now lives under `done/`
 - `S1-10` is complete and now lives under `done/`
-- `S1-09` and `S1-11` through `S1-17` are staged under `not_started/`
+- `S1-09` and `S1-11` through `S1-18` are staged under `not_started/`
 - the next implementation story is `S1-11`
 - the maintenance workflow is defined by `$vardi-story-management`
 
@@ -73,8 +73,10 @@ small supported rule set flow from seed/runtime truth into the app, and
 `S1-16` closes the current browser-proof queue with a later stable regression
 once those flow-shaping slices settle, while `S1-17` is the focused
 language-consistency follow-up that removes mixed app-language copy from the
-current MVP web flow. `S1-09` still exists only as a narrow bridge story if a
-concrete post-MVP need surfaces for broader platform groundwork.
+current MVP web flow and `S1-18` is the separate severity-alignment repair for
+the screenshot-backed named risk choice. `S1-09` still exists only as a narrow
+bridge story if a concrete post-MVP need surfaces for broader platform
+groundwork.
 
 ### S0 - Foundations
 
@@ -85,8 +87,9 @@ This baseline now gives later stories a trustworthy install, lint, typecheck, te
 dev-server loop. Stage One now has its first browser-proof baseline through
 `S1-10`; the next staged story is `S1-11`, `S1-16` remains the later
 browser-export regression proof once the flow settles, `S1-17` tracks the
-cross-cutting app-language consistency gap on the current MVP web surfaces, and
-`S1-09` stays conditional and non-blocking.
+cross-cutting app-language consistency gap on the current MVP web surfaces,
+`S1-18` tracks the named severity-choice alignment gap, and `S1-09` stays
+conditional and non-blocking.
 
 ## Guardrails
 

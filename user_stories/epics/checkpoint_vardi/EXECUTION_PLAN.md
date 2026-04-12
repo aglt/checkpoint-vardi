@@ -46,6 +46,7 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 S1-08 -> S1-10 -> S1-16
 S1-08 -> S1-11 -> S1-12 -> S1-13 -> S1-14 -> S1-15 -> S1-16
 S1-08 -> S1-17
+S1-08 -> S1-18
 S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 ```
 
@@ -294,9 +295,16 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 **Start gate:** Open. The current MVP web surfaces already exist and the mixed-language copy gap is observable now.
 **Unblocks:** Cleaner product trust on the current web flow and future assertions that should depend on stabilized app-language copy.
 
+### Step S1-18: Risk severity choice alignment with the reference workflow
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-18-risk-severity-choice-alignment.md`
+**Start gate:** Open. `S1-08` is complete and the screenshot-backed severity mismatch is already observable on the current MVP flow. Reuse any language seam from `S1-17` if available, but do not duplicate that broader story accidentally.
+**Unblocks:** A more truthful risk-severity UX on the current flow and later stable browser assertions in `S1-16`.
+
 ### Step S1-09: Foundation for broader safety-plan modules
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-17` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-18` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.
