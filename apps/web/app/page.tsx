@@ -7,7 +7,7 @@ import {
   getTemplateMetaLabel,
   type StartAssessmentFormErrorCode,
 } from "@/lib/i18n/mvpCopy";
-import { getRequestAppLanguage } from "@/lib/i18n/requestAppLanguage";
+import { getRequestAppLanguage } from "@/lib/i18n/requestAppLanguage.server";
 
 interface StartAssessmentPageProps {
   readonly searchParams?: Promise<{

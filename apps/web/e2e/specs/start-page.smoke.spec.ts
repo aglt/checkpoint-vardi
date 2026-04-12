@@ -19,6 +19,15 @@ test("start page boots with the seeded template choices", async ({ page }) => {
   await expect(
     page.getByRole("button", { name: "Búa til áhættumat" }),
   ).toBeVisible();
+  for (const expectedLabel of [
+    "Nafn vinnustaðar",
+    "Heimilisfang",
+    "Gerð vinnustaðar",
+    "Staðlað sniðmát",
+    "Búa til áhættumat",
+  ]) {
+    await expect(page.locator("body")).toContainText(expectedLabel);
+  }
   await expect(page.locator("body")).not.toContainText("Application error");
   await expect(page.locator("body")).not.toContainText("Current MVP Start Entry");
   await expect(page.locator("body")).not.toContainText("Start assessment");

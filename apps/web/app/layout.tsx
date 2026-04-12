@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 
-import { getRequestAppLanguage } from "@/lib/i18n/requestAppLanguage";
+import { getRequestAppLanguage } from "@/lib/i18n/requestAppLanguage.server";
 
 export const metadata: Metadata = {
   title: "Checkpoint Vardi",

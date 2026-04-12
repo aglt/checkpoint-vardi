@@ -19,6 +19,15 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
   await expect(
     page.getByRole("heading", { name: "FB workshop E2E" }),
   ).toBeVisible();
+  for (const expectedLabel of [
+    "Framvinda",
+    "Athugasemdir yfirferðar",
+    "Færa í áhættuskrá",
+    "Áhættuskrá",
+    "Samantekt og útflutningsstaða",
+  ]) {
+    await expect(page.locator("body")).toContainText(expectedLabel);
+  }
 
   const firstCriterion = page.locator("[data-criterion-id]").first();
   await firstCriterion.locator('[data-answer-value="notOk"]').click();
@@ -50,6 +59,7 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
   await expect(riskEntry).toHaveAttribute("data-classification-state", "ready");
   await expect(riskEntry).toHaveAttribute("data-risk-level", "high");
   await expect(riskEntry.getByText("Vistuð flokkun: Há.")).toBeVisible();
+  await expect(page.locator("body")).toContainText("Vista áhættufærslu");
 
   const summarySection = page.locator("[data-summary-readiness]").first();
   await summarySection
@@ -90,6 +100,8 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
   await expect(
     summarySection.locator('[data-readiness-key="summary"]'),
   ).toHaveAttribute("data-readiness-state", "ready");
+  await expect(page.locator("body")).toContainText("Vista samantekt");
+  await expect(page.locator("body")).toContainText("Sækja Word + PDF pakka");
 
   await expect(page.locator("body")).not.toContainText("Assessment Workflow");
   await expect(page.locator("body")).not.toContainText("Transfer to risk register");

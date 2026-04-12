@@ -8,7 +8,7 @@ import { RiskRegisterEditor } from "./_components/RiskRegisterEditor";
 import { loadAssessmentReadModel } from "@/lib/assessments/loadAssessmentReadModel";
 import { loadAssessmentRiskRegisterProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
 import { loadAssessmentSummaryProjection } from "@/lib/assessments/loadAssessmentSummaryProjection";
-import { getRequestAppLanguage } from "@/lib/i18n/requestAppLanguage";
+import { getRequestAppLanguage } from "@/lib/i18n/requestAppLanguage.server";
 import { getDatabase } from "@/lib/server/db";
 import { getCurrentUser } from "@/lib/server/getCurrentUser";
 
