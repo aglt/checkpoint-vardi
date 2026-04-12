@@ -1,0 +1,1108 @@
+import type { AssessmentSummaryRequiredField } from "@vardi/schemas";
+import type { RiskLevel } from "@vardi/risk";
+
+import { getRequestLocale, type AppLanguage } from "./appLanguage";
+
+export const START_ASSESSMENT_FORM_ERROR_CODES = [
+  "invalid-start-request",
+  "unknown-template",
+  "start-unavailable",
+] as const;
+
+export type StartAssessmentFormErrorCode =
+  (typeof START_ASSESSMENT_FORM_ERROR_CODES)[number];
+
+export const ANSWER_OPTION_COPY = {
+  is: [
+    {
+      value: "ok",
+      label: "Í lagi",
+      description: "Uppfyllir núverandi kröfu.",
+    },
+    {
+      value: "notOk",
+      label: "Ekki í lagi",
+      description: "Krefst eftirfylgni í síðari skrefum.",
+    },
+    {
+      value: "notApplicable",
+      label: "Á ekki við",
+      description: "Á ekki við í þessu samhengi.",
+    },
+  ],
+  en: [
+    {
+      value: "ok",
+      label: "Ok",
+      description: "Meets the current expectation.",
+    },
+    {
+      value: "notOk",
+      label: "Not ok",
+      description: "Needs follow-up in a later story.",
+    },
+    {
+      value: "notApplicable",
+      label: "Not applicable",
+      description: "Does not apply in this context.",
+    },
+  ],
+} as const;
+
+const START_PAGE_COPY = {
+  is: {
+    eyebrow: "Núverandi MVP inngangur",
+    title: "Hefja staðlað áhættumat og taka yfirferðina í næsta skrefi.",
+    description:
+      "Þessi síða er afmörkuð MVP inngangssíða fyrir S1-03. Hún býr til vinnustaðasamhengi, festir staðlaðan gátlista og 3x3 námsfylki og undirbýr matið fyrir yfirferðarflæðið.",
+    summaryLabels: {
+      templates: "Sniðmát",
+      pinnedMatrix: "Fast fylki",
+      scope: "Umfang",
+    },
+    summaryValues: {
+      pinnedMatrix: "Námskeið 3x3",
+      scope: "Aðeins upphaf",
+    },
+    sectionHeading: "Hefja áhættumat",
+    sectionDescription:
+      "Veldu vinnustaðasamhengi og eitt af staðlaðri sniðmátunum hér að neðan. Þetta form sleppir viljandi vali á fylki, samhæfisreglum og innihaldi yfirferðar.",
+    formErrorMessages: {
+      "invalid-start-request":
+        "Ekki tókst að lesa upphafsbeiðnina. Athugaðu formið og reyndu aftur.",
+      "unknown-template":
+        "Valda staðlaða sniðmátið er ekki lengur tiltækt.",
+      "start-unavailable": "Ekki er hægt að hefja matið í bili.",
+    },
+    labels: {
+      workplaceName: "Nafn vinnustaðar",
+      workplaceAddress: "Heimilisfang",
+      workplaceArchetype: "Gerð vinnustaðar",
+      seededTemplate: "Staðlað sniðmát",
+    },
+    placeholders: {
+      workplaceName: "FB verkstæði",
+      workplaceAddress: "Austurberg 5",
+    },
+    archetypes: {
+      fixed: {
+        label: "Fastur",
+        description: "Stöðugur vinnustaður með hægari breytingum í rekstri.",
+      },
+      mobile: {
+        label: "Færanlegur",
+        description: "Hópur eða búnaður flyst milli vinnustaða.",
+      },
+      construction: {
+        label: "Byggingarsvæði",
+        description: "Byggingarumhverfi með breytilegum aðstæðum.",
+      },
+    },
+    submit: "Búa til áhættumat",
+  },
+  en: {
+    eyebrow: "Current MVP Start Entry",
+    title: "Start a seeded assessment and leave the walkthrough for the next step.",
+    description:
+      "This screen is the narrow MVP entry route for S1-03. It creates a workplace context, pins a seeded checklist and the course 3x3 matrix, and prepares the assessment for the walkthrough flow.",
+    summaryLabels: {
+      templates: "Templates",
+      pinnedMatrix: "Pinned matrix",
+      scope: "Scope",
+    },
+    summaryValues: {
+      pinnedMatrix: "Course 3x3",
+      scope: "Start only",
+    },
+    sectionHeading: "Start assessment",
+    sectionDescription:
+      "Choose a workplace context and one of the seeded templates below. This form intentionally skips matrix choice, compatibility rules, and walkthrough content.",
+    formErrorMessages: {
+      "invalid-start-request":
+        "The start request was incomplete. Please check the form and try again.",
+      "unknown-template":
+        "The selected seeded template is not available anymore.",
+      "start-unavailable": "Assessment start is temporarily unavailable.",
+    },
+    labels: {
+      workplaceName: "Workplace name",
+      workplaceAddress: "Address",
+      workplaceArchetype: "Workplace archetype",
+      seededTemplate: "Seeded template",
+    },
+    placeholders: {
+      workplaceName: "FB workshop",
+      workplaceAddress: "Austurberg 5",
+    },
+    archetypes: {
+      fixed: {
+        label: "Fixed",
+        description: "Steady site with slower operational change.",
+      },
+      mobile: {
+        label: "Mobile",
+        description: "Crew or equipment moves between work locations.",
+      },
+      construction: {
+        label: "Construction",
+        description: "Construction-focused environment with changing conditions.",
+      },
+    },
+    submit: "Create assessment",
+  },
+} as const;
+
+const WALKTHROUGH_COPY = {
+  is: {
+    eyebrow: "Áhættumatsflæði",
+    description:
+      "Ljúktu yfirferðinni hér og haltu síðan áfram í áhættuskrána og loka-samantektina á sömu matsíðu.",
+    progressLabel: "Framvinda",
+    summaryLabels: {
+      checklist: "Gátlisti",
+      sectionsComplete: "Loknir kaflar",
+      pinnedMatrix: "Fast fylki",
+    },
+    transfer: {
+      eyebrow: "Skref 1b",
+      heading: "Færa í áhættuskrá",
+      description:
+        "Aðeins vistuð 'Ekki í lagi' atriði færast. Endurkeyrsla bætir við vöntuðum línum án tvítekninga.",
+      metrics: {
+        eligibleFindings: "Hæf atriði",
+        alreadyTransferred: "Þegar færð",
+        remainingToTransfer: "Eftir að færa",
+      },
+    },
+    notes: {
+      heading: "Athugasemdir yfirferðar",
+      description:
+        "Svör vistast strax. Athugasemdir vistast stuttu eftir að innslætti lýkur, færðar áhætturaðir halda sér í sínu eigin vinnusvæði og samantektin lokar flæðinu á sömu síðu.",
+      items: [
+        "Eitt staðlað matsatriði samsvarar einu yfirferðaratriði í þessari MVP-útgáfu.",
+        "Útflutningur og víðari vinna með öryggisáætlun er í síðari sögum.",
+      ],
+    },
+    sectionLabel: "Kafli",
+    criterionLabel: "Atriði",
+    notesLabel: "Athugasemdir",
+    notesPlaceholder: "Samhengi, staðsetning eða nánari eftirfylgni...",
+    retrySave: "Reyna aftur að vista",
+    savePills: {
+      saving: "Vistar...",
+      error: "Vandamál við vistun",
+      needsAnswer: "Vantar svar",
+      unsaved: "Óvistað",
+      notStarted: "Ekki hafið",
+      saved: "Vistað",
+    },
+    transferPills: {
+      present: "Fært",
+      absent: "Vantar færslu",
+    },
+    fallbacks: {
+      criterionSave: "Ekki tókst að vista þetta atriði.",
+      transfer: "Ekki tókst að færa þessi atriði í áhættuskrána í bili.",
+    },
+  },
+  en: {
+    eyebrow: "Assessment Workflow",
+    description:
+      "Complete the walkthrough here, then continue through the risk register and final summary below without leaving the assessment page.",
+    progressLabel: "Progress",
+    summaryLabels: {
+      checklist: "Checklist",
+      sectionsComplete: "Sections complete",
+      pinnedMatrix: "Pinned matrix",
+    },
+    transfer: {
+      eyebrow: "Step 1b",
+      heading: "Transfer to risk register",
+      description:
+        "Only persisted 'Not ok' findings transfer. Re-running adds missing rows without duplicating existing entries.",
+      metrics: {
+        eligibleFindings: "Eligible findings",
+        alreadyTransferred: "Already transferred",
+        remainingToTransfer: "Remaining to transfer",
+      },
+    },
+    notes: {
+      heading: "Walkthrough notes",
+      description:
+        "Answers save immediately. Notes auto-save shortly after typing pauses, transferred risk rows stay in their own editing surface, and the saved summary step now closes the flow on this same page.",
+      items: [
+        "One seeded criterion equals one walkthrough item in this MVP slice.",
+        "Export generation and broader safety-plan work stay in later stories.",
+      ],
+    },
+    sectionLabel: "Section",
+    criterionLabel: "Criterion",
+    notesLabel: "Notes",
+    notesPlaceholder: "Context, location, or follow-up detail...",
+    retrySave: "Retry save",
+    savePills: {
+      saving: "Saving...",
+      error: "Save issue",
+      needsAnswer: "Needs answer",
+      unsaved: "Unsaved",
+      notStarted: "Not started",
+      saved: "Saved",
+    },
+    transferPills: {
+      present: "Transferred",
+      absent: "Needs transfer",
+    },
+    fallbacks: {
+      criterionSave: "We could not save this walkthrough answer.",
+      transfer: "We could not transfer these findings right now.",
+    },
+  },
+} as const;
+
+const RISK_REGISTER_COPY = {
+  is: {
+    eyebrow: "Skref 2-5",
+    heading: "Áhættuskrá",
+    description:
+      "Færðar raðir haldast breytanlegar inni í þessu mati. Hver vistun endurreiknar vistaða flokkun út frá fasta fylkinu, en samantekt og útflutningsskref halda sér aðskild fyrir neðan.",
+    emptyState:
+      "Merktu atriði í yfirferð sem 'Ekki í lagi' og færðu það í áhættuskrána til að opna breytanlegar raðir hér.",
+    transferredFromWalkthrough:
+      "Fært úr yfirferðinni. Vistaðu þessa röð til að halda drögum og fasta fylkinu í samræmi.",
+    staleClassification:
+      "Vistað flokkunarstig er úrelt. Vistaðu færsluna til að laga það.",
+    invalidClassification:
+      "Ekki tókst að staðfesta vistað flokkunarstig. Vistaðu færsluna til að laga það.",
+    labels: {
+      criterion: "Atriði",
+      hazard: "Hætta",
+      healthEffects: "Möguleg heilsufarsáhrif",
+      whoAtRisk: "Hverjir eru í hættu",
+      currentControls: "Núverandi varnir",
+      proposedAction: "Næsta aðgerð",
+      classification: "Flokkun",
+      likelihood: "Líkur",
+      consequence: "Afleiðing",
+      costEstimate: "Kostnaðarmat",
+      responsibleOwner: "Ábyrgðaraðili",
+      dueDate: "Áætluð dagsetning",
+      completedAt: "Lokið",
+      savedLevel: "Vistað stig",
+    },
+    placeholders: {
+      hazard: "Lýstu hættunni...",
+      healthEffects: "Möguleg slys eða heilsufarsáhrif...",
+      whoAtRisk: "Hvaða hlutverk eða einstaklingar verða fyrir áhrifum...",
+      currentControls: "Hvað er þegar í gildi?",
+      proposedAction: "Hvað á að gera næst?",
+      costEstimate: "0",
+      responsibleOwner: "Hver ber ábyrgð á næsta skrefi?",
+    },
+    classificationDescription:
+      "Veldu almennar líkur og afleiðingar. Vistað stig kemur eingöngu úr fasta fylkinu á þjóninum.",
+    clear: "Hreinsa",
+    savePills: {
+      saving: "Vistar...",
+      error: "Vandamál við vistun",
+      unsaved: "Óvistað",
+      saved: "Vistað",
+    },
+    saveButton: "Vista áhættufærslu",
+    saveButtonSaving: "Vista áhættufærslu...",
+    riskLevel: {
+      needsRepair: "Þarf lagfæringu",
+      incomplete: "Ólokið",
+      saveToRefresh: "Vista til að uppfæra",
+    },
+    fallbacks: {
+      save: "Ekki tókst að vista þessa áhættufærslu.",
+    },
+  },
+  en: {
+    eyebrow: "Steps 2-5",
+    heading: "Risk register",
+    description:
+      "Transferred rows stay editable inside this assessment flow. Each save recalculates the stored classification from the pinned matrix, while the summary step and later export shaping stay as separate owners below.",
+    emptyState:
+      "Mark a walkthrough item as 'Not ok' and transfer it to the risk register to unlock editable rows here.",
+    transferredFromWalkthrough:
+      "Transferred from the walkthrough. Save this row to keep the persisted draft fields aligned with the pinned matrix classification.",
+    staleClassification:
+      "Saved classification is stale. Save this entry to repair it.",
+    invalidClassification:
+      "Saved classification could not be verified. Save this entry to repair it.",
+    labels: {
+      criterion: "Criterion",
+      hazard: "Hazard",
+      healthEffects: "Possible health effects",
+      whoAtRisk: "Who is at risk",
+      currentControls: "Current controls",
+      proposedAction: "Next action",
+      classification: "Classification",
+      likelihood: "Likelihood",
+      consequence: "Consequence",
+      costEstimate: "Cost estimate",
+      responsibleOwner: "Responsible owner",
+      dueDate: "Planned date",
+      completedAt: "Completed on",
+      savedLevel: "Saved level",
+    },
+    placeholders: {
+      hazard: "Describe the hazard...",
+      healthEffects: "Possible injury or health outcome...",
+      whoAtRisk: "People or roles affected...",
+      currentControls: "What is already in place?",
+      proposedAction: "What should change next?",
+      costEstimate: "0",
+      responsibleOwner: "Who owns this next step?",
+    },
+    classificationDescription:
+      "Choose generic likelihood and consequence scores. The saved level comes only from the pinned matrix on the server.",
+    clear: "Clear",
+    savePills: {
+      saving: "Saving...",
+      error: "Save issue",
+      unsaved: "Unsaved",
+      saved: "Saved",
+    },
+    saveButton: "Save risk entry",
+    saveButtonSaving: "Saving risk entry...",
+    riskLevel: {
+      needsRepair: "Needs repair",
+      incomplete: "Incomplete",
+      saveToRefresh: "Save to refresh",
+    },
+    fallbacks: {
+      save: "We could not save this risk entry.",
+    },
+  },
+} as const;
+
+const SUMMARY_COPY = {
+  is: {
+    eyebrow: "Skref 6",
+    heading: "Samantekt og útflutningsstaða",
+    description:
+      "Skráðu loka-samhengi matsins hér og notaðu stöðupanelinn til að staðfesta að yfirferð, flutningur, flokkun og samantekt hafi öll verið vistuð fyrir S1-08.",
+    readinessBadge: {
+      ready: "Útflutningsstaða tilbúin",
+      blocked: "Útflutningur lokaður",
+    },
+    fieldLabels: {
+      companyName: "Heiti vinnustaðar",
+      location: "Staðsetning",
+      assessmentDate: "Dagsetning mats",
+      participants: "Þátttakendur",
+      method: "Aðferð",
+      notes: "Samantekt",
+    },
+    descriptions: {
+      companyName: "Sjálfgefið út frá núverandi vinnustað þar til þú vistar gildið.",
+      location: "Sjálfgefið úr heimilisfangi vinnustaðarins ef það er tiltækt.",
+      assessmentDate:
+        "Byrjunardagsetning matsins er tillaga þar til þú vistar loka-samantektina.",
+      participants: "Skráðu hverjir tóku þátt í matinu.",
+      method: "Lýstu aðferðinni sem notuð var við matið.",
+      notes: "Skráðu forgangsraðaða samantekt fyrir loka-afhendingu.",
+    },
+    placeholders: {
+      companyName: "Heiti fyrirtækis eða vinnustaðar",
+      location: "Staðsetning vinnustaðar",
+      participants: "Matsaðilar, starfsfólk, nemendur eða gestir",
+      method: "Yfirferð, athugunaraðferð eða umfang...",
+      notes:
+        "Taktu saman hæstu áhættur, heildarmyndina og mikilvægustu næstu skrefin...",
+    },
+    readiness: {
+      eyebrow: "Staða",
+      heading: "Útflutningshlið",
+      description:
+        "Sjálfgefin vinnustaðargildi hjálpa til að hefja skráðar fljótt, en telja fyrst til útflutningsstöðu eftir að þú hefur vistað þau í þessu skrefi.",
+      labels: {
+        walkthrough: "Yfirferð",
+        transfer: "Flutningur",
+        classification: "Flokkun",
+        summary: "Samantekt",
+      },
+      ready: "Tilbúið",
+      allReady:
+        "Allar vistaðar forsendur eru tilbúnar. S1-08 getur notað þetta mat án endurvinnslu á samantekt eða stöðusniðinu.",
+    },
+    priority: {
+      eyebrow: "Forgangsviðmið",
+      heading: "Áhættufærslur eftir alvarleika",
+      description:
+        "Notaðu raðaða áhættuskrána sem viðmið meðan þú skrifar loka-samantektina.",
+      criterionLabel: "Atriði",
+      empty:
+        "Engar færðar áhættufærslur eru tiltækar enn. Færa þarf vistuð 'Ekki í lagi' atriði áður en útflutningsstaða getur orðið tilbúin.",
+      stale: "Úrelt",
+      repair: "Laga",
+      needsScoring: "Vantar stig",
+    },
+    saveButton: "Vista samantekt",
+    saveButtonSaving: "Vista samantekt...",
+    exportButton: "Sækja Word + PDF pakka",
+    exportButtonSaving: "Bý til Word + PDF pakka...",
+    fallbacks: {
+      save: "Ekki tókst að vista samantektina.",
+      export: "Ekki tókst að búa til útflutningspakkann.",
+      exportDownloaded: "Pakkinn var sóttur.",
+    },
+  },
+  en: {
+    eyebrow: "Step 6",
+    heading: "Summary and export readiness",
+    description:
+      "Capture the final assessment context here, then use the readiness panel to confirm the walkthrough, transfer, classification, and summary prerequisites are fully persisted for S1-08.",
+    readinessBadge: {
+      ready: "Export-ready state reached",
+      blocked: "Export readiness blocked",
+    },
+    fieldLabels: {
+      companyName: "Company name",
+      location: "Location",
+      assessmentDate: "Assessment date",
+      participants: "Participants",
+      method: "Method",
+      notes: "Summary notes",
+    },
+    descriptions: {
+      companyName: "Prefilled from the current workplace until you save it.",
+      location: "Defaults from the workplace address when available.",
+      assessmentDate:
+        "Started date is suggested until you persist the final summary.",
+      participants: "List who took part in the assessment.",
+      method: "Describe the method used to complete the assessment.",
+      notes: "Write the prioritised step-6 synthesis for the final deliverable.",
+    },
+    placeholders: {
+      companyName: "Company or workplace name",
+      location: "Workplace location",
+      participants: "Assessors, staff, students, or visitors",
+      method: "Walkthrough, observation method, or scope...",
+      notes:
+        "Summarize the highest-priority risks, the overall picture, and the most important next actions...",
+    },
+    readiness: {
+      eyebrow: "Readiness",
+      heading: "Export gate",
+      description:
+        "Prefilled workplace details help you start fast, but they only count toward export readiness after you save them on this step.",
+      labels: {
+        walkthrough: "Walkthrough",
+        transfer: "Transfer",
+        classification: "Classification",
+        summary: "Summary",
+      },
+      ready: "Ready",
+      allReady:
+        "All persisted prerequisites are ready. S1-08 can consume this assessment without reworking the summary or readiness shape.",
+    },
+    priority: {
+      eyebrow: "Priority reference",
+      heading: "Risk entries by severity",
+      description:
+        "Use the sorted risk register as a reference while writing the final summary.",
+      criterionLabel: "Criterion",
+      empty:
+        "No transferred risk entries are available yet. Any persisted 'Not ok' findings still need transfer before export readiness can pass.",
+      stale: "Stale",
+      repair: "Repair",
+      needsScoring: "Needs scoring",
+    },
+    saveButton: "Save summary",
+    saveButtonSaving: "Saving summary...",
+    exportButton: "Download Word + PDF bundle",
+    exportButtonSaving: "Building Word + PDF bundle...",
+    fallbacks: {
+      save: "We could not save this summary.",
+      export: "We could not generate the export bundle.",
+      exportDownloaded: "Export bundle downloaded.",
+    },
+  },
+} as const;
+
+export function getStartAssessmentPageCopy(language: AppLanguage) {
+  return START_PAGE_COPY[language];
+}
+
+export function getAssessmentWalkthroughStaticCopy(language: AppLanguage) {
+  return WALKTHROUGH_COPY[language];
+}
+
+export function getRiskRegisterStaticCopy(language: AppLanguage) {
+  return RISK_REGISTER_COPY[language];
+}
+
+export function getAssessmentSummaryStaticCopy(language: AppLanguage) {
+  return SUMMARY_COPY[language];
+}
+
+export function getAnswerOptions(language: AppLanguage) {
+  return ANSWER_OPTION_COPY[language];
+}
+
+export function getTemplateMetaLabel(
+  language: AppLanguage,
+  params: {
+    readonly sections: number;
+    readonly criteria: number;
+  },
+): string {
+  return language === "is"
+    ? `${params.sections} kaflar · ${params.criteria} atriði`
+    : `${params.sections} sections · ${params.criteria} criteria`;
+}
+
+export function getProgressCountLabel(
+  language: AppLanguage,
+  params: {
+    readonly answeredCriteria: number;
+    readonly totalCriteria: number;
+  },
+): string {
+  return language === "is"
+    ? `${params.answeredCriteria} af ${params.totalCriteria} atriðum svarað`
+    : `${params.answeredCriteria} of ${params.totalCriteria} criteria answered`;
+}
+
+export function getCompletedSectionsLabel(
+  language: AppLanguage,
+  params: {
+    readonly completedSections: number;
+    readonly totalSections: number;
+  },
+): string {
+  return language === "is"
+    ? `${params.completedSections}/${params.totalSections} loknir`
+    : `${params.completedSections}/${params.totalSections}`;
+}
+
+export function getSectionAnsweredCountLabel(
+  language: AppLanguage,
+  params: {
+    readonly answeredCount: number;
+    readonly totalCount: number;
+  },
+): string {
+  return language === "is"
+    ? `${params.answeredCount} af ${params.totalCount} svarað`
+    : `${params.answeredCount} of ${params.totalCount} answered`;
+}
+
+export function getCriterionAnswerAriaLabel(
+  language: AppLanguage,
+  criterionNumber: string,
+): string {
+  return language === "is"
+    ? `Svara atriði ${criterionNumber}`
+    : `Answer criterion ${criterionNumber}`;
+}
+
+export function getTransferMetricValueLabel(count: number): string {
+  return String(count);
+}
+
+export function getCriterionSaveMessage(params: {
+  readonly language: AppLanguage;
+  readonly saveState: "idle" | "saving" | "error";
+  readonly draftStatus: string;
+  readonly draftNotesLength: number;
+  readonly dirty: boolean;
+  readonly lastSavedAt: string | null;
+  readonly savedStatus: string;
+  readonly savedNotesLength: number;
+  readonly errorMessage: string | null;
+}): string {
+  const copy = getAssessmentWalkthroughStaticCopy(params.language);
+
+  if (params.saveState === "saving") {
+    return params.language === "is"
+      ? "Vista þetta atriði..."
+      : "Saving this criterion...";
+  }
+
+  if (params.saveState === "error") {
+    return params.errorMessage ?? copy.fallbacks.criterionSave;
+  }
+
+  if (params.draftStatus === "unanswered" && params.draftNotesLength > 0) {
+    return params.language === "is"
+      ? "Veldu svar áður en hægt er að vista athugasemdir."
+      : "Select an answer before notes can be saved.";
+  }
+
+  if (params.dirty) {
+    return params.language === "is"
+      ? "Breytingar bíða vistunar."
+      : "Changes pending save.";
+  }
+
+  if (params.lastSavedAt) {
+    return params.language === "is"
+      ? `Vistað ${formatSavedAt(params.language, params.lastSavedAt)}.`
+      : `Saved ${formatSavedAt(params.language, params.lastSavedAt)}.`;
+  }
+
+  if (params.savedStatus === "unanswered" && params.savedNotesLength === 0) {
+    return params.language === "is"
+      ? "Tilbúið að skrá svar og athugasemd."
+      : "Answer and notes are ready to capture.";
+  }
+
+  return params.language === "is"
+    ? "Vistað og tilbúið að halda áfram."
+    : "Saved and ready to resume.";
+}
+
+export function getTransferMessage(params: {
+  readonly language: AppLanguage;
+  readonly status: "idle" | "transferring" | "success" | "error";
+  readonly message: string | null;
+  readonly eligibleTransferCriteria: number;
+  readonly remainingCriteria: number;
+}): string {
+  if (params.status === "transferring") {
+    return params.language === "is"
+      ? "Flyt hæf atriði í áhættuskrána..."
+      : "Transferring eligible findings into the risk register...";
+  }
+
+  if (params.message) {
+    return params.message;
+  }
+
+  if (params.eligibleTransferCriteria === 0) {
+    return params.language === "is"
+      ? "Merktu atriði sem 'Ekki í lagi' til að gera það hæft til flutnings."
+      : "Mark a criterion as 'Not ok' to make it eligible for transfer.";
+  }
+
+  if (params.remainingCriteria === 0) {
+    return params.language === "is"
+      ? "Öll vistuð 'Ekki í lagi' atriði eru þegar í áhættuskránni."
+      : "All persisted 'Not ok' findings are already in the risk register.";
+  }
+
+  return params.language === "is"
+    ? "Flutningur bætir bara við vistuðum 'Ekki í lagi' atriðum sem vantar enn."
+    : "Transfer will add only the persisted 'Not ok' findings that are still missing.";
+}
+
+export function getTransferButtonLabel(params: {
+  readonly language: AppLanguage;
+  readonly status: "idle" | "transferring" | "success" | "error";
+  readonly remainingCriteria: number;
+}): string {
+  if (params.status === "transferring") {
+    return params.language === "is" ? "Flyt..." : "Transferring...";
+  }
+
+  if (params.remainingCriteria === 0) {
+    return params.language === "is"
+      ? "Öll hæf atriði færð"
+      : "All eligible findings transferred";
+  }
+
+  return params.language === "is"
+    ? `Færa ${params.remainingCriteria} ${pluralize(params.remainingCriteria, "niðurstöðu", "niðurstöður")}`
+    : `Transfer ${params.remainingCriteria} ${pluralize(params.remainingCriteria, "finding", "findings")}`;
+}
+
+export function buildTransferSuccessMessage(params: {
+  readonly language: AppLanguage;
+  readonly createdRiskEntryCount: number;
+  readonly existingRiskEntryCount: number;
+}): string {
+  if (params.createdRiskEntryCount === 0 && params.existingRiskEntryCount > 0) {
+    return params.language === "is"
+      ? `Öll ${params.existingRiskEntryCount} hæf ${pluralize(params.existingRiskEntryCount, "niðurstaða var", "niðurstöður voru")} þegar í áhættuskránni.`
+      : `All ${params.existingRiskEntryCount} eligible ${pluralize(params.existingRiskEntryCount, "finding was", "findings were")} already in the risk register.`;
+  }
+
+  if (params.existingRiskEntryCount === 0) {
+    return params.language === "is"
+      ? `Færði ${params.createdRiskEntryCount} ${pluralize(params.createdRiskEntryCount, "niðurstöðu", "niðurstöður")} í áhættuskrána.`
+      : `Transferred ${params.createdRiskEntryCount} ${pluralize(params.createdRiskEntryCount, "finding", "findings")} into the risk register.`;
+  }
+
+  return params.language === "is"
+    ? `Færði ${params.createdRiskEntryCount} ${pluralize(params.createdRiskEntryCount, "niðurstöðu", "niðurstöður")} og hélt ${params.existingRiskEntryCount} ${pluralize(params.existingRiskEntryCount, "fyrri færslu", "fyrri færslum")} á sínum stað.`
+    : `Transferred ${params.createdRiskEntryCount} ${pluralize(params.createdRiskEntryCount, "finding", "findings")} and kept ${params.existingRiskEntryCount} existing ${pluralize(params.existingRiskEntryCount, "entry", "entries")} in place.`;
+}
+
+export function getTransferredEntryCountLabel(
+  language: AppLanguage,
+  count: number,
+): string {
+  return language === "is"
+    ? `${count} ${pluralize(count, "færð færsla", "færðar færslur")}`
+    : `${count} transferred ${pluralize(count, "entry", "entries")}`;
+}
+
+export function getRiskLevelLabel(
+  language: AppLanguage,
+  riskLevel: RiskLevel,
+): string {
+  if (language === "is") {
+    switch (riskLevel) {
+      case "low":
+        return "Lág";
+      case "medium":
+        return "Miðlungs";
+      case "high":
+        return "Há";
+    }
+  }
+
+  switch (riskLevel) {
+    case "low":
+      return "Low";
+    case "medium":
+      return "Medium";
+    case "high":
+      return "High";
+  }
+}
+
+export function getRiskRegisterClassificationMessage(params: {
+  readonly language: AppLanguage;
+  readonly state: "ready" | "staleRiskLevel" | "invalidClassification";
+}): string | null {
+  const copy = getRiskRegisterStaticCopy(params.language);
+
+  switch (params.state) {
+    case "ready":
+      return null;
+    case "staleRiskLevel":
+      return copy.staleClassification;
+    case "invalidClassification":
+      return copy.invalidClassification;
+  }
+}
+
+export function getRiskEntrySaveMessage(params: {
+  readonly language: AppLanguage;
+  readonly saveState: "idle" | "saving" | "error";
+  readonly dirty: boolean;
+  readonly canPersist: boolean;
+  readonly savedRiskLevel: RiskLevel | null;
+  readonly classificationState: "ready" | "staleRiskLevel" | "invalidClassification";
+  readonly errorMessage: string | null;
+}): string {
+  const copy = getRiskRegisterStaticCopy(params.language);
+
+  if (params.saveState === "saving") {
+    return params.language === "is"
+      ? "Vista þessa áhættufærslu..."
+      : "Saving this risk entry...";
+  }
+
+  if (params.saveState === "error") {
+    return params.errorMessage ?? copy.fallbacks.save;
+  }
+
+  if (!params.canPersist) {
+    return params.language === "is"
+      ? "Hætta er nauðsynleg áður en hægt er að vista þessa færslu."
+      : "Hazard is required before this row can be saved.";
+  }
+
+  if (params.dirty) {
+    return params.language === "is"
+      ? "Breytingar bíða vistunar. Vistað flokkunarstig uppfærist eftir vistun."
+      : "Changes pending save. The stored classification updates after save.";
+  }
+
+  if (params.classificationState !== "ready") {
+    return (
+      getRiskRegisterClassificationMessage({
+        language: params.language,
+        state: params.classificationState,
+      }) ?? copy.invalidClassification
+    );
+  }
+
+  if (params.savedRiskLevel) {
+    const riskLevelLabel = getRiskLevelLabel(params.language, params.savedRiskLevel);
+    return params.language === "is"
+      ? `Vistuð flokkun: ${riskLevelLabel}.`
+      : `Saved classification: ${riskLevelLabel}.`;
+  }
+
+  return params.language === "is"
+    ? "Drög vistuð. Bættu við báðum stigum til að fá flokkun."
+    : "Saved draft. Add both scores to derive the classification.";
+}
+
+export function getReadinessCountLabel(
+  language: AppLanguage,
+  params: {
+    readonly ready: boolean;
+    readonly count: number;
+  },
+): string {
+  if (params.ready) {
+    return getAssessmentSummaryStaticCopy(language).readiness.ready;
+  }
+
+  return language === "is"
+    ? `Ólokið: ${params.count}`
+    : `${params.count} open`;
+}
+
+export function getReadinessBlockers(
+  language: AppLanguage,
+  readiness: {
+    readonly walkthrough: {
+      readonly ready: boolean;
+      readonly unansweredCriterionCount: number;
+    };
+    readonly transfer: {
+      readonly ready: boolean;
+      readonly missingRiskEntryCount: number;
+    };
+    readonly classification: {
+      readonly unclassifiedRiskEntryCount: number;
+      readonly staleRiskEntryCount: number;
+      readonly invalidRiskEntryCount: number;
+    };
+    readonly summary: {
+      readonly ready: boolean;
+      readonly missingFields: readonly AssessmentSummaryRequiredField[];
+    };
+  },
+): string[] {
+  const blockers: string[] = [];
+
+  if (!readiness.walkthrough.ready) {
+    blockers.push(
+      language === "is"
+        ? `Það vantar svör fyrir ${readiness.walkthrough.unansweredCriterionCount} ${pluralize(readiness.walkthrough.unansweredCriterionCount, "matsatriði", "matsatriði")}.`
+        : `${readiness.walkthrough.unansweredCriterionCount} ${pluralize(readiness.walkthrough.unansweredCriterionCount, "walkthrough item still needs an answer", "walkthrough items still need answers")}.`,
+    );
+  }
+
+  if (!readiness.transfer.ready) {
+    blockers.push(
+      language === "is"
+        ? `Það á eftir að færa ${readiness.transfer.missingRiskEntryCount} ${pluralize(readiness.transfer.missingRiskEntryCount, "viðeigandi niðurstöðu", "viðeigandi niðurstöður")} í áhættuskrána.`
+        : `${readiness.transfer.missingRiskEntryCount} ${pluralize(readiness.transfer.missingRiskEntryCount, "eligible finding still needs transfer", "eligible findings still need transfer")} into the risk register.`,
+    );
+  }
+
+  if (readiness.classification.unclassifiedRiskEntryCount > 0) {
+    blockers.push(
+      language === "is"
+        ? `Vistaða flokkun vantar fyrir ${readiness.classification.unclassifiedRiskEntryCount} ${pluralize(readiness.classification.unclassifiedRiskEntryCount, "færslu", "færslur")}.`
+        : `${readiness.classification.unclassifiedRiskEntryCount} ${pluralize(readiness.classification.unclassifiedRiskEntryCount, "transferred entry still needs a saved classification", "transferred entries still need saved classifications")}.`,
+    );
+  }
+
+  if (readiness.classification.staleRiskEntryCount > 0) {
+    blockers.push(
+      language === "is"
+        ? `${readiness.classification.staleRiskEntryCount} ${pluralize(readiness.classification.staleRiskEntryCount, "færsla er með úrelt vistað stig", "færslur eru með úrelt vistað stig")} og þarf endurvistun.`
+        : `${readiness.classification.staleRiskEntryCount} ${pluralize(readiness.classification.staleRiskEntryCount, "risk entry has a stale saved level", "risk entries have stale saved levels")} and need re-saving.`,
+    );
+  }
+
+  if (readiness.classification.invalidRiskEntryCount > 0) {
+    blockers.push(
+      language === "is"
+        ? `Ekki tókst að staðfesta vistaða flokkun fyrir ${readiness.classification.invalidRiskEntryCount} ${pluralize(readiness.classification.invalidRiskEntryCount, "færslu", "færslur")}.`
+        : `${readiness.classification.invalidRiskEntryCount} ${pluralize(readiness.classification.invalidRiskEntryCount, "risk entry could not verify its saved classification", "risk entries could not verify their saved classifications")}.`,
+    );
+  }
+
+  if (!readiness.summary.ready) {
+    blockers.push(
+      language === "is"
+        ? `Samantekt vantar enn vistuð gildi fyrir ${formatSummaryFieldList(language, readiness.summary.missingFields)}.`
+        : `Summary is still missing saved values for ${formatSummaryFieldList(language, readiness.summary.missingFields)}.`,
+    );
+  }
+
+  return blockers;
+}
+
+export function getPriorityBadgeLabel(params: {
+  readonly language: AppLanguage;
+  readonly classificationState: "ready" | "staleRiskLevel" | "invalidClassification";
+  readonly savedRiskLevel: RiskLevel | null;
+}): string {
+  const copy = getAssessmentSummaryStaticCopy(params.language);
+
+  if (params.classificationState === "staleRiskLevel") {
+    return copy.priority.stale;
+  }
+
+  if (params.classificationState === "invalidClassification") {
+    return copy.priority.repair;
+  }
+
+  if (params.savedRiskLevel == null) {
+    return copy.priority.needsScoring;
+  }
+
+  return getRiskLevelLabel(params.language, params.savedRiskLevel);
+}
+
+export function getSummarySaveMessage(params: {
+  readonly language: AppLanguage;
+  readonly saveState: "idle" | "saving" | "error";
+  readonly dirty: boolean;
+  readonly exportReady: boolean;
+  readonly errorMessage: string | null;
+}): string {
+  const copy = getAssessmentSummaryStaticCopy(params.language);
+
+  if (params.saveState === "saving") {
+    return params.language === "is"
+      ? "Vista samantektina og endurreikna útflutningsstöðuna..."
+      : "Saving the persisted summary and recomputing export readiness...";
+  }
+
+  if (params.saveState === "error") {
+    return params.errorMessage ?? copy.fallbacks.save;
+  }
+
+  if (params.dirty) {
+    return params.language === "is"
+      ? "Breytingar bíða vistunar. Útflutningsstaða uppfærist eftir að þjónninn staðfestir samantektina."
+      : "Changes pending save. Export readiness updates after the server confirms this summary.";
+  }
+
+  return params.exportReady
+    ? params.language === "is"
+      ? "Samantekt vistuð. Matið er tilbúið fyrir síðari útflutningssögu."
+      : "Summary saved. This assessment is ready for the later export story."
+    : params.language === "is"
+      ? "Samantekt vistuð. Eftirstöðvar hindranir eru taldar upp í stöðupanelnum."
+      : "Summary saved. Remaining blockers are listed in the readiness panel.";
+}
+
+export function getExportMessage(params: {
+  readonly language: AppLanguage;
+  readonly exportReady: boolean;
+  readonly summaryDirty: boolean;
+  readonly exportState: {
+    readonly status: "idle" | "exporting" | "error" | "success";
+    readonly message: string | null;
+  };
+}): string {
+  const copy = getAssessmentSummaryStaticCopy(params.language);
+
+  if (params.exportState.status === "exporting") {
+    return params.language === "is"
+      ? "Bý til Word og PDF skjöl úr vistaðri stöðu matsins..."
+      : "Generating Word and PDF files from the persisted assessment state...";
+  }
+
+  if (params.exportState.status === "error") {
+    return params.exportState.message ?? copy.fallbacks.export;
+  }
+
+  if (params.exportState.status === "success") {
+    return params.exportState.message ?? copy.fallbacks.exportDownloaded;
+  }
+
+  if (!params.exportReady) {
+    return params.language === "is"
+      ? "Ljúktu fyrst við hindranirnar hér að ofan áður en útflutningur opnast."
+      : "Finish the readiness blockers above before export unlocks.";
+  }
+
+  if (params.summaryDirty) {
+    return params.language === "is"
+      ? "Vistaðu breytingar á samantekt áður en þú sækir vistaðan pakka."
+      : "Save summary changes before exporting the persisted bundle.";
+  }
+
+  return params.language === "is"
+    ? "Útflutningur notar vistaðan gátlista, áhættuskrá og samantektargildi."
+    : "Export uses the persisted checklist, risk register, and summary values.";
+}
+
+export function formatSummaryFieldList(
+  language: AppLanguage,
+  fields: readonly AssessmentSummaryRequiredField[],
+): string {
+  const labels = fields.map((field) => getSummaryFieldLabel(language, field));
+
+  if (labels.length === 1) {
+    return labels[0]!;
+  }
+
+  if (labels.length === 2) {
+    return language === "is"
+      ? `${labels[0]} og ${labels[1]}`
+      : `${labels[0]} and ${labels[1]}`;
+  }
+
+  const delimiter = ", ";
+  const conjunction = language === "is" ? "og" : "and";
+  return `${labels.slice(0, -1).join(delimiter)} ${conjunction} ${labels.at(-1)}`;
+}
+
+export function getSummaryFieldLabel(
+  language: AppLanguage,
+  field: AssessmentSummaryRequiredField,
+): string {
+  if (language === "is") {
+    switch (field) {
+      case "companyName":
+        return "heiti vinnustaðar";
+      case "location":
+        return "staðsetningu";
+      case "assessmentDate":
+        return "dagsetningu mats";
+      case "participants":
+        return "þátttakendur";
+      case "method":
+        return "aðferð";
+      case "notes":
+        return "samantekt";
+    }
+  }
+
+  switch (field) {
+    case "companyName":
+      return "company name";
+    case "location":
+      return "location";
+    case "assessmentDate":
+      return "assessment date";
+    case "participants":
+      return "participants";
+    case "method":
+      return "method";
+    case "notes":
+      return "summary notes";
+  }
+}
+
+export function buildLocalizedDownloadMessage(
+  language: AppLanguage,
+  fileName: string,
+): string {
+  return language === "is"
+    ? `Sækti ${fileName}.`
+    : `Downloaded ${fileName}.`;
+}
+
+function formatSavedAt(language: AppLanguage, value: string): string {
+  return new Intl.DateTimeFormat(getRequestLocale(language), {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function pluralize(
+  count: number,
+  singular: string,
+  plural: string,
+): string {
+  return count === 1 ? singular : plural;
+}

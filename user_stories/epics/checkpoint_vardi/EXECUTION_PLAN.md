@@ -9,8 +9,8 @@
 
 - Active step: none in progress
 - Next queued step: `S1-11`
-- Most recently completed step: `S1-10`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
+- Most recently completed step: `S1-17`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-17-language-consistent-web-content.md`
 - Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-11-risk-mitigation-planning-on-risk-entries.md`
 
 ## S0 - Foundations
@@ -289,14 +289,29 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-17: Language-consistent web content for the current MVP flow
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-17-language-consistent-web-content.md`
-**Start gate:** Open. The current MVP web surfaces already exist and the mixed-language copy gap is observable now.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-17-language-consistent-web-content.md`
+**Start gate:** Closed.
 **Unblocks:** Cleaner product trust on the current web flow and future assertions that should depend on stabilized app-language copy.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-17-language-consistent-web-content`:
+> added a shared app-language seam plus a server-only request helper, moved
+> app-owned start-page and assessment-flow copy into `apps/web/lib/i18n/`,
+> kept lower assessment projections state-oriented by removing localized
+> message ownership from those boundaries, localized presentation-only risk
+> severity labels, added request-language and render coverage for Icelandic
+> default plus explicit English rendering, and tightened Playwright specs so
+> the Icelandic request path proves there are no app-owned English leaks on
+> the start page or current assessment flow.
+> Ran `pnpm test`, `pnpm typecheck`, `pnpm lint`, and targeted browser specs
+> via `pnpm --filter @vardi/web test:e2e -- e2e/specs/start-page.smoke.spec.ts e2e/specs/assessment-workflow.spec.ts`.
+> This session used `node v25.6.1`; Node 22 remains the declared repo
+> contract, but was not directly re-verified here.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-17` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-16` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.

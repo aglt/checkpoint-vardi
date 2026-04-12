@@ -20,6 +20,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { loadAssessmentReadModel } from "./loadAssessmentReadModel";
 import { loadAssessmentRiskRegisterProjection } from "./loadAssessmentRiskRegisterProjection";
+import { loadAssessmentSummaryProjection } from "./loadAssessmentSummaryProjection";
 
 const startedAt = new Date("2026-04-11T10:00:00.000Z");
 const appRouterStub: AppRouterInstance = {
@@ -263,7 +264,7 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
     new RegExp(escapeRegExp(fixture.firstCriterion.translations.is.guidance)),
   );
   assert.match(markup, new RegExp(escapeRegExp("Already reviewed on-site.")));
-  assert.match(markup, /Answers save immediately/);
+  assert.match(markup, new RegExp(escapeRegExp("Svör vistast strax.")));
 });
 
 test("assessment page re-renders with the persisted answer state selected", async () => {
@@ -374,8 +375,8 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
     }),
   );
 
-  assert.match(markup, /Transfer to risk register/);
-  assert.match(markup, /All eligible findings transferred/);
+  assert.match(markup, new RegExp(escapeRegExp("Færa í áhættuskrá")));
+  assert.match(markup, new RegExp(escapeRegExp("Öll hæf atriði færð")));
   assert.match(
     markup,
     new RegExp(
@@ -384,7 +385,7 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
         '[\\s\\S]*?',
         escapeRegExp('data-transfer-state="present"'),
         '[\\s\\S]*?',
-        escapeRegExp("Transferred"),
+        escapeRegExp("Fært"),
       ].join(""),
     ),
   );
@@ -428,7 +429,7 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
     }),
   );
 
-  assert.match(markup, /Risk register/);
+  assert.match(markup, new RegExp(escapeRegExp("Áhættuskrá")));
   assert.match(
     markup,
     new RegExp(escapeRegExp(`data-risk-entry-id="${riskEntryId}"`)),
@@ -446,7 +447,7 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
   assert.match(markup, new RegExp(escapeRegExp("Table saw without guard")));
   assert.match(markup, new RegExp(escapeRegExp("Students and staff")));
   assert.match(markup, new RegExp(escapeRegExp("Install a replacement guard")));
-  assert.match(markup, /Saved classification: High\./);
+  assert.match(markup, new RegExp(escapeRegExp("Vistuð flokkun: Há.")));
 });
 
 test("assessment page localizes stale risk classifications to the affected card", async () => {
@@ -492,7 +493,7 @@ test("assessment page localizes stale risk classifications to the affected card"
     }),
   );
 
-  assert.match(markup, /Risk register/);
+  assert.match(markup, new RegExp(escapeRegExp("Áhættuskrá")));
   assert.match(
     markup,
     new RegExp(
@@ -505,7 +506,14 @@ test("assessment page localizes stale risk classifications to the affected card"
       ].join(""),
     ),
   );
-  assert.match(markup, /Save this entry to repair it\./);
+  assert.match(
+    markup,
+    new RegExp(
+      escapeRegExp(
+        "Vistað flokkunarstig er úrelt. Vistaðu færsluna til að laga það.",
+      ),
+    ),
+  );
   assert.match(
     markup,
     new RegExp(
@@ -535,7 +543,10 @@ test("assessment page renders the summary editor with workplace defaults and rea
     }),
   );
 
-  assert.match(markup, /Summary and export readiness/);
+  assert.match(
+    markup,
+    new RegExp(escapeRegExp("Samantekt og útflutningsstaða")),
+  );
   assert.match(markup, /data-summary-readiness="blocked"/);
   assert.match(
     markup,
@@ -567,10 +578,17 @@ test("assessment page renders the summary editor with workplace defaults and rea
       ].join(""),
     ),
   );
-  assert.match(markup, /walkthrough items still need answers/);
-  assert.match(markup, /Summary is still missing saved values/);
-  assert.match(markup, /Finish the readiness blockers above before export unlocks\./);
-  assert.match(markup, /Download Word \+ PDF bundle/);
+  assert.match(markup, /Það vantar svör fyrir/);
+  assert.match(markup, /Samantekt vantar enn vistuð gildi/);
+  assert.match(
+    markup,
+    new RegExp(
+      escapeRegExp(
+        "Ljúktu fyrst við hindranirnar hér að ofan áður en útflutningur opnast.",
+      ),
+    ),
+  );
+  assert.match(markup, /Sækja Word \+ PDF pakka/);
   assert.match(markup, /data-export-button-state="idle"/);
 });
 
@@ -631,8 +649,8 @@ test("summary save round-trip persists the final summary and flips export readin
   );
 
   assert.match(markup, /data-summary-readiness="ready"/);
-  assert.match(markup, /Export-ready state reached/);
-  assert.match(markup, /All persisted prerequisites are ready/);
+  assert.match(markup, /Útflutningsstaða tilbúin/);
+  assert.match(markup, /Allar vistaðar forsendur eru tilbúnar/);
   assert.match(
     markup,
     new RegExp(
@@ -654,10 +672,119 @@ test("summary save round-trip persists the final summary and flips export readin
       ].join(""),
     ),
   );
-  assert.match(markup, /Download Word \+ PDF bundle/);
+  assert.match(markup, /Sækja Word \+ PDF pakka/);
   assert.match(
     markup,
-    /Export uses the persisted checklist, risk register, and summary values\./,
+    /Útflutningur notar vistaðan gátlista, áhættuskrá og samantektargildi\./,
+  );
+});
+
+test("assessment workflow can render English app-owned chrome while keeping seeded content on its existing seam", async () => {
+  const fixture = seedWalkthroughAssessment();
+  const riskEntryId = await transferSecondCriterionRiskEntry(fixture);
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const { AssessmentSummaryEditor } = await import(
+    "../../app/assessments/[assessmentId]/_components/AssessmentSummaryEditor"
+  );
+  const { AssessmentWalkthrough } = await import(
+    "../../app/assessments/[assessmentId]/_components/AssessmentWalkthrough"
+  );
+  const { RiskRegisterEditor } = await import(
+    "../../app/assessments/[assessmentId]/_components/RiskRegisterEditor"
+  );
+  const { saveAssessmentRiskEntryAction } = await import(
+    "./saveAssessmentRiskEntryAction"
+  );
+
+  await saveAssessmentRiskEntryAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      riskEntryId,
+      hazard: "Table saw without guard",
+      healthEffects: "Hand injury",
+      whoAtRisk: "Students and staff",
+      likelihood: 2,
+      consequence: 3,
+      currentControls: "Safety signage",
+      proposedAction: "Install a replacement guard",
+      costEstimate: 25000,
+      responsibleOwner: "Workshop lead",
+      dueDate: "2026-04-20",
+      completedAt: "2026-04-22",
+    },
+  });
+
+  const connection = createMigratedDatabase(fixture.databasePath);
+  const readModel = loadAssessmentReadModel({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+  });
+  const riskRegisterProjection = loadAssessmentRiskRegisterProjection({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+    readModel,
+  });
+  const summaryProjection = loadAssessmentSummaryProjection({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+    riskRegisterProjection,
+  });
+  closeDatabase(connection);
+
+  const markup = renderWithAppRouter(
+    React.createElement(
+      AssessmentWalkthrough,
+      {
+        assessmentId: readModel.assessment.id,
+        checklistTitle: readModel.checklist.translations.is.title,
+        checklistVersion: readModel.checklist.version,
+        language: "en",
+        riskMatrixTitle: readModel.riskMatrix.translations.is.title,
+        sections: readModel.sections,
+        workplaceName: readModel.workplace.name,
+      },
+      React.createElement(RiskRegisterEditor, {
+        assessmentId: readModel.assessment.id,
+        entries: riskRegisterProjection.entries,
+        language: "en",
+        riskMatrixConsequenceLevels:
+          riskRegisterProjection.riskMatrix.consequenceLevels,
+        riskMatrixLikelihoodLevels:
+          riskRegisterProjection.riskMatrix.likelihoodLevels,
+        riskMatrixTitle: riskRegisterProjection.riskMatrix.title,
+      }),
+      React.createElement(AssessmentSummaryEditor, {
+        assessmentId: readModel.assessment.id,
+        language: "en",
+        prioritizedEntries: summaryProjection.prioritizedEntries,
+        readiness: summaryProjection.readiness,
+        summary: summaryProjection.summary,
+      }),
+    ),
+  );
+
+  assert.match(markup, /Assessment Workflow/);
+  assert.match(markup, /Transfer to risk register/);
+  assert.match(markup, /Risk register/);
+  assert.match(markup, /Summary and export readiness/);
+  assert.match(markup, /Saved classification: High\./);
+  assert.match(
+    markup,
+    new RegExp(escapeRegExp(readModel.checklist.translations.is.title)),
+  );
+  assert.match(
+    markup,
+    new RegExp(
+      escapeRegExp(fixture.checklist.sections[0]?.translations.is.title ?? ""),
+    ),
+  );
+  assert.match(
+    markup,
+    new RegExp(escapeRegExp(fixture.secondCriterion.translations.is.title)),
   );
 });
 

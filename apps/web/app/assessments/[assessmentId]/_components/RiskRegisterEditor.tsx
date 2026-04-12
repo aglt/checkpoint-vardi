@@ -14,11 +14,20 @@ import {
   type RiskEntryDraft,
   type RiskEntryStateMap,
 } from "@/lib/assessments/assessmentRiskRegisterController";
+import type { AppLanguage } from "@/lib/i18n/appLanguage";
+import {
+  getRiskEntrySaveMessage,
+  getRiskLevelLabel,
+  getRiskRegisterClassificationMessage,
+  getRiskRegisterStaticCopy,
+  getTransferredEntryCountLabel,
+} from "@/lib/i18n/mvpCopy";
 import type { AssessmentRiskRegisterEntryProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
 import { saveAssessmentRiskEntryAction } from "@/lib/assessments/saveAssessmentRiskEntryAction";
 
 interface RiskRegisterEditorProps {
   readonly assessmentId: string;
+  readonly language: AppLanguage;
   readonly riskMatrixTitle: string;
   readonly riskMatrixLikelihoodLevels: number;
   readonly riskMatrixConsequenceLevels: number;
@@ -28,10 +37,12 @@ interface RiskRegisterEditorProps {
 export function RiskRegisterEditor({
   assessmentId,
   riskMatrixTitle,
+  language,
   riskMatrixLikelihoodLevels,
   riskMatrixConsequenceLevels,
   entries,
 }: RiskRegisterEditorProps) {
+  const copy = getRiskRegisterStaticCopy(language);
   const [riskEntryStates, setRiskEntryStates] = useState<RiskEntryStateMap>(() =>
     buildInitialRiskEntryState(entries),
   );
@@ -48,27 +59,23 @@ export function RiskRegisterEditor({
       <div className="flex flex-col gap-3 border-b border-black/8 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
-            Steps 2-5
+            {copy.eyebrow}
           </p>
           <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-            Risk register
+            {copy.heading}
           </h2>
           <p className="max-w-3xl text-sm leading-6 text-slate-700">
-            Transferred rows stay editable inside this assessment flow. Each save
-            recalculates the stored classification from the pinned{" "}
-            {riskMatrixTitle} matrix, while the summary step and later export
-            shaping stay as separate owners below.
+            {copy.description} {riskMatrixTitle}.
           </p>
         </div>
         <div className="rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1.5 text-sm font-medium text-slate-700">
-          {entries.length} transferred {pluralize(entries.length, "entry", "entries")}
+          {getTransferredEntryCountLabel(language, entries.length)}
         </div>
       </div>
 
       {entries.length === 0 ? (
         <div className="mt-4 rounded-[1.75rem] border border-dashed border-black/12 bg-[#fbf7ef] px-5 py-6 text-sm leading-6 text-slate-600">
-          Mark a walkthrough item as <span className="font-semibold">Not ok</span>{" "}
-          and transfer it to the risk register to unlock editable rows here.
+          {copy.emptyState}
         </div>
       ) : (
         <div className="mt-4 space-y-4">
@@ -92,7 +99,7 @@ export function RiskRegisterEditor({
                     <div className="space-y-3">
                       <div className="flex flex-wrap gap-2">
                         <span className="inline-flex w-fit items-center rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
-                          Criterion {entry.criterionNumber}
+                          {copy.labels.criterion} {entry.criterionNumber}
                         </span>
                         <span className="inline-flex w-fit items-center rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                           {entry.sectionTitle}
@@ -103,22 +110,25 @@ export function RiskRegisterEditor({
                           {entry.criterionTitle}
                         </h3>
                         <p className="max-w-3xl text-sm leading-6 text-slate-700">
-                          Transferred from the walkthrough. Save this row to keep
-                          the persisted draft fields aligned with the pinned matrix
-                          classification.
+                          {copy.transferredFromWalkthrough}
                         </p>
                       </div>
                     </div>
                     <div className="flex flex-col items-start gap-2 lg:items-end">
-                      <RiskLevelBadge state={riskEntryState} />
-                      <RiskEntrySaveStatePill state={riskEntryState} />
+                      <RiskLevelBadge language={language} state={riskEntryState} />
+                      <RiskEntrySaveStatePill
+                        language={language}
+                        state={riskEntryState}
+                      />
                     </div>
                   </div>
 
                   {riskEntryState.savedClassificationState !== "ready" ? (
                     <div className="rounded-[1.4rem] border border-[#d8b46c] bg-[#fff6de] px-4 py-3 text-sm leading-6 text-[#6a4a05]">
-                      {riskEntryState.savedClassificationMessage ??
-                        "Save this entry to repair the stored classification."}
+                      {getRiskRegisterClassificationMessage({
+                        language,
+                        state: riskEntryState.savedClassificationState,
+                      })}
                     </div>
                   ) : null}
 
@@ -129,7 +139,7 @@ export function RiskRegisterEditor({
                           className="text-sm font-medium text-slate-900"
                           htmlFor={`hazard-${entry.id}`}
                         >
-                          Hazard
+                          {copy.labels.hazard}
                         </label>
                         <textarea
                           className="min-h-24 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -142,7 +152,7 @@ export function RiskRegisterEditor({
                               event.target.value,
                             )
                           }
-                          placeholder="Describe the hazard..."
+                          placeholder={copy.placeholders.hazard}
                           value={riskEntryState.draft.hazard}
                         />
                       </div>
@@ -153,7 +163,7 @@ export function RiskRegisterEditor({
                             className="text-sm font-medium text-slate-900"
                             htmlFor={`health-effects-${entry.id}`}
                           >
-                            Possible health effects
+                            {copy.labels.healthEffects}
                           </label>
                           <textarea
                             className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -165,7 +175,7 @@ export function RiskRegisterEditor({
                                 event.target.value,
                               )
                             }
-                            placeholder="Possible injury or health outcome..."
+                            placeholder={copy.placeholders.healthEffects}
                             value={riskEntryState.draft.healthEffects}
                           />
                         </div>
@@ -174,7 +184,7 @@ export function RiskRegisterEditor({
                             className="text-sm font-medium text-slate-900"
                             htmlFor={`who-at-risk-${entry.id}`}
                           >
-                            Who is at risk
+                            {copy.labels.whoAtRisk}
                           </label>
                           <textarea
                             className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -186,7 +196,7 @@ export function RiskRegisterEditor({
                                 event.target.value,
                               )
                             }
-                            placeholder="People or roles affected..."
+                            placeholder={copy.placeholders.whoAtRisk}
                             value={riskEntryState.draft.whoAtRisk}
                           />
                         </div>
@@ -198,7 +208,7 @@ export function RiskRegisterEditor({
                             className="text-sm font-medium text-slate-900"
                             htmlFor={`current-controls-${entry.id}`}
                           >
-                            Current controls
+                            {copy.labels.currentControls}
                           </label>
                           <textarea
                             className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -210,7 +220,7 @@ export function RiskRegisterEditor({
                                 event.target.value,
                               )
                             }
-                            placeholder="What is already in place?"
+                            placeholder={copy.placeholders.currentControls}
                             value={riskEntryState.draft.currentControls}
                           />
                         </div>
@@ -219,7 +229,7 @@ export function RiskRegisterEditor({
                             className="text-sm font-medium text-slate-900"
                             htmlFor={`proposed-action-${entry.id}`}
                           >
-                            Next action
+                            {copy.labels.proposedAction}
                           </label>
                           <textarea
                             className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -231,7 +241,7 @@ export function RiskRegisterEditor({
                                 event.target.value,
                               )
                             }
-                            placeholder="What should change next?"
+                            placeholder={copy.placeholders.proposedAction}
                             value={riskEntryState.draft.proposedAction}
                           />
                         </div>
@@ -243,19 +253,20 @@ export function RiskRegisterEditor({
                         <div className="space-y-4">
                           <div className="space-y-1">
                             <h4 className="text-base font-semibold text-slate-950">
-                              Classification
+                              {copy.labels.classification}
                             </h4>
                             <p className="text-sm leading-6 text-slate-600">
-                              Choose generic 1-{riskMatrixLikelihoodLevels} likelihood
-                              and 1-{riskMatrixConsequenceLevels} consequence scores.
-                              The saved level comes only from the pinned matrix on
-                              the server.
+                              {copy.classificationDescription} 1-
+                              {riskMatrixLikelihoodLevels} / 1-
+                              {riskMatrixConsequenceLevels}.
                             </p>
                           </div>
 
                           <div className="space-y-3">
                             <ScoreSelector
-                              label="Likelihood"
+                              clearLabel={copy.clear}
+                              dataKey="likelihood"
+                              label={copy.labels.likelihood}
                               maxValue={riskMatrixLikelihoodLevels}
                               onClear={() =>
                                 handleRiskScoreSelect(entry.id, "likelihood", null)
@@ -266,7 +277,9 @@ export function RiskRegisterEditor({
                               selectedValue={riskEntryState.draft.likelihood}
                             />
                             <ScoreSelector
-                              label="Consequence"
+                              clearLabel={copy.clear}
+                              dataKey="consequence"
+                              label={copy.labels.consequence}
                               maxValue={riskMatrixConsequenceLevels}
                               onClear={() =>
                                 handleRiskScoreSelect(entry.id, "consequence", null)
@@ -283,7 +296,7 @@ export function RiskRegisterEditor({
                       <div className="grid gap-4 sm:grid-cols-2">
                         <FieldGroup
                           id={`cost-estimate-${entry.id}`}
-                          label="Cost estimate"
+                          label={copy.labels.costEstimate}
                         >
                           <input
                             className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -296,14 +309,14 @@ export function RiskRegisterEditor({
                                 event.target.value,
                               )
                             }
-                            placeholder="0"
+                            placeholder={copy.placeholders.costEstimate}
                             type="number"
                             value={riskEntryState.draft.costEstimate}
                           />
                         </FieldGroup>
                         <FieldGroup
                           id={`responsible-owner-${entry.id}`}
-                          label="Responsible owner"
+                          label={copy.labels.responsibleOwner}
                         >
                           <input
                             className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -315,12 +328,15 @@ export function RiskRegisterEditor({
                                 event.target.value,
                               )
                             }
-                            placeholder="Who owns this next step?"
+                            placeholder={copy.placeholders.responsibleOwner}
                             type="text"
                             value={riskEntryState.draft.responsibleOwner}
                           />
                         </FieldGroup>
-                        <FieldGroup id={`due-date-${entry.id}`} label="Planned date">
+                        <FieldGroup
+                          id={`due-date-${entry.id}`}
+                          label={copy.labels.dueDate}
+                        >
                           <input
                             className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
                             id={`due-date-${entry.id}`}
@@ -337,7 +353,7 @@ export function RiskRegisterEditor({
                         </FieldGroup>
                         <FieldGroup
                           id={`completed-at-${entry.id}`}
-                          label="Completed on"
+                          label={copy.labels.completedAt}
                         >
                           <input
                             className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -362,13 +378,22 @@ export function RiskRegisterEditor({
                       aria-live="polite"
                       className={getRiskEntrySaveMessageClassName(riskEntryState)}
                     >
-                      {getRiskEntrySaveMessage(riskEntryState)}
+                      {getRiskEntrySaveMessage({
+                        language,
+                        saveState: riskEntryState.saveState,
+                        dirty: isRiskEntryDirty(riskEntryState),
+                        canPersist: canPersistRiskEntryDraft(riskEntryState.draft),
+                        savedRiskLevel: riskEntryState.savedRiskLevel,
+                        classificationState: riskEntryState.savedClassificationState,
+                        errorMessage: riskEntryState.errorMessage,
+                      })}
                     </p>
                     <button
                       className={getRiskEntrySaveButtonClassName(
                         riskEntryState.saveState === "saving" ||
                           !isRiskEntryDirty(riskEntryState),
                       )}
+                      data-risk-entry-save-button="true"
                       disabled={
                         riskEntryState.saveState === "saving" ||
                         !isRiskEntryDirty(riskEntryState)
@@ -377,8 +402,8 @@ export function RiskRegisterEditor({
                       type="button"
                     >
                       {riskEntryState.saveState === "saving"
-                        ? "Saving risk entry..."
-                        : "Save risk entry"}
+                        ? copy.saveButtonSaving
+                        : copy.saveButton}
                     </button>
                   </div>
                 </div>
@@ -418,6 +443,11 @@ export function RiskRegisterEditor({
     }
 
     if (!canPersistRiskEntryDraft(riskEntryState.draft)) {
+      const errorMessage =
+        language === "is"
+          ? "Hætta er nauðsynleg áður en hægt er að vista þessa færslu."
+          : "Hazard is required before saving this risk entry.";
+
       setRiskEntryStates((current) => {
         const currentRiskEntryState = current[riskEntryId];
 
@@ -430,7 +460,7 @@ export function RiskRegisterEditor({
           [riskEntryId]: {
             ...currentRiskEntryState,
             saveState: "error",
-            errorMessage: "Hazard is required before saving this risk entry.",
+            errorMessage,
           },
         };
       });
@@ -486,18 +516,13 @@ export function RiskRegisterEditor({
           );
         });
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "We could not save this risk entry.";
-
         startTransition(() => {
           setRiskEntryStates((current) =>
             reconcileRiskEntrySaveFailure(
               current,
               riskEntryId,
               nextRequestId,
-              errorMessage,
+              copy.fallbacks.save,
             ),
           );
         });
@@ -507,31 +532,42 @@ export function RiskRegisterEditor({
 }
 
 function RiskEntrySaveStatePill({
+  language,
   state,
 }: {
+  readonly language: AppLanguage;
   readonly state: RiskEntryClientState;
 }) {
+  const copy = getRiskRegisterStaticCopy(language);
+
   return (
     <div className={getRiskEntrySavePillClassName(state)}>
       {state.saveState === "saving"
-        ? "Saving..."
+        ? copy.savePills.saving
         : state.saveState === "error"
-          ? "Save issue"
+          ? copy.savePills.error
           : isRiskEntryDirty(state)
-            ? "Unsaved"
-            : "Saved"}
+            ? copy.savePills.unsaved
+            : copy.savePills.saved}
     </div>
   );
 }
 
-function RiskLevelBadge({ state }: { readonly state: RiskEntryClientState }) {
+function RiskLevelBadge({
+  language,
+  state,
+}: {
+  readonly language: AppLanguage;
+  readonly state: RiskEntryClientState;
+}) {
+  const copy = getRiskRegisterStaticCopy(language);
   const dirty = isRiskEntryDirty(state);
   const label =
     state.savedClassificationState !== "ready" && !dirty
-      ? "Needs repair"
+      ? copy.riskLevel.needsRepair
       : state.savedRiskLevel
-        ? capitalize(state.savedRiskLevel)
-        : "Incomplete";
+        ? getRiskLevelLabel(language, state.savedRiskLevel)
+        : copy.riskLevel.incomplete;
 
   return (
     <div
@@ -539,11 +575,13 @@ function RiskLevelBadge({ state }: { readonly state: RiskEntryClientState }) {
       data-risk-level-state={dirty ? "pending" : state.savedClassificationState}
     >
       <div className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] opacity-75">
-        Saved level
+        {copy.labels.savedLevel}
       </div>
       <div className="text-sm font-semibold">{label}</div>
       {dirty ? (
-        <div className="text-[0.7rem] leading-5 opacity-75">Save to refresh</div>
+        <div className="text-[0.7rem] leading-5 opacity-75">
+          {copy.riskLevel.saveToRefresh}
+        </div>
       ) : null}
     </div>
   );
@@ -569,12 +607,16 @@ function FieldGroup({
 }
 
 function ScoreSelector({
+  clearLabel,
+  dataKey,
   label,
   maxValue,
   selectedValue,
   onSelect,
   onClear,
 }: {
+  readonly clearLabel: string;
+  readonly dataKey: "likelihood" | "consequence";
   readonly label: string;
   readonly maxValue: number;
   readonly selectedValue: number | null;
@@ -591,7 +633,7 @@ function ScoreSelector({
             onClick={onClear}
             type="button"
           >
-            Clear
+            {clearLabel}
           </button>
         ) : null}
       </div>
@@ -599,7 +641,7 @@ function ScoreSelector({
         {Array.from({ length: maxValue }, (_, index) => index + 1).map((value) => (
           <button
             className={getScoreOptionClassName(selectedValue === value)}
-            data-score-label={label}
+            data-score-kind={dataKey}
             data-score-value={String(value)}
             key={value}
             onClick={() => onSelect(value)}
@@ -660,35 +702,6 @@ function getRiskLevelBadgeClassName(
   );
 }
 
-function getRiskEntrySaveMessage(state: RiskEntryClientState): string {
-  if (state.saveState === "saving") {
-    return "Saving this risk entry...";
-  }
-
-  if (state.saveState === "error") {
-    return state.errorMessage ?? "We could not save this risk entry.";
-  }
-
-  if (!canPersistRiskEntryDraft(state.draft)) {
-    return "Hazard is required before this row can be saved.";
-  }
-
-  if (isRiskEntryDirty(state)) {
-    return "Changes pending save. The stored classification updates after save.";
-  }
-
-  if (state.savedClassificationState !== "ready") {
-    return (
-      state.savedClassificationMessage ??
-      "Save this row to repair the stored classification."
-    );
-  }
-
-  return state.savedRiskLevel
-    ? `Saved classification: ${capitalize(state.savedRiskLevel)}.`
-    : "Saved draft. Add both scores to derive the classification.";
-}
-
 function getRiskEntrySaveMessageClassName(state: RiskEntryClientState): string {
   return joinClasses(
     "text-sm leading-6",
@@ -733,21 +746,8 @@ function toOptionalInteger(value: string): number | undefined {
   const parsedValue = Number(trimmedValue);
   return Number.isInteger(parsedValue) ? parsedValue : undefined;
 }
-
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
 function joinClasses(
   ...classNames: ReadonlyArray<string | false | null | undefined>
 ): string {
   return classNames.filter(Boolean).join(" ");
-}
-
-function pluralize(
-  count: number,
-  singular: string,
-  plural: string,
-): string {
-  return count === 1 ? singular : plural;
 }

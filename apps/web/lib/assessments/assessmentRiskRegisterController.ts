@@ -26,7 +26,6 @@ export interface RiskEntryClientState {
   readonly draft: RiskEntryDraft;
   readonly savedRiskLevel: AssessmentRiskRegisterEntryProjection["savedRiskLevel"];
   readonly savedClassificationState: RiskEntryClassificationState;
-  readonly savedClassificationMessage: string | null;
   readonly saveState: SaveState;
   readonly errorMessage: string | null;
   readonly requestId: number;
@@ -48,7 +47,6 @@ export function buildInitialRiskEntryState(
           draft,
           savedRiskLevel: entry.savedRiskLevel,
           savedClassificationState: entry.classificationState,
-          savedClassificationMessage: entry.classificationMessage,
           saveState: "idle",
           errorMessage: null,
           requestId: 0,
@@ -143,7 +141,6 @@ export function reconcileRiskEntrySaveSuccess(
       draft: draftChangedSinceSend ? riskEntryState.draft : savedDraft,
       savedRiskLevel: response.riskLevel,
       savedClassificationState: "ready",
-      savedClassificationMessage: null,
       saveState: "idle",
       errorMessage: null,
     },

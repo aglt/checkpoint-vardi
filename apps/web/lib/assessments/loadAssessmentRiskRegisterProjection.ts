@@ -40,7 +40,6 @@ export interface AssessmentRiskRegisterEntryProjection {
   readonly consequence: number | null;
   readonly savedRiskLevel: RiskLevel | null;
   readonly classificationState: RiskEntryClassificationState;
-  readonly classificationMessage: string | null;
   readonly currentControls: string | null;
   readonly proposedAction: string | null;
   readonly costEstimate: number | null;
@@ -141,9 +140,6 @@ function buildRiskRegisterEntryProjection(
       consequence: riskEntry.consequence,
       savedRiskLevel: isStale ? null : riskEntry.riskLevel,
       classificationState: isStale ? "staleRiskLevel" : "ready",
-      classificationMessage: isStale
-        ? "Saved classification is stale. Save this entry to repair it."
-        : null,
       currentControls: riskEntry.currentControls,
       proposedAction: riskEntry.proposedAction,
       costEstimate: riskEntry.costEstimate,
@@ -167,8 +163,6 @@ function buildRiskRegisterEntryProjection(
       consequence: riskEntry.consequence,
       savedRiskLevel: null,
       classificationState: "invalidClassification",
-      classificationMessage:
-        "Saved classification could not be verified. Save this entry to repair it.",
       currentControls: riskEntry.currentControls,
       proposedAction: riskEntry.proposedAction,
       costEstimate: riskEntry.costEstimate,

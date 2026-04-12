@@ -2,10 +2,7 @@
 
 import React, { startTransition, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type {
-  SaveAssessmentCriterionStatus,
-  TransferAssessmentFindingsToRiskRegisterOutput,
-} from "@vardi/schemas";
+import type { SaveAssessmentCriterionStatus } from "@vardi/schemas";
 
 import {
   beginCriterionSave,
@@ -29,6 +26,20 @@ import type {
   AssessmentSectionReadModel,
   PresenceStatus,
 } from "@/lib/assessments/loadAssessmentReadModel";
+import type { AppLanguage } from "@/lib/i18n/appLanguage";
+import {
+  buildTransferSuccessMessage,
+  getAnswerOptions,
+  getAssessmentWalkthroughStaticCopy,
+  getCompletedSectionsLabel,
+  getCriterionAnswerAriaLabel,
+  getCriterionSaveMessage,
+  getProgressCountLabel,
+  getSectionAnsweredCountLabel,
+  getTransferButtonLabel,
+  getTransferMessage,
+  getTransferMetricValueLabel,
+} from "@/lib/i18n/mvpCopy";
 import { saveAssessmentCriterionResponseAction } from "@/lib/assessments/saveAssessmentCriterionResponseAction";
 import { transferAssessmentFindingsToRiskRegisterAction } from "@/lib/assessments/transferAssessmentFindingsToRiskRegisterAction";
 
@@ -37,43 +48,30 @@ interface AssessmentWalkthroughProps {
   readonly workplaceName: string;
   readonly checklistTitle: string;
   readonly checklistVersion: string;
+  readonly language: AppLanguage;
   readonly riskMatrixTitle: string;
   readonly sections: readonly AssessmentSectionReadModel[];
   readonly children?: React.ReactNode;
 }
-
-const ANSWER_OPTIONS: ReadonlyArray<{
-  readonly value: SaveAssessmentCriterionStatus;
-  readonly label: string;
-  readonly description: string;
-}> = [
-  {
-    value: "ok",
-    label: "Ok",
-    description: "Meets the current expectation.",
-  },
-  {
-    value: "notOk",
-    label: "Not ok",
-    description: "Needs follow-up in a later story.",
-  },
-  {
-    value: "notApplicable",
-    label: "Not applicable",
-    description: "Does not apply in this context.",
-  },
-] as const;
 
 export function AssessmentWalkthrough({
   assessmentId,
   workplaceName,
   checklistTitle,
   checklistVersion,
+  language,
   riskMatrixTitle,
   sections,
   children,
 }: AssessmentWalkthroughProps) {
   const router = useRouter();
+  const copy = getAssessmentWalkthroughStaticCopy(language);
+  const answerOptions =
+    getAnswerOptions(language) satisfies ReadonlyArray<{
+      readonly value: SaveAssessmentCriterionStatus;
+      readonly label: string;
+      readonly description: string;
+    }>;
   const [criterionStates, setCriterionStates] = useState<CriterionStateMap>(
     () => buildInitialCriterionState(sections),
   );
@@ -131,7 +129,7 @@ export function AssessmentWalkthrough({
             <div className="space-y-5">
               <div className="space-y-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-600">
-                  Assessment Workflow
+                  {copy.eyebrow}
                 </p>
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-slate-600">
@@ -141,9 +139,7 @@ export function AssessmentWalkthrough({
                     {workplaceName}
                   </h1>
                   <p className="max-w-3xl text-base leading-7 text-slate-700">
-                    Complete the walkthrough here, then continue through the
-                    risk register and final summary below without leaving the
-                    assessment page.
+                    {copy.description}
                   </p>
                 </div>
               </div>
@@ -152,10 +148,13 @@ export function AssessmentWalkthrough({
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="text-sm font-semibold text-slate-900">
-                      Progress
+                      {copy.progressLabel}
                     </div>
                     <div className="text-sm leading-6 text-slate-600">
-                      {answeredCriteria} of {totalCriteria} criteria answered
+                      {getProgressCountLabel(language, {
+                        answeredCriteria,
+                        totalCriteria,
+                      })}
                     </div>
                   </div>
                   <div className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm font-semibold text-slate-900">
@@ -172,12 +171,21 @@ export function AssessmentWalkthrough({
             </div>
 
             <aside className="grid gap-3 self-start sm:grid-cols-3 lg:grid-cols-1">
-              <SummaryCard label="Checklist" value={`v${checklistVersion}`} />
               <SummaryCard
-                label="Sections complete"
-                value={`${completedSections}/${sections.length}`}
+                label={copy.summaryLabels.checklist}
+                value={`v${checklistVersion}`}
               />
-              <SummaryCard label="Pinned matrix" value={riskMatrixTitle} />
+              <SummaryCard
+                label={copy.summaryLabels.sectionsComplete}
+                value={getCompletedSectionsLabel(language, {
+                  completedSections,
+                  totalSections: sections.length,
+                })}
+              />
+              <SummaryCard
+                label={copy.summaryLabels.pinnedMatrix}
+                value={riskMatrixTitle}
+              />
             </aside>
           </div>
         </section>
@@ -185,35 +193,33 @@ export function AssessmentWalkthrough({
         <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
           <aside className="order-first self-start space-y-4 lg:sticky lg:top-6">
             <div className="rounded-[1.75rem] border border-black/10 bg-white/82 px-5 py-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Step 1b
-                  </p>
-                  <div className="space-y-1">
-                    <h2 className="text-lg font-semibold tracking-tight text-slate-950">
-                      Transfer to risk register
-                    </h2>
-                    <p className="text-sm leading-6 text-slate-600">
-                      Only persisted <span className="font-semibold">Not ok</span>{" "}
-                      findings transfer. Re-running adds any missing rows without
-                      duplicating existing register entries.
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                      {copy.transfer.eyebrow}
                     </p>
+                    <div className="space-y-1">
+                      <h2 className="text-lg font-semibold tracking-tight text-slate-950">
+                        {copy.transfer.heading}
+                      </h2>
+                      <p className="text-sm leading-6 text-slate-600">
+                        {copy.transfer.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
                 <div className="grid gap-2 text-sm text-slate-700">
                   <TransferMetric
-                    label="Eligible findings"
-                    value={String(eligibleTransferCriteria)}
+                    label={copy.transfer.metrics.eligibleFindings}
+                    value={getTransferMetricValueLabel(eligibleTransferCriteria)}
                   />
                   <TransferMetric
-                    label="Already transferred"
-                    value={String(transferredCriteria)}
+                    label={copy.transfer.metrics.alreadyTransferred}
+                    value={getTransferMetricValueLabel(transferredCriteria)}
                   />
                   <TransferMetric
-                    label="Remaining to transfer"
-                    value={String(remainingCriteria)}
+                    label={copy.transfer.metrics.remainingToTransfer}
+                    value={getTransferMetricValueLabel(remainingCriteria)}
                   />
                 </div>
 
@@ -222,7 +228,9 @@ export function AssessmentWalkthrough({
                   className={getTransferMessageClassName(transferState.status)}
                 >
                   {getTransferMessage({
-                    transferState,
+                    language,
+                    status: transferState.status,
+                    message: transferState.message,
                     eligibleTransferCriteria,
                     remainingCriteria,
                   })}
@@ -233,6 +241,7 @@ export function AssessmentWalkthrough({
                     transferState.status === "transferring" ||
                       remainingCriteria === 0,
                   )}
+                  data-transfer-action="risk-register"
                   disabled={
                     transferState.status === "transferring" ||
                     remainingCriteria === 0
@@ -241,7 +250,8 @@ export function AssessmentWalkthrough({
                   type="button"
                 >
                   {getTransferButtonLabel({
-                    transferState: transferState.status,
+                    language,
+                    status: transferState.status,
                     remainingCriteria,
                   })}
                 </button>
@@ -252,23 +262,18 @@ export function AssessmentWalkthrough({
               <div className="space-y-4">
                 <div className="space-y-1">
                   <h2 className="text-lg font-semibold tracking-tight">
-                    Walkthrough notes
+                    {copy.notes.heading}
                   </h2>
                   <p className="text-sm leading-6 text-white/75">
-                    Answers save immediately. Notes auto-save shortly after typing
-                    pauses, transferred risk rows stay in their own editing
-                    surface, and the saved summary step now closes the flow on
-                    this same page.
+                    {copy.notes.description}
                   </p>
                 </div>
                 <div className="grid gap-2 text-sm text-white/80">
                   <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
-                    One seeded criterion equals one walkthrough item in this MVP
-                    slice.
+                    {copy.notes.items[0]}
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
-                    Export generation and broader safety-plan work stay in later
-                    stories.
+                    {copy.notes.items[1]}
                   </div>
                 </div>
               </div>
@@ -284,15 +289,17 @@ export function AssessmentWalkthrough({
                 <div className="flex flex-col gap-3 border-b border-black/8 pb-4 sm:flex-row sm:items-end sm:justify-between">
                   <div className="space-y-2">
                     <p className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
-                      Section {String(section.order).padStart(2, "0")}
+                      {copy.sectionLabel} {String(section.order).padStart(2, "0")}
                     </p>
                     <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
                       {section.translations.is.title}
                     </h2>
                   </div>
                   <div className="rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1.5 text-sm font-medium text-slate-700">
-                    {getAnsweredCount(section.criteria, criterionStates)} of{" "}
-                    {section.criteria.length} answered
+                    {getSectionAnsweredCountLabel(language, {
+                      answeredCount: getAnsweredCount(section.criteria, criterionStates),
+                      totalCount: section.criteria.length,
+                    })}
                   </div>
                 </div>
 
@@ -315,7 +322,7 @@ export function AssessmentWalkthrough({
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div className="space-y-3">
                               <div className="inline-flex w-fit items-center rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
-                                Criterion {criterion.number}
+                                {copy.criterionLabel} {criterion.number}
                               </div>
                               <div className="space-y-2">
                                 <h3 className="text-lg font-semibold leading-7 text-slate-950">
@@ -329,22 +336,26 @@ export function AssessmentWalkthrough({
                             <div className="flex flex-col items-start gap-2 sm:items-end">
                               {state.saved.status === "notOk" ? (
                                 <TransferStatusPill
+                                  language={language}
                                   status={
                                     riskEntryStatusByCriterionId[criterion.id] ??
                                     criterion.riskEntryStatus
                                   }
                                 />
                               ) : null}
-                              <SaveStatePill state={state} />
+                              <SaveStatePill language={language} state={state} />
                             </div>
                           </div>
 
                           <div
-                            aria-label={`Answer criterion ${criterion.number}`}
+                            aria-label={getCriterionAnswerAriaLabel(
+                              language,
+                              criterion.number,
+                            )}
                             className="grid gap-2 sm:grid-cols-3"
                             role="radiogroup"
                           >
-                            {ANSWER_OPTIONS.map((option) => (
+                            {answerOptions.map((option) => (
                               <button
                                 aria-checked={state.draft.status === option.value}
                                 className={getAnswerOptionClassName(
@@ -375,7 +386,7 @@ export function AssessmentWalkthrough({
                               className="text-sm font-medium text-slate-900"
                               htmlFor={`notes-${criterion.id}`}
                             >
-                              Notes
+                              {copy.notesLabel}
                             </label>
                             <textarea
                               className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -384,7 +395,7 @@ export function AssessmentWalkthrough({
                               onChange={(event) =>
                                 handleNotesChange(criterion.id, event.target.value)
                               }
-                              placeholder="Context, location, or follow-up detail..."
+                              placeholder={copy.notesPlaceholder}
                               value={state.draft.notes}
                             />
                           </div>
@@ -394,7 +405,17 @@ export function AssessmentWalkthrough({
                               aria-live="polite"
                               className={getSaveMessageClassName(state)}
                             >
-                              {getSaveMessage(state)}
+                              {getCriterionSaveMessage({
+                                language,
+                                saveState: state.saveState,
+                                draftStatus: state.draft.status,
+                                draftNotesLength: state.draft.notes.length,
+                                dirty: isDirty(state),
+                                lastSavedAt: state.lastSavedAt,
+                                savedStatus: state.saved.status,
+                                savedNotesLength: state.saved.notes.length,
+                                errorMessage: state.errorMessage,
+                              })}
                             </p>
                             {state.saveState === "error" ? (
                               <button
@@ -402,7 +423,7 @@ export function AssessmentWalkthrough({
                                 onClick={() => handleRetry(criterion.id)}
                                 type="button"
                               >
-                                Retry save
+                                {copy.retrySave}
                               </button>
                             ) : null}
                           </div>
@@ -495,20 +516,19 @@ export function AssessmentWalkthrough({
           );
           setTransferState({
             status: "success",
-            message: buildTransferSuccessMessage(response),
+            message: buildTransferSuccessMessage({
+              language,
+              createdRiskEntryCount: response.createdRiskEntryCount,
+              existingRiskEntryCount: response.existingRiskEntryCount,
+            }),
           });
           router.refresh();
         });
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "We could not transfer these findings right now.";
-
         startTransition(() => {
           setTransferState({
             status: "error",
-            message: errorMessage,
+            message: copy.fallbacks.transfer,
           });
         });
       }
@@ -587,18 +607,13 @@ export function AssessmentWalkthrough({
           );
         });
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "We could not save this walkthrough answer.";
-
         startTransition(() => {
           setCriterionStates((current) =>
             reconcileCriterionSaveFailure(
               current,
               criterionId,
               nextRequestId,
-              errorMessage,
+              copy.fallbacks.criterionSave,
             ),
           );
         });
@@ -641,31 +656,49 @@ function TransferMetric({
   );
 }
 
-function SaveStatePill({ state }: { readonly state: CriterionClientState }) {
+function SaveStatePill({
+  language,
+  state,
+}: {
+  readonly language: AppLanguage;
+  readonly state: CriterionClientState;
+}) {
+  const copy = getAssessmentWalkthroughStaticCopy(language);
+
   return (
     <div className={getSavePillClassName(state)}>
       {state.saveState === "saving"
-        ? "Saving..."
+        ? copy.savePills.saving
         : state.saveState === "error"
-          ? "Save issue"
+          ? copy.savePills.error
           : state.draft.status === "unanswered" && state.draft.notes.length > 0
-            ? "Needs answer"
+            ? copy.savePills.needsAnswer
             : isDirty(state)
-              ? "Unsaved"
+              ? copy.savePills.unsaved
               : state.saved.status === "unanswered" && state.saved.notes.length === 0
-                ? "Not started"
-                : "Saved"}
+                ? copy.savePills.notStarted
+                : copy.savePills.saved}
     </div>
   );
 }
 
-function TransferStatusPill({ status }: { readonly status: PresenceStatus }) {
+function TransferStatusPill({
+  language,
+  status,
+}: {
+  readonly language: AppLanguage;
+  readonly status: PresenceStatus;
+}) {
+  const copy = getAssessmentWalkthroughStaticCopy(language);
+
   return (
     <div
       className={getTransferPillClassName(status)}
       data-transfer-state={status}
     >
-      {status === "present" ? "Transferred" : "Needs transfer"}
+      {status === "present"
+        ? copy.transferPills.present
+        : copy.transferPills.absent}
     </div>
   );
 }
@@ -720,64 +753,11 @@ function getTransferPillClassName(status: PresenceStatus): string {
   );
 }
 
-function getSaveMessage(state: CriterionClientState): string {
-  if (state.saveState === "saving") {
-    return "Saving this criterion...";
-  }
-
-  if (state.saveState === "error") {
-    return state.errorMessage ?? "We could not save this criterion.";
-  }
-
-  if (state.draft.status === "unanswered" && state.draft.notes.length > 0) {
-    return "Select an answer before notes can be saved.";
-  }
-
-  if (isDirty(state)) {
-    return "Changes pending save.";
-  }
-
-  if (state.lastSavedAt) {
-    return `Saved ${formatSavedAt(state.lastSavedAt)}.`;
-  }
-
-  return state.saved.status === "unanswered" && state.saved.notes.length === 0
-    ? "Answer and notes are ready to capture."
-    : "Saved and ready to resume.";
-}
-
 function getSaveMessageClassName(state: CriterionClientState): string {
   return joinClasses(
     "text-sm leading-6",
     state.saveState === "error" ? "text-[#8a2f0d]" : "text-slate-600",
   );
-}
-
-function getTransferMessage(params: {
-  readonly transferState: {
-    readonly status: "idle" | "transferring" | "success" | "error";
-    readonly message: string | null;
-  };
-  readonly eligibleTransferCriteria: number;
-  readonly remainingCriteria: number;
-}): string {
-  if (params.transferState.status === "transferring") {
-    return "Transferring eligible findings into the risk register...";
-  }
-
-  if (params.transferState.message) {
-    return params.transferState.message;
-  }
-
-  if (params.eligibleTransferCriteria === 0) {
-    return "Mark a criterion as Not ok to make it eligible for transfer.";
-  }
-
-  if (params.remainingCriteria === 0) {
-    return "All persisted Not ok findings are already in the risk register.";
-  }
-
-  return "Transfer will add only the persisted Not ok findings that are still missing.";
 }
 
 function getTransferMessageClassName(
@@ -802,52 +782,8 @@ function getTransferButtonClassName(disabled: boolean): string {
   );
 }
 
-function getTransferButtonLabel(params: {
-  readonly transferState: "idle" | "transferring" | "success" | "error";
-  readonly remainingCriteria: number;
-}): string {
-  if (params.transferState === "transferring") {
-    return "Transferring...";
-  }
-
-  if (params.remainingCriteria === 0) {
-    return "All eligible findings transferred";
-  }
-
-  return `Transfer ${params.remainingCriteria} ${pluralize(params.remainingCriteria, "finding", "findings")}`;
-}
-
-function buildTransferSuccessMessage(
-  response: TransferAssessmentFindingsToRiskRegisterOutput,
-): string {
-  if (response.createdRiskEntryCount === 0 && response.existingRiskEntryCount > 0) {
-    return `All ${response.existingRiskEntryCount} eligible ${pluralize(response.existingRiskEntryCount, "finding was", "findings were")} already in the risk register.`;
-  }
-
-  if (response.existingRiskEntryCount === 0) {
-    return `Transferred ${response.createdRiskEntryCount} ${pluralize(response.createdRiskEntryCount, "finding", "findings")} into the risk register.`;
-  }
-
-  return `Transferred ${response.createdRiskEntryCount} ${pluralize(response.createdRiskEntryCount, "finding", "findings")} and kept ${response.existingRiskEntryCount} existing ${pluralize(response.existingRiskEntryCount, "entry", "entries")} in place.`;
-}
-
-function formatSavedAt(value: string): string {
-  return new Intl.DateTimeFormat("en", {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(value));
-}
-
 function joinClasses(
   ...classNames: ReadonlyArray<string | false | null | undefined>
 ): string {
   return classNames.filter(Boolean).join(" ");
-}
-
-function pluralize(
-  count: number,
-  singular: string,
-  plural: string,
-): string {
-  return count === 1 ? singular : plural;
 }

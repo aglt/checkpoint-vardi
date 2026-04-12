@@ -169,7 +169,7 @@ test("loadAssessmentRiskRegisterProjection preserves seeded criterion ordering f
   closeDatabase(connection);
 });
 
-test("loadAssessmentRiskRegisterProjection localizes stale risk-level mismatches to the affected entry", () => {
+test("loadAssessmentRiskRegisterProjection reports stale risk-level mismatches without adding display copy", () => {
   const connection = seedAssessmentWithTransferredRows();
 
   connection.sqlite
@@ -188,9 +188,12 @@ test("loadAssessmentRiskRegisterProjection localizes stale risk-level mismatches
 
   assert.equal(projection.entries[0]?.classificationState, "staleRiskLevel");
   assert.equal(projection.entries[0]?.savedRiskLevel, null);
-  assert.match(
-    projection.entries[0]?.classificationMessage ?? "",
-    /stale/i,
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(
+      projection.entries[0] ?? {},
+      "classificationMessage",
+    ),
+    false,
   );
   assert.equal(projection.entries[1]?.classificationState, "ready");
 

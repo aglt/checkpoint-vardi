@@ -8,6 +8,7 @@ import { RiskRegisterEditor } from "./_components/RiskRegisterEditor";
 import { loadAssessmentReadModel } from "@/lib/assessments/loadAssessmentReadModel";
 import { loadAssessmentRiskRegisterProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
 import { loadAssessmentSummaryProjection } from "@/lib/assessments/loadAssessmentSummaryProjection";
+import { getRequestAppLanguage } from "@/lib/i18n/requestAppLanguage";
 import { getDatabase } from "@/lib/server/db";
 import { getCurrentUser } from "@/lib/server/getCurrentUser";
 
@@ -25,6 +26,7 @@ export default async function AssessmentWalkthroughPage({
   try {
     const db = getDatabase();
     const ownerId = getCurrentUser().id;
+    const language = await getRequestAppLanguage();
     const readModel = loadAssessmentReadModel({
       db,
       ownerId,
@@ -48,13 +50,15 @@ export default async function AssessmentWalkthroughPage({
         assessmentId={readModel.assessment.id}
         checklistTitle={readModel.checklist.translations.is.title}
         checklistVersion={readModel.checklist.version}
+        language={language}
         riskMatrixTitle={readModel.riskMatrix.translations.is.title}
         sections={readModel.sections}
         workplaceName={readModel.workplace.name}
-        >
+      >
         <RiskRegisterEditor
           assessmentId={readModel.assessment.id}
           entries={riskRegisterProjection.entries}
+          language={language}
           riskMatrixConsequenceLevels={
             riskRegisterProjection.riskMatrix.consequenceLevels
           }
@@ -65,6 +69,7 @@ export default async function AssessmentWalkthroughPage({
         />
         <AssessmentSummaryEditor
           assessmentId={readModel.assessment.id}
+          language={language}
           prioritizedEntries={summaryProjection.prioritizedEntries}
           readiness={summaryProjection.readiness}
           summary={summaryProjection.summary}
