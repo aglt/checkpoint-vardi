@@ -12,8 +12,7 @@ Depends on: S1-07
 
 ## Context
 
-This story is complete and now lives on branch
-`feat/assessment-report-export`, under review in PR `#10`. `S1-07`
+This story is complete and merged to `main` in PR `#10`. `S1-07`
 already established the persisted summary row and the export-readiness
 gate on `/assessments/[assessmentId]`; `S1-08` now consumes those
 existing walkthrough, risk-register, and summary seams as-is to generate
