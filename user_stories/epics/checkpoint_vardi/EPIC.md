@@ -46,7 +46,9 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 The completed delivery slice now runs from `S1-02` through `S1-14`, with
 `S1-17` tightening the same MVP flow by making app-owned web copy render
-consistently through a single request-derived app-language seam. Together
+consistently through a single app-language seam, later clarified in
+follow-up `#19` and then switched in `#20` to default app-owned UI to
+Icelandic on every request. Together
 these stories moved the repo from "runnable scaffold" to a
 teacher-deliverable assessment flow with truthful browser regression
 coverage for smoke and blocked-readiness behavior plus language-consistent
@@ -55,9 +57,9 @@ assessment data model, assessment start, walkthrough capture, transfer into
 the risk register, risk scoring, summary capture, final exports, browser
 proof that the real app boots and that the current blocked-readiness path
 behaves honestly, the app-owned copy seam that keeps Icelandic and
-English rendering from leaking into each other while preserving the
-request-derived `is`/`en` fallback contract later reasserted in PR `#19`,
-and now a dedicated
+English rendering from leaking into each other, first with an explicit
+request-derived fallback contract in PR `#19` and now with Icelandic as
+the live app-owned default in PR `#20`, and now a dedicated
 app-owned progression owner that keeps guided status and completion
 truth tied to persisted workflow state plus persisted saved reasoning on
 risk classifications that exports can render from stored truth only.

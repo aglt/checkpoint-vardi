@@ -379,6 +379,10 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > seam unchanged, made the `en-US` and Icelandic-fallback contract explicit in
 > focused app-language tests, and reran `pnpm test`, `pnpm typecheck`, and
 > `pnpm lint` under `node v22.22.2`.
+> A later merged follow-up in PR `#20` then changed the live product default
+> so app-owned UI stays Icelandic on every request instead of following
+> browser `Accept-Language`, and reran `pnpm test`, `pnpm typecheck`, and
+> `pnpm lint` under `node v22.22.2`.
 
 ### Step S1-18: Risk severity choice alignment with the reference workflow
 

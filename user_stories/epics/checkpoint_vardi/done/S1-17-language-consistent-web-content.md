@@ -13,13 +13,12 @@ Depends on: S1-08
 ## Context
 
 This story is complete and merged via PR `#14`. The current MVP web flow
-now resolves a temporary request-derived app display language at the
-page/layout boundary, normalizes to `is` or `en`, and falls back to `is`
-without treating request language as durable product truth. A later
-merged follow-up in PR `#19` keeps that request-derived contract intact
-while making the fallback expectations explicit in test coverage:
-`en-US -> en`, unsupported request language -> `is`, and missing request
-language -> `is`.
+now resolves app-owned copy through a single app-language seam at the
+page/layout boundary. A later merged follow-up in PR `#19` made the old
+request-derived fallback expectations explicit in test coverage, and PR
+`#20` then changed the live product behavior so the current MVP web flow
+defaults app-owned UI to Icelandic on every request instead of following
+browser `Accept-Language`.
 
 App-owned copy for the start page, walkthrough, risk register, and
 summary/readiness surfaces now lives in `apps/web/lib/i18n/`. Lower
@@ -69,6 +68,8 @@ selected app language, with Icelandic fully respected when `is` is active.
 - One rendered page resolves to one app language for app-owned copy.
 - When `is` is active, app-owned web content on the current MVP flow must be
   Icelandic, not mixed Icelandic and English.
+- The current live default is Icelandic for every request unless a later
+  explicit override mechanism is added intentionally.
 - Seeded checklist and legal-reference content should keep using their existing
   translation/runtime seams.
 - English stays in source code identifiers; user-facing copy moves into
