@@ -12,7 +12,7 @@ Depends on: S1-08
 
 ## Context
 
-This story is complete. The risk-severity owner stayed in
+This story is complete and is tracked in PR `#18`. The risk-severity owner stayed in
 `apps/web/lib/assessments/loadAssessmentRiskRegisterProjection.ts` and
 `apps/web/app/assessments/[assessmentId]/_components/RiskRegisterEditor.tsx`,
 where the app now derives deterministic grouped severity choices from the

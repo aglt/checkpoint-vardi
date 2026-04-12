@@ -393,7 +393,7 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > live-aligned with the same saved `riskLevel` mapping through a narrow
 > server-truthful client sync without touching export generation. Ran
 > `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e` under
-> `node v22.22.2`.
+> `node v22.22.2`. PR: `#18`.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
