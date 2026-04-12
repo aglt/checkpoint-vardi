@@ -18,8 +18,10 @@ import {
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+import { loadAssessmentProgressionProjection } from "./loadAssessmentProgressionProjection";
 import { loadAssessmentReadModel } from "./loadAssessmentReadModel";
 import { loadAssessmentRiskRegisterProjection } from "./loadAssessmentRiskRegisterProjection";
+import { loadAssessmentSummaryProjection } from "./loadAssessmentSummaryProjection";
 
 const startedAt = new Date("2026-04-11T10:00:00.000Z");
 const appRouterStub: AppRouterInstance = {
@@ -178,6 +180,45 @@ function markAllFindingsOk(
       fixture.assessmentId,
     );
   closeDatabase(connection);
+}
+
+function loadAssessmentSurfaceProjections(
+  fixture: ReturnType<typeof seedWalkthroughAssessment>,
+) {
+  const connection = createBootstrappedDatabase(fixture.databasePath);
+  const readModel = loadAssessmentReadModel({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+  });
+  const riskRegisterProjection = loadAssessmentRiskRegisterProjection({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+    readModel,
+  });
+  const summaryProjection = loadAssessmentSummaryProjection({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+    riskRegisterProjection,
+  });
+  const progression = loadAssessmentProgressionProjection({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+    readModel,
+    riskRegisterProjection,
+    summaryProjection,
+  });
+
+  return {
+    connection,
+    progression,
+    readModel,
+    riskRegisterProjection,
+    summaryProjection,
+  };
 }
 
 test("walkthrough save action persists answers by stable criterion id", async () => {
@@ -474,9 +515,115 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
   assert.match(markup, new RegExp(escapeRegExp("Mótvægisaðgerðir")));
   assert.match(markup, new RegExp(escapeRegExp("Install a replacement guard")));
   assert.match(markup, new RegExp(escapeRegExp("Workshop lead")));
-  assert.match(markup, new RegExp(escapeRegExp("Vistuð flokkun: Há.")));
+  assert.match(markup, new RegExp(escapeRegExp("Alvarleikaval")));
+  assert.match(markup, new RegExp(escapeRegExp("Lág")));
+  assert.match(markup, new RegExp(escapeRegExp("Miðlungs")));
+  assert.match(markup, new RegExp(escapeRegExp("Há")));
+  assert.match(markup, new RegExp(escapeRegExp("Líkur 2 · Afleiðing 3")));
+  assert.match(markup, new RegExp(escapeRegExp("Vistaður alvarleiki: Há.")));
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp('id="assessment-step-summary"'),
+        "[\\s\\S]*?",
+        escapeRegExp('data-risk-level="high"'),
+        "[\\s\\S]*?",
+        escapeRegExp(">Há<"),
+      ].join(""),
+    ),
+  );
   assert.match(markup, new RegExp(escapeRegExp("Aðgerð 1 · vistuð")));
   assert.match(markup, new RegExp(escapeRegExp("Vistuð staða aðgerðar: Opin.")));
+});
+
+test("risk register and summary editors localize grouped severity choices in English", async () => {
+  const fixture = seedWalkthroughAssessment();
+  const riskEntryId = await transferSecondCriterionRiskEntry(fixture);
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const { saveAssessmentRiskEntryAction } = await import(
+    "./saveAssessmentRiskEntryAction"
+  );
+
+  await saveAssessmentRiskEntryAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      riskEntryId,
+      hazard: "Table saw without guard",
+      likelihood: 2,
+      consequence: 3,
+      classificationReasoning:
+        "Students use this saw every day and the missing guard can cause severe injury.",
+    },
+  });
+
+  const { AssessmentProgressionProvider } = await import(
+    "../../app/assessments/[assessmentId]/_components/AssessmentProgressionContext"
+  );
+  const { RiskRegisterEditor } = await import(
+    "../../app/assessments/[assessmentId]/_components/RiskRegisterEditor"
+  );
+  const { AssessmentSummaryEditor } = await import(
+    "../../app/assessments/[assessmentId]/_components/AssessmentSummaryEditor"
+  );
+  const {
+    connection,
+    progression,
+    readModel,
+    riskRegisterProjection,
+    summaryProjection,
+  } = loadAssessmentSurfaceProjections(fixture);
+  const markup = renderWithAppRouter(
+    React.createElement(
+      AssessmentProgressionProvider,
+      {
+        assessmentId: fixture.assessmentId,
+        children: [
+          React.createElement(RiskRegisterEditor, {
+            assessmentId: fixture.assessmentId,
+            entries: riskRegisterProjection.entries,
+            key: "risk-register",
+            language: "en",
+            riskMatrixSeverityChoices:
+              riskRegisterProjection.riskMatrix.severityChoices,
+            riskMatrixTitle: readModel.riskMatrix.translations.is.title,
+          }),
+          React.createElement(AssessmentSummaryEditor, {
+            assessmentId: fixture.assessmentId,
+            key: "summary",
+            language: "en",
+            prioritizedEntries: summaryProjection.prioritizedEntries,
+            summary: summaryProjection.summary,
+          }),
+        ],
+        initialProgression: progression,
+      },
+    ),
+  );
+
+  closeDatabase(connection);
+
+  assert.match(markup, new RegExp(escapeRegExp("Severity choice")));
+  assert.match(markup, new RegExp(escapeRegExp("Low")));
+  assert.match(markup, new RegExp(escapeRegExp("Medium")));
+  assert.match(markup, new RegExp(escapeRegExp("High")));
+  assert.match(
+    markup,
+    new RegExp(escapeRegExp("Likelihood 2 · Consequence 3")),
+  );
+  assert.match(markup, new RegExp(escapeRegExp("Saved severity: High.")));
+  assert.match(markup, new RegExp(escapeRegExp("Risk entries by severity")));
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp('data-risk-level="high"'),
+        "[\\s\\S]*?",
+        escapeRegExp(">High<"),
+      ].join(""),
+    ),
+  );
 });
 
 test("assessment page localizes stale risk classifications to the affected card", async () => {
@@ -551,7 +698,7 @@ test("assessment page localizes stale risk classifications to the affected card"
     markup,
     new RegExp(
       escapeRegExp(
-        "Vistað flokkunarstig er úrelt. Vistaðu færsluna til að laga það.",
+        "Vistaður alvarleiki er úreltur. Vistaðu færsluna til að laga það.",
       ),
     ),
   );

@@ -13,6 +13,11 @@ import {
   type AssessmentSummaryClientState,
   type AssessmentSummaryDraft,
 } from "@/lib/assessments/assessmentSummaryController";
+import {
+  ASSESSMENT_RISK_ENTRY_SAVED_EVENT,
+  isAssessmentRiskEntrySavedEvent,
+} from "@/lib/assessments/assessmentRiskEntrySavedEvent";
+import { upsertAssessmentSummaryPrioritizedEntry } from "@/lib/assessments/assessmentSummaryPriorityEntries";
 import type { AppLanguage } from "@/lib/i18n/appLanguage";
 import {
   getAssessmentProgressionBlockerMessages,
@@ -54,6 +59,9 @@ export function AssessmentSummaryEditor({
   const [summaryState, setSummaryState] = useState<AssessmentSummaryClientState>(
     () => buildInitialAssessmentSummaryState(summary),
   );
+  const [priorityEntriesState, setPriorityEntriesState] = useState(
+    prioritizedEntries,
+  );
   const [exportState, setExportState] = useState<{
     readonly status: "idle" | "exporting" | "error" | "success";
     readonly message: string | null;
@@ -67,11 +75,45 @@ export function AssessmentSummaryEditor({
   }, [summary]);
 
   useEffect(() => {
+    setPriorityEntriesState(prioritizedEntries);
+  }, [prioritizedEntries]);
+
+  useEffect(() => {
     setExportState({
       status: "idle",
       message: null,
     });
   }, [assessmentId, readiness.exportReady, summary]);
+
+  useEffect(() => {
+    const handleRiskEntrySaved = (event: Event) => {
+      if (!isAssessmentRiskEntrySavedEvent(event)) {
+        return;
+      }
+
+      if (event.detail.assessmentId !== assessmentId) {
+        return;
+      }
+
+      startTransition(() => {
+        setPriorityEntriesState((current) =>
+          upsertAssessmentSummaryPrioritizedEntry(current, event.detail.entry),
+        );
+      });
+    };
+
+    window.addEventListener(
+      ASSESSMENT_RISK_ENTRY_SAVED_EVENT,
+      handleRiskEntrySaved,
+    );
+
+    return () => {
+      window.removeEventListener(
+        ASSESSMENT_RISK_ENTRY_SAVED_EVENT,
+        handleRiskEntrySaved,
+      );
+    };
+  }, [assessmentId]);
 
   const readinessBlockers = getReadinessBlockers(language, readiness);
   const summaryBlockerMessages = getAssessmentProgressionBlockerMessages(
@@ -339,13 +381,13 @@ export function AssessmentSummaryEditor({
                 </p>
               </div>
 
-              {prioritizedEntries.length === 0 ? (
+              {priorityEntriesState.length === 0 ? (
                 <div className="rounded-[1.4rem] border border-dashed border-black/12 bg-[#fbf7ef] px-4 py-4 text-sm leading-6 text-slate-600">
                   {copy.priority.empty}
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {prioritizedEntries.map((entry) => (
+                  {priorityEntriesState.map((entry) => (
                     <article
                       className="rounded-[1.3rem] border border-black/8 bg-[#fbf7ef] px-3 py-3"
                       data-priority-state={entry.classificationState}

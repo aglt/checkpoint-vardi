@@ -378,14 +378,26 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-18: Risk severity choice alignment with the reference workflow
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-18-risk-severity-choice-alignment.md`
-**Start gate:** Open. `S1-08` is complete and the screenshot-backed severity mismatch is already observable on the current MVP flow. Reuse any language seam from `S1-17` if available, but do not duplicate that broader story accidentally.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-18-risk-severity-choice-alignment.md`
+**Start gate:** Closed.
 **Unblocks:** A more truthful risk-severity UX on the current flow and later stable browser assertions in `S1-16`.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-18-risk-severity-choice-alignment`:
+> moved the screenshot-aligned severity-choice owner into the app-owned
+> risk-register projection/editor seam, derived deterministic grouped
+> `low | medium | high` options from the pinned matrix while keeping the exact
+> saved `likelihood + consequence` pair explicit, localized severity labels to
+> `Lág/Miðlungs/Há` and `Low/Medium/High`, and kept the summary priority panel
+> live-aligned with the same saved `riskLevel` mapping through a narrow
+> server-truthful client sync without touching export generation. Ran
+> `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e` under
+> `node v22.22.2`.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-18` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-16` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.

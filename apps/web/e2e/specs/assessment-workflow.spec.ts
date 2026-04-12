@@ -49,24 +49,27 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
     "Engar vistaðar mótvægisaðgerðir enn.",
   );
   await expect(page.locator("body")).toContainText("Bæta við aðgerð");
+  await expect(page.locator("body")).toContainText("Alvarleikaval");
 
   await riskEntry
     .locator('[data-field="hazard"]')
     .fill("Missing guard on table saw");
   await riskEntry
-    .locator('[data-score-kind="likelihood"][data-score-value="3"]')
-    .click();
-  await riskEntry
-    .locator('[data-score-kind="consequence"][data-score-value="3"]')
+    .locator(
+      '[data-severity-option="true"][data-severity-level="high"][data-likelihood="3"][data-consequence="3"]',
+    )
     .click();
   await riskEntry.locator('[data-risk-entry-save-button="true"]').click();
 
   await expect(riskEntry).toHaveAttribute("data-classification-state", "ready");
   await expect(riskEntry).toHaveAttribute("data-risk-level", "high");
-  await expect(riskEntry.getByText("Vistuð flokkun: Há.")).toBeVisible();
+  await expect(riskEntry.getByText("Vistaður alvarleiki: Há.")).toBeVisible();
   await expect(page.locator("body")).toContainText("Vista áhættufærslu");
 
   const summarySection = page.locator("[data-summary-readiness]").first();
+  await expect(
+    summarySection.locator('[data-risk-level="high"]').getByText("Há"),
+  ).toBeVisible();
   await summarySection
     .locator('[data-summary-field="participants"]')
     .fill("Student assessor");

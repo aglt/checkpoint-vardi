@@ -273,15 +273,15 @@ const RISK_REGISTER_COPY = {
     eyebrow: "Skref 2-5",
     heading: "Áhættuskrá",
     description:
-      "Færðar raðir haldast breytanlegar inni í þessu mati. Vistun á áhættufærslu heldur vistaðri flokkun í samræmi við fasta fylkið, en mótvægisaðgerðir vistast sem aðskildur undirliggjandi sannleikur sem útflutningur getur síðar notað.",
+      "Færðar raðir haldast breytanlegar inni í þessu mati. Vistun á áhættufærslu heldur vistuðum alvarleika í samræmi við fasta fylkið, en mótvægisaðgerðir vistast sem aðskildur undirliggjandi sannleikur sem útflutningur getur síðar notað.",
     emptyState:
       "Merktu atriði í yfirferð sem 'Ekki í lagi' og færðu það í áhættuskrána til að opna breytanlegar raðir hér.",
     transferredFromWalkthrough:
-      "Fært úr yfirferðinni. Vistaðu þessa röð til að laga eða uppfæra vistaða flokkun. Vistaðar mótvægisaðgerðir hér fyrir neðan haldast aðskilinn sannleikur.",
+      "Fært úr yfirferðinni. Vistaðu þessa röð til að laga eða uppfæra vistaðan alvarleika. Vistaðar mótvægisaðgerðir hér fyrir neðan haldast aðskilinn sannleikur.",
     staleClassification:
-      "Vistað flokkunarstig er úrelt. Vistaðu færsluna til að laga það.",
+      "Vistaður alvarleiki er úreltur. Vistaðu færsluna til að laga það.",
     invalidClassification:
-      "Ekki tókst að staðfesta vistað flokkunarstig. Vistaðu færsluna til að laga það.",
+      "Ekki tókst að staðfesta vistaðan alvarleika. Vistaðu færsluna til að laga það.",
     labels: {
       criterion: "Atriði",
       hazard: "Hætta",
@@ -289,7 +289,7 @@ const RISK_REGISTER_COPY = {
       whoAtRisk: "Hverjir eru í hættu",
       currentControls: "Núverandi varnir",
       proposedAction: "Næsta aðgerð",
-      classification: "Flokkun",
+      classification: "Alvarleikaval",
       likelihood: "Líkur",
       consequence: "Afleiðing",
       classificationReasoning: "Rökstuðningur fyrir flokkun",
@@ -297,7 +297,7 @@ const RISK_REGISTER_COPY = {
       responsibleOwner: "Ábyrgðaraðili",
       dueDate: "Áætluð dagsetning",
       completedAt: "Lokið",
-      savedLevel: "Vistað stig",
+      savedLevel: "Alvarleiki",
       mitigationDescription: "Lýsing",
       mitigationAssignee: "Ábyrgðaraðili",
       mitigationDueDate: "Lokadagsetning",
@@ -316,7 +316,7 @@ const RISK_REGISTER_COPY = {
       mitigationAssignee: "Hver ber ábyrgð á þessari aðgerð?",
     },
     classificationDescription:
-      "Veldu almennar líkur og afleiðingar. Vistað stig kemur eingöngu úr fasta fylkinu á þjóninum.",
+      "Veldu nafngefinn alvarleika og síðan nákvæma samsetningu líkindis og afleiðingar innan hans. Þjónninn vistar nákvæmu gildin og leiðir vistaðan alvarleika af fasta fylkinu.",
     clear: "Hreinsa",
     savePills: {
       saving: "Vistar...",
@@ -372,15 +372,15 @@ const RISK_REGISTER_COPY = {
     eyebrow: "Steps 2-5",
     heading: "Risk register",
     description:
-      "Transferred rows stay editable inside this assessment flow. Saving a risk entry keeps the stored classification aligned with the pinned matrix, while mitigation actions save as separate child truth that exports can use later.",
+      "Transferred rows stay editable inside this assessment flow. Saving a risk entry keeps the stored severity aligned with the pinned matrix, while mitigation actions save as separate child truth that exports can use later.",
     emptyState:
       "Mark a walkthrough item as 'Not ok' and transfer it to the risk register to unlock editable rows here.",
     transferredFromWalkthrough:
-      "Transferred from the walkthrough. Save this row to repair or refresh the stored classification. Saved mitigation actions below remain separate child truth.",
+      "Transferred from the walkthrough. Save this row to repair or refresh the stored severity. Saved mitigation actions below remain separate child truth.",
     staleClassification:
-      "Saved classification is stale. Save this entry to repair it.",
+      "Saved severity is stale. Save this entry to repair it.",
     invalidClassification:
-      "Saved classification could not be verified. Save this entry to repair it.",
+      "Saved severity could not be verified. Save this entry to repair it.",
     labels: {
       criterion: "Criterion",
       hazard: "Hazard",
@@ -388,7 +388,7 @@ const RISK_REGISTER_COPY = {
       whoAtRisk: "Who is at risk",
       currentControls: "Current controls",
       proposedAction: "Next action",
-      classification: "Classification",
+      classification: "Severity choice",
       likelihood: "Likelihood",
       consequence: "Consequence",
       classificationReasoning: "Classification reasoning",
@@ -396,7 +396,7 @@ const RISK_REGISTER_COPY = {
       responsibleOwner: "Responsible owner",
       dueDate: "Planned date",
       completedAt: "Completed on",
-      savedLevel: "Saved level",
+      savedLevel: "Severity",
       mitigationDescription: "Description",
       mitigationAssignee: "Assignee",
       mitigationDueDate: "Due date",
@@ -415,7 +415,7 @@ const RISK_REGISTER_COPY = {
       mitigationAssignee: "Who owns this action?",
     },
     classificationDescription:
-      "Choose generic likelihood and consequence scores. The saved level comes only from the pinned matrix on the server.",
+      "Choose a named severity and then the exact likelihood and consequence pair inside it. The server saves the exact values and derives the stored severity from the pinned matrix.",
     clear: "Clear",
     savePills: {
       saving: "Saving...",
@@ -1009,6 +1009,20 @@ export function getRiskLevelLabel(
   }
 }
 
+export function getRiskSeverityChoiceOptionLabel(params: {
+  readonly language: AppLanguage;
+  readonly likelihood: number;
+  readonly consequence: number;
+}): string {
+  const copy = getRiskRegisterStaticCopy(params.language);
+
+  if (params.language === "is") {
+    return `${copy.labels.likelihood} ${params.likelihood} · ${copy.labels.consequence} ${params.consequence}`;
+  }
+
+  return `${copy.labels.likelihood} ${params.likelihood} · ${copy.labels.consequence} ${params.consequence}`;
+}
+
 export function getRiskRegisterClassificationMessage(params: {
   readonly language: AppLanguage;
   readonly state: "ready" | "staleRiskLevel" | "invalidClassification";
@@ -1054,8 +1068,8 @@ export function getRiskEntrySaveMessage(params: {
 
   if (params.dirty) {
     return params.language === "is"
-      ? "Breytingar bíða vistunar. Vistað flokkunarstig uppfærist eftir vistun."
-      : "Changes pending save. The stored classification updates after save.";
+      ? "Breytingar bíða vistunar. Vistaður alvarleiki uppfærist eftir vistun."
+      : "Changes pending save. The stored severity updates after save.";
   }
 
   if (params.classificationState !== "ready") {
@@ -1070,13 +1084,13 @@ export function getRiskEntrySaveMessage(params: {
   if (params.savedRiskLevel) {
     const riskLevelLabel = getRiskLevelLabel(params.language, params.savedRiskLevel);
     return params.language === "is"
-      ? `Vistuð flokkun: ${riskLevelLabel}.`
-      : `Saved classification: ${riskLevelLabel}.`;
+      ? `Vistaður alvarleiki: ${riskLevelLabel}.`
+      : `Saved severity: ${riskLevelLabel}.`;
   }
 
   return params.language === "is"
-    ? "Drög vistuð. Bættu við báðum stigum til að fá flokkun."
-    : "Saved draft. Add both scores to derive the classification.";
+    ? "Drög vistuð. Veldu nákvæma samsetningu til að fá vistaðan alvarleika."
+    : "Saved draft. Choose an exact combination to derive the stored severity.";
 }
 
 export function getRiskMitigationActionStatusLabel(

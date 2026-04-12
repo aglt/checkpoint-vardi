@@ -38,6 +38,22 @@ function getRequiredRiskMatrix() {
   return seededRiskMatrix;
 }
 
+function buildExpectedSeverityChoices() {
+  return (["low", "medium", "high"] as const).map((riskLevel) => ({
+    riskLevel,
+    options: Array.from(
+      { length: riskMatrix.likelihoodLevels * riskMatrix.consequenceLevels },
+      (_, index) => ({
+        likelihood: Math.floor(index / riskMatrix.consequenceLevels) + 1,
+        consequence: (index % riskMatrix.consequenceLevels) + 1,
+      }),
+    ).filter(
+      (option) =>
+        riskMatrix.lookup[`${option.likelihood},${option.consequence}`] === riskLevel,
+    ),
+  }));
+}
+
 function seedAssessmentWithTransferredRows() {
   const connection = createBootstrappedDatabase();
   const firstCriterion = checklist.sections[0]?.criteria[0];
@@ -185,6 +201,10 @@ test("loadAssessmentRiskRegisterProjection preserves seeded criterion ordering f
         sectionTitle: checklist.sections[0]!.translations.is.title,
       },
     ],
+  );
+  assert.deepEqual(
+    projection.riskMatrix.severityChoices,
+    buildExpectedSeverityChoices(),
   );
 
   closeDatabase(connection);

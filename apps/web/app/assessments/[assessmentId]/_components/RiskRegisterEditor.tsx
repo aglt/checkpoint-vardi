@@ -19,6 +19,8 @@ import {
   type RiskMitigationActionDraft,
   type RiskMitigationActionStateMap,
 } from "@/lib/assessments/assessmentRiskMitigationController";
+import { dispatchAssessmentRiskEntrySavedEvent } from "@/lib/assessments/assessmentRiskEntrySavedEvent";
+import { toAssessmentSummaryPrioritizedEntry } from "@/lib/assessments/assessmentSummaryPriorityEntries";
 import {
   beginRiskEntrySave,
   buildInitialRiskEntryState,
@@ -42,6 +44,7 @@ import {
   getRiskMitigationActionDeleteButtonLabel,
   getRiskMitigationActionMessage,
   getRiskMitigationActionSaveButtonLabel,
+  getRiskSeverityChoiceOptionLabel,
   getRiskMitigationActionStatePillLabel,
   getRiskMitigationActionStatusLabel,
   getRiskRegisterClassificationMessage,
@@ -50,7 +53,10 @@ import {
 } from "@/lib/i18n/mvpCopy";
 import { createAssessmentRiskMitigationActionAction } from "@/lib/assessments/createAssessmentRiskMitigationActionAction";
 import { deleteAssessmentRiskMitigationActionAction } from "@/lib/assessments/deleteAssessmentRiskMitigationActionAction";
-import type { AssessmentRiskRegisterEntryProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
+import type {
+  AssessmentRiskRegisterEntryProjection,
+  AssessmentRiskSeverityChoiceGroupProjection,
+} from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
 import { saveAssessmentRiskEntryAction } from "@/lib/assessments/saveAssessmentRiskEntryAction";
 import { updateAssessmentRiskMitigationActionAction } from "@/lib/assessments/updateAssessmentRiskMitigationActionAction";
 import { useAssessmentProgression } from "./AssessmentProgressionContext";
@@ -59,8 +65,7 @@ interface RiskRegisterEditorProps {
   readonly assessmentId: string;
   readonly language: AppLanguage;
   readonly riskMatrixTitle: string;
-  readonly riskMatrixLikelihoodLevels: number;
-  readonly riskMatrixConsequenceLevels: number;
+  readonly riskMatrixSeverityChoices: readonly AssessmentRiskSeverityChoiceGroupProjection[];
   readonly entries: readonly AssessmentRiskRegisterEntryProjection[];
 }
 
@@ -68,8 +73,7 @@ export function RiskRegisterEditor({
   assessmentId,
   language,
   riskMatrixTitle,
-  riskMatrixLikelihoodLevels,
-  riskMatrixConsequenceLevels,
+  riskMatrixSeverityChoices,
   entries,
 }: RiskRegisterEditorProps) {
   const { progression, refreshProgression } = useAssessmentProgression();
@@ -161,6 +165,10 @@ export function RiskRegisterEditor({
             if (!riskEntryState) {
               return null;
             }
+
+            const hasSeveritySelection =
+              riskEntryState.draft.likelihood != null &&
+              riskEntryState.draft.consequence != null;
 
             return (
               <article
@@ -301,44 +309,43 @@ export function RiskRegisterEditor({
                     <div className="space-y-4">
                       <div className="rounded-[1.75rem] border border-black/10 bg-[#f8f2e7] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
                         <div className="space-y-4">
-                          <div className="space-y-1">
-                            <h4 className="text-base font-semibold text-slate-950">
-                              {copy.labels.classification}
-                            </h4>
-                            <p className="text-sm leading-6 text-slate-600">
-                              {copy.classificationDescription} 1-
-                              {riskMatrixLikelihoodLevels} / 1-
-                              {riskMatrixConsequenceLevels}.
-                            </p>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="space-y-1">
+                              <h4 className="text-base font-semibold text-slate-950">
+                                {copy.labels.classification}
+                              </h4>
+                              <p className="text-sm leading-6 text-slate-600">
+                                {copy.classificationDescription}
+                              </p>
+                            </div>
+                            {hasSeveritySelection ? (
+                              <button
+                                className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 transition hover:text-slate-900"
+                                onClick={() => handleRiskSeverityClear(entry.id)}
+                                type="button"
+                              >
+                                {copy.clear}
+                              </button>
+                            ) : null}
                           </div>
 
-                          <div className="space-y-3">
-                            <ScoreSelector
-                              clearLabel={copy.clear}
-                              dataKey="likelihood"
-                              label={copy.labels.likelihood}
-                              maxValue={riskMatrixLikelihoodLevels}
-                              onClear={() =>
-                                handleRiskScoreSelect(entry.id, "likelihood", null)
-                              }
-                              onSelect={(value) =>
-                                handleRiskScoreSelect(entry.id, "likelihood", value)
-                              }
-                              selectedValue={riskEntryState.draft.likelihood}
-                            />
-                            <ScoreSelector
-                              clearLabel={copy.clear}
-                              dataKey="consequence"
-                              label={copy.labels.consequence}
-                              maxValue={riskMatrixConsequenceLevels}
-                              onClear={() =>
-                                handleRiskScoreSelect(entry.id, "consequence", null)
-                              }
-                              onSelect={(value) =>
-                                handleRiskScoreSelect(entry.id, "consequence", value)
-                              }
-                              selectedValue={riskEntryState.draft.consequence}
-                            />
+                          <div className="grid gap-3">
+                            {riskMatrixSeverityChoices.map((severityChoice) => (
+                              <SeverityChoiceGroup
+                                group={severityChoice}
+                                key={severityChoice.riskLevel}
+                                language={language}
+                                onSelect={(likelihood, consequence) =>
+                                  handleRiskSeveritySelect(
+                                    entry.id,
+                                    likelihood,
+                                    consequence,
+                                  )
+                                }
+                                selectedConsequence={riskEntryState.draft.consequence}
+                                selectedLikelihood={riskEntryState.draft.likelihood}
+                              />
+                            ))}
                           </div>
 
                           <div className="space-y-2">
@@ -706,14 +713,44 @@ export function RiskRegisterEditor({
     );
   }
 
-  function handleRiskScoreSelect(
+  function handleRiskSeveritySelect(
     riskEntryId: string,
-    field: "likelihood" | "consequence",
-    value: number | null,
+    likelihood: number,
+    consequence: number,
   ) {
-    setRiskEntryStates((current) =>
-      updateRiskEntryDraftField(current, riskEntryId, field, value),
-    );
+    setRiskEntryStates((current) => {
+      const nextStates = updateRiskEntryDraftField(
+        current,
+        riskEntryId,
+        "likelihood",
+        likelihood,
+      );
+
+      return updateRiskEntryDraftField(
+        nextStates,
+        riskEntryId,
+        "consequence",
+        consequence,
+      );
+    });
+  }
+
+  function handleRiskSeverityClear(riskEntryId: string) {
+    setRiskEntryStates((current) => {
+      const nextStates = updateRiskEntryDraftField(
+        current,
+        riskEntryId,
+        "likelihood",
+        null,
+      );
+
+      return updateRiskEntryDraftField(
+        nextStates,
+        riskEntryId,
+        "consequence",
+        null,
+      );
+    });
   }
 
   function handleRiskEntrySave(riskEntryId: string) {
@@ -902,6 +939,19 @@ export function RiskRegisterEditor({
             ),
           );
         });
+        const savedEntry = entries.find((entry) => entry.id === riskEntryId);
+
+        if (savedEntry) {
+          dispatchAssessmentRiskEntrySavedEvent({
+            assessmentId,
+            entry: toAssessmentSummaryPrioritizedEntry({
+              ...savedEntry,
+              hazard: response.hazard,
+              savedRiskLevel: response.riskLevel,
+              classificationState: "ready",
+            }),
+          });
+        }
         await refreshProgression();
       } catch (error: unknown) {
         const errorMessage =
@@ -1091,52 +1141,65 @@ function FieldGroup({
   );
 }
 
-function ScoreSelector({
-  clearLabel,
-  dataKey,
-  label,
-  maxValue,
-  selectedValue,
+function SeverityChoiceGroup({
+  group,
+  language,
+  selectedLikelihood,
+  selectedConsequence,
   onSelect,
-  onClear,
 }: {
-  readonly clearLabel: string;
-  readonly dataKey: "likelihood" | "consequence";
-  readonly label: string;
-  readonly maxValue: number;
-  readonly selectedValue: number | null;
-  readonly onSelect: (value: number) => void;
-  readonly onClear: () => void;
+  readonly group: AssessmentRiskSeverityChoiceGroupProjection;
+  readonly language: AppLanguage;
+  readonly selectedLikelihood: number | null;
+  readonly selectedConsequence: number | null;
+  readonly onSelect: (likelihood: number, consequence: number) => void;
 }) {
+  const groupLabel = getRiskLevelLabel(language, group.riskLevel);
+  const groupSelected = group.options.some(
+    (option) =>
+      option.likelihood === selectedLikelihood &&
+      option.consequence === selectedConsequence,
+  );
+
   return (
-    <div className="space-y-2">
+    <section
+      className={getSeverityChoiceGroupClassName(group.riskLevel, groupSelected)}
+      data-severity-group={group.riskLevel}
+    >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-medium text-slate-900">{label}</span>
-        {selectedValue != null ? (
+        <h5 className="text-sm font-semibold text-slate-950">{groupLabel}</h5>
+        <span className="text-xs leading-5 text-slate-600">
+          {group.options.length}
+        </span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {group.options.map((option) => {
+          const selected =
+            option.likelihood === selectedLikelihood &&
+            option.consequence === selectedConsequence;
+
+          return (
           <button
-            className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 transition hover:text-slate-900"
-            onClick={onClear}
+            aria-pressed={selected}
+            className={getSeverityChoiceOptionClassName(group.riskLevel, selected)}
+            data-consequence={String(option.consequence)}
+            data-likelihood={String(option.likelihood)}
+            data-severity-level={group.riskLevel}
+            data-severity-option="true"
+            key={`${option.likelihood}-${option.consequence}`}
+            onClick={() => onSelect(option.likelihood, option.consequence)}
             type="button"
           >
-            {clearLabel}
+            {getRiskSeverityChoiceOptionLabel({
+              language,
+              likelihood: option.likelihood,
+              consequence: option.consequence,
+            })}
           </button>
-        ) : null}
+          );
+        })}
       </div>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-        {Array.from({ length: maxValue }, (_, index) => index + 1).map((value) => (
-          <button
-            className={getScoreOptionClassName(selectedValue === value)}
-            data-score-kind={dataKey}
-            data-score-value={String(value)}
-            key={value}
-            onClick={() => onSelect(value)}
-            type="button"
-          >
-            {String(value)}
-          </button>
-        ))}
-      </div>
-    </div>
+    </section>
   );
 }
 
@@ -1277,11 +1340,34 @@ function getSecondaryButtonClassName(disabled: boolean): string {
   );
 }
 
-function getScoreOptionClassName(selected: boolean): string {
+function getSeverityChoiceGroupClassName(
+  riskLevel: "low" | "medium" | "high",
+  selected: boolean,
+): string {
   return joinClasses(
-    "rounded-[1rem] border px-3 py-3 text-sm font-semibold transition",
+    "rounded-[1.2rem] border px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] transition",
     selected
-      ? "border-[#6f8460] bg-[#eef5e9] text-[#213019]"
+      ? riskLevel === "high"
+        ? "border-[#b96f47] bg-[#fff1e7]"
+        : riskLevel === "medium"
+          ? "border-[#b59b42] bg-[#fff7dc]"
+          : "border-[#6f8460] bg-[#eef5e9]"
+      : "border-black/10 bg-white/80",
+  );
+}
+
+function getSeverityChoiceOptionClassName(
+  riskLevel: "low" | "medium" | "high",
+  selected: boolean,
+): string {
+  return joinClasses(
+    "rounded-[1rem] border px-3 py-3 text-left text-sm font-semibold transition",
+    selected
+      ? riskLevel === "high"
+        ? "border-[#b96f47] bg-[#f7d8c9] text-[#6a3212]"
+        : riskLevel === "medium"
+          ? "border-[#b59b42] bg-[#f7ebbf] text-[#5d4b08]"
+          : "border-[#6f8460] bg-[#dcead4] text-[#213019]"
       : "border-black/10 bg-white text-slate-900 hover:border-slate-400",
   );
 }

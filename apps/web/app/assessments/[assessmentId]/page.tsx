@@ -73,11 +73,8 @@ export default async function AssessmentWalkthroughPage({
             assessmentId={readModel.assessment.id}
             entries={riskRegisterProjection.entries}
             language={language}
-            riskMatrixConsequenceLevels={
-              riskRegisterProjection.riskMatrix.consequenceLevels
-            }
-            riskMatrixLikelihoodLevels={
-              riskRegisterProjection.riskMatrix.likelihoodLevels
+            riskMatrixSeverityChoices={
+              riskRegisterProjection.riskMatrix.severityChoices
             }
             riskMatrixTitle={riskRegisterProjection.riskMatrix.title}
           />
