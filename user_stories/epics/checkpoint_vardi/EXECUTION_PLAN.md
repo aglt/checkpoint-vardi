@@ -160,15 +160,18 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 **Completion note:**
 > Verified locally on branch `feat/assessment-risk-entry-editing`: added the
 > pure `@vardi/risk` classifier and deterministic matrix tests, added the
-> strict risk-entry save contract plus owner-scoped DB update seam, extended
-> the composed assessment read model to surface transferred rows and reject
-> stale persisted classifications, and added an in-flow risk register editor on
-> `/assessments/[assessmentId]` that saves transferred rows with
-> server-derived `riskLevel` values from pinned seeded matrix truth.
+> strict risk-entry save contract plus the owner-scoped transferred-row update
+> seam, kept `loadAssessmentReadModel` walkthrough-centric, added a separate
+> app-owned risk-register projection plus targeted save-context resolver, and
+> split the page into separate walkthrough and risk-register UI owners on
+> `/assessments/[assessmentId]`. Risk-entry saves now resolve only the target
+> transferred row plus the pinned seeded matrix, derive `riskLevel` on the
+> server, and localize stale persisted classifications to the affected
+> risk-entry cards instead of failing the full page.
 > Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing
 > workspace dependencies in this worktree. This session used `node v25.6.1`;
 > Node 22 remains the declared repo contract, but was not directly re-verified
-> here. PR: `#8`.
+> here. Merged to `main` via PR: `#8`.
 
 ### Step S1-07: Summary form and export readiness
 

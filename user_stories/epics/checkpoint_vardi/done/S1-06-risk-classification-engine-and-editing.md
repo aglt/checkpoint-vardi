@@ -32,35 +32,36 @@ rows, scopes access through `risk_entry.findingId -> finding.assessmentId`,
 preserves the original `findingId` traceability chain, and writes the
 server-derived `riskLevel` rather than trusting any client payload. No schema
 or migration changes were needed in this story; the existing `risk_entry`
-columns were sufficient for the MVP teacher-facing action register fields.
+columns were sufficient for this draft-friendly editing slice.
 
 The app-owned save seam lives in
 `apps/web/lib/assessments/saveAssessmentRiskEntry.ts` and its server-action
 companion. That boundary validates a strict risk-entry input contract, rejects
-unexpected keys such as client-supplied `riskLevel`, reloads the assessment to
-resolve the pinned matrix from seeded truth, classifies on the server, converts
-date-only inputs to UTC-midnight timestamps, and returns a normalized client
-response shape with the authoritative saved `riskLevel`.
+unexpected keys such as client-supplied `riskLevel`, resolves only the target
+transferred row plus its pinned matrix from seeded truth, classifies on the
+server, converts date-only inputs to UTC-midnight timestamps, and returns a
+normalized client response shape with the authoritative saved `riskLevel`.
 
-`loadAssessmentReadModel` now surfaces transferred risk-entry details alongside
-the existing criterion walkthrough data. It preserves seeded criterion order,
-adds the editable transferred-row fields onto each criterion that has a risk
-entry, recomputes classification from the pinned matrix on read, and fails
-deterministically if a persisted `riskLevel` no longer matches the seeded
-matrix plus persisted likelihood and consequence. This keeps classification
-stable and reproducible rather than trusting stale persisted values.
+`loadAssessmentReadModel` stays walkthrough-centric in the final implementation.
+A separate app-owned risk-register projection now composes the existing
+walkthrough read model with transferred rows, preserves seeded criterion order,
+and localizes stale or invalid persisted classifications to the affected risk
+cards instead of failing the full assessment page. This keeps classification
+stable and reproducible while still allowing the user to repair a bad row.
 
 The assessment page at `/assessments/[assessmentId]` now includes a new in-flow
 “Risk register” section below the walkthrough. It shows only already-transferred
-rows, keeps the existing walkthrough intact, and gives each risk entry a manual
-save flow for hazard, health effects, who is at risk, likelihood, consequence,
-current controls, proposed action, cost estimate, responsible owner, due date,
-and completed date. The saved classification badge stays authoritative by
-reflecting only the server-confirmed state. This completion was verified locally
+rows, keeps the walkthrough and risk-editor UI as separate owners on the same
+route, and gives each risk entry a manual save flow for hazard, health effects,
+who is at risk, likelihood, consequence, current controls, next action, cost
+estimate, responsible owner, planned date, and completed date. The saved
+classification badge stays authoritative by reflecting only the
+server-confirmed state, while any stale classification warning stays local to
+that card. This completion merged to `main` in PR `#8` and was verified locally
 with `pnpm test`, `pnpm typecheck`, and `pnpm lint`. This session used
 `node v25.6.1` because no Node 22 manager was available in the local shell;
 Node 22 remains the declared repo contract, but that exact runtime was not
-directly re-verified here. PR: `#8`.
+directly re-verified here.
 
 ## Goal
 
@@ -88,8 +89,10 @@ Let the user evaluate each transferred risk entry and derive the final risk clas
 - User can edit the required risk-entry fields.
 - Likelihood and consequence produce the derived risk classification via seeded matrix rules.
 - Final classification is computed by the system.
-- Persisted risk entries are ready for report export.
-- The implementation supports the teacher-facing action-register output path.
+- Persisted risk entries are ready for later summary and export stories without
+  introducing new transfer rules in this slice.
+- The implementation supports draft-friendly in-flow editing, not final export
+  contract completion.
 
 ## Notes For Later Stories
 
