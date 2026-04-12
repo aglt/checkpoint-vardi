@@ -99,7 +99,6 @@ test("loadAssessmentReadModel preserves seeded ordering and unanswered defaults"
     readModel.sections[0]?.criteria[0]?.riskEntryStatus,
     "absent",
   );
-  assert.equal(readModel.sections[0]?.criteria[0]?.riskEntry, null);
 
   closeDatabase(connection);
 });
@@ -185,21 +184,6 @@ test("response overlay is keyed by criterion id rather than insertion order", ()
     "second inserted first",
   );
   assert.equal(readModel.sections[0]?.criteria[1]?.riskEntryStatus, "present");
-  assert.deepEqual(readModel.sections[0]?.criteria[1]?.riskEntry, {
-    id: "risk-entry-1",
-    hazard: "Saw hazard",
-    healthEffects: null,
-    whoAtRisk: null,
-    likelihood: null,
-    consequence: null,
-    riskLevel: null,
-    currentControls: null,
-    proposedAction: null,
-    costEstimate: null,
-    responsibleOwner: null,
-    dueDate: null,
-    completedAt: null,
-  });
   assert.equal(readModel.summaryStatus, "present");
 
   closeDatabase(connection);
@@ -312,59 +296,4 @@ test("orphaned criterion ids and unknown risk matrices fail deterministically", 
   );
 
   closeDatabase(matrixConnection);
-});
-
-test("stale persisted risk levels fail deterministically", () => {
-  const connection = seedBaseAssessment();
-  const secondCriterion = checklist.sections[0]?.criteria[1];
-
-  if (!secondCriterion) {
-    throw new Error("Expected first checklist section to contain at least two criteria.");
-  }
-
-  connection.db.insert(finding).values({
-    id: "finding-risk",
-    ownerId: "owner-1",
-    assessmentId: "assessment-1",
-    criterionId: secondCriterion.id,
-    status: "notOk",
-    notes: "Missing guard",
-    voiceTranscript: null,
-    notesLanguage: "is",
-    createdAt,
-    updatedAt,
-  }).run();
-
-  connection.db.insert(riskEntry).values({
-    id: "risk-entry-risk",
-    ownerId: "owner-1",
-    findingId: "finding-risk",
-    hazard: "Saw hazard",
-    healthEffects: null,
-    whoAtRisk: null,
-    likelihood: 1,
-    consequence: 1,
-    riskLevel: "high",
-    currentControls: null,
-    proposedAction: null,
-    controlHierarchy: null,
-    costEstimate: null,
-    responsibleOwner: null,
-    dueDate: null,
-    completedAt: null,
-  }).run();
-
-  assert.throws(
-    () =>
-      loadAssessmentReadModel({
-        db: connection.db,
-        ownerId: "owner-1",
-        assessmentId: "assessment-1",
-      }),
-    (error: unknown) =>
-      error instanceof AssessmentReadModelIntegrityError &&
-      error.message.includes("stale risk level"),
-  );
-
-  closeDatabase(connection);
 });

@@ -19,6 +19,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { loadAssessmentReadModel } from "./loadAssessmentReadModel";
+import { loadAssessmentRiskRegisterProjection } from "./loadAssessmentRiskRegisterProjection";
 
 const startedAt = new Date("2026-04-11T10:00:00.000Z");
 const appRouterStub: AppRouterInstance = {
@@ -98,8 +99,9 @@ function seedWalkthroughAssessment() {
   };
 }
 
-async function transferSecondCriterionRiskEntry(
+async function transferCriteriaToRiskRegister(
   fixture: ReturnType<typeof seedWalkthroughAssessment>,
+  criterionIds: readonly string[],
 ) {
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
@@ -110,35 +112,52 @@ async function transferSecondCriterionRiskEntry(
     "./transferAssessmentFindingsToRiskRegisterAction"
   );
 
-  await saveAssessmentCriterionResponseAction({
-    assessmentId: fixture.assessmentId,
-    input: {
-      criterionId: fixture.secondCriterion.id,
-      status: "notOk",
-      notes: "Missing guard",
-    },
-  });
+  for (const criterionId of criterionIds) {
+    await saveAssessmentCriterionResponseAction({
+      assessmentId: fixture.assessmentId,
+      input: {
+        criterionId,
+        status: "notOk",
+        notes: "Missing guard",
+      },
+    });
+  }
   await transferAssessmentFindingsToRiskRegisterAction({
     assessmentId: fixture.assessmentId,
   });
 
   const connection = createMigratedDatabase(fixture.databasePath);
-  const readModel = loadAssessmentReadModel({
+  const projection = loadAssessmentRiskRegisterProjection({
     db: connection.db,
     ownerId: "owner-1",
     assessmentId: fixture.assessmentId,
   });
-  const transferredCriterion = readModel.sections
-    .flatMap((section) => section.criteria)
-    .find((criterion) => criterion.id === fixture.secondCriterion.id);
+  const transferredRiskEntryIds = Object.fromEntries(
+    criterionIds.map((criterionId) => {
+      const entry = projection.entries.find(
+        (riskRegisterEntry) => riskRegisterEntry.criterionId === criterionId,
+      );
+
+      if (!entry) {
+        closeDatabase(connection);
+        throw new Error("Expected transferred risk entry to exist.");
+      }
+
+      return [criterionId, entry.id] as const;
+    }),
+  );
 
   closeDatabase(connection);
+  return transferredRiskEntryIds;
+}
 
-  if (!transferredCriterion?.riskEntry) {
-    throw new Error("Expected transferred risk entry to exist.");
-  }
-
-  return transferredCriterion.riskEntry.id;
+async function transferSecondCriterionRiskEntry(
+  fixture: ReturnType<typeof seedWalkthroughAssessment>,
+) {
+  const transferredRiskEntryIds = await transferCriteriaToRiskRegister(fixture, [
+    fixture.secondCriterion.id,
+  ]);
+  return transferredRiskEntryIds[fixture.secondCriterion.id];
 }
 
 test("walkthrough save action persists answers by stable criterion id", async () => {
@@ -408,6 +427,77 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
   assert.match(markup, new RegExp(escapeRegExp("Students and staff")));
   assert.match(markup, new RegExp(escapeRegExp("Install a replacement guard")));
   assert.match(markup, /Saved classification: High\./);
+});
+
+test("assessment page localizes stale risk classifications to the affected card", async () => {
+  const fixture = seedWalkthroughAssessment();
+  const transferredRiskEntryIds = await transferCriteriaToRiskRegister(fixture, [
+    fixture.firstCriterion.id,
+    fixture.secondCriterion.id,
+  ]);
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const { saveAssessmentRiskEntryAction } = await import(
+    "./saveAssessmentRiskEntryAction"
+  );
+
+  await saveAssessmentRiskEntryAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      riskEntryId: transferredRiskEntryIds[fixture.secondCriterion.id],
+      hazard: "Table saw without guard",
+      likelihood: 2,
+      consequence: 3,
+    },
+  });
+
+  const connection = createMigratedDatabase(fixture.databasePath);
+  connection.sqlite
+    .prepare(`
+      update risk_entry
+      set likelihood = ?, consequence = ?, risk_level = ?
+      where id = ?
+    `)
+    .run(1, 1, "high", transferredRiskEntryIds[fixture.firstCriterion.id]);
+  closeDatabase(connection);
+
+  const { default: AssessmentPage } = await import(
+    "../../app/assessments/[assessmentId]/page"
+  );
+  const markup = renderWithAppRouter(
+    await AssessmentPage({
+      params: Promise.resolve({
+        assessmentId: fixture.assessmentId,
+      }),
+    }),
+  );
+
+  assert.match(markup, /Risk register/);
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp(
+          `data-risk-entry-id="${transferredRiskEntryIds[fixture.firstCriterion.id]}"`,
+        ),
+        '[\\s\\S]*?',
+        escapeRegExp('data-classification-state="staleRiskLevel"'),
+      ].join(""),
+    ),
+  );
+  assert.match(markup, /Save this entry to repair it\./);
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp(
+          `data-risk-entry-id="${transferredRiskEntryIds[fixture.secondCriterion.id]}"`,
+        ),
+        '[\\s\\S]*?',
+        escapeRegExp('data-risk-level="high"'),
+      ].join(""),
+    ),
+  );
 });
 
 function escapeRegExp(value: string): string {

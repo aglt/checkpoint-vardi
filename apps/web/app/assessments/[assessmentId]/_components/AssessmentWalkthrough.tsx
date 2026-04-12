@@ -9,38 +9,27 @@ import type {
 
 import {
   beginCriterionSave,
-  beginRiskEntrySave,
   buildInitialCriterionRiskEntryStatus,
   buildInitialCriterionState,
-  buildInitialRiskEntryState,
-  canPersistRiskEntryDraft,
-  getAssessmentRiskTransferProgress,
   canPersistCriterionDraft,
   getAnsweredCount,
+  getAssessmentRiskTransferProgress,
   getAssessmentWalkthroughProgress,
   isDirty,
-  isRiskEntryDirty,
   markTransferredRiskEntriesPresent,
   reconcileCriterionSaveFailure,
   reconcileCriterionSaveSuccess,
-  reconcileRiskEntrySaveFailure,
-  reconcileRiskEntrySaveSuccess,
   type CriterionClientState,
   type CriterionDraft,
   type CriterionRiskEntryStatusMap,
   type CriterionStateMap,
-  type RiskEntryClientState,
-  type RiskEntryDraft,
-  type RiskEntryStateMap,
   updateCriterionDraftNotes,
-  updateRiskEntryDraftField,
 } from "@/lib/assessments/assessmentWalkthroughController";
 import type {
   AssessmentSectionReadModel,
   PresenceStatus,
 } from "@/lib/assessments/loadAssessmentReadModel";
 import { saveAssessmentCriterionResponseAction } from "@/lib/assessments/saveAssessmentCriterionResponseAction";
-import { saveAssessmentRiskEntryAction } from "@/lib/assessments/saveAssessmentRiskEntryAction";
 import { transferAssessmentFindingsToRiskRegisterAction } from "@/lib/assessments/transferAssessmentFindingsToRiskRegisterAction";
 
 interface AssessmentWalkthroughProps {
@@ -49,9 +38,8 @@ interface AssessmentWalkthroughProps {
   readonly checklistTitle: string;
   readonly checklistVersion: string;
   readonly riskMatrixTitle: string;
-  readonly riskMatrixLikelihoodLevels: number;
-  readonly riskMatrixConsequenceLevels: number;
   readonly sections: readonly AssessmentSectionReadModel[];
+  readonly children?: React.ReactNode;
 }
 
 const ANSWER_OPTIONS: ReadonlyArray<{
@@ -82,16 +70,12 @@ export function AssessmentWalkthrough({
   checklistTitle,
   checklistVersion,
   riskMatrixTitle,
-  riskMatrixLikelihoodLevels,
-  riskMatrixConsequenceLevels,
   sections,
+  children,
 }: AssessmentWalkthroughProps) {
   const router = useRouter();
   const [criterionStates, setCriterionStates] = useState<CriterionStateMap>(
     () => buildInitialCriterionState(sections),
-  );
-  const [riskEntryStates, setRiskEntryStates] = useState<RiskEntryStateMap>(
-    () => buildInitialRiskEntryState(sections),
   );
   const [riskEntryStatusByCriterionId, setRiskEntryStatusByCriterionId] =
     useState<CriterionRiskEntryStatusMap>(
@@ -105,11 +89,9 @@ export function AssessmentWalkthrough({
     message: null,
   });
   const criterionStatesRef = useRef<CriterionStateMap>(criterionStates);
-  const riskEntryStatesRef = useRef<RiskEntryStateMap>(riskEntryStates);
   const pendingSaveTimersRef = useRef<Record<string, number | undefined>>({});
 
   criterionStatesRef.current = criterionStates;
-  riskEntryStatesRef.current = riskEntryStates;
 
   useEffect(
     () => () => {
@@ -126,10 +108,6 @@ export function AssessmentWalkthrough({
     setRiskEntryStatusByCriterionId(buildInitialCriterionRiskEntryStatus(sections));
   }, [sections]);
 
-  useEffect(() => {
-    setRiskEntryStates(buildInitialRiskEntryState(sections));
-  }, [sections]);
-
   const {
     totalCriteria,
     answeredCriteria,
@@ -144,11 +122,6 @@ export function AssessmentWalkthrough({
     criterionStates,
     riskEntryStatusByCriterionId,
   );
-  const transferredRiskCriteria = sections.flatMap((section) =>
-    section.criteria.flatMap((criterion) =>
-      criterion.riskEntry ? [{ section, criterion }] : [],
-    ),
-  );
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(115,138,92,0.18),transparent_34%),linear-gradient(180deg,#f7f1e6_0%,#efe5d1_54%,#e5dcc8_100%)] px-4 py-6 text-slate-950 sm:px-6 lg:px-8">
@@ -161,15 +134,16 @@ export function AssessmentWalkthrough({
                   Assessment Workflow
                 </p>
                 <div className="space-y-2">
+                  <p className="text-sm font-medium text-slate-600">
+                    {checklistTitle}
+                  </p>
                   <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
                     {workplaceName}
                   </h1>
                   <p className="max-w-3xl text-base leading-7 text-slate-700">
-                    {checklistTitle} now carries the walkthrough and the in-flow
-                    risk register. Answers still save against the persisted
-                    assessment findings, and transferred rows can now be edited
-                    and classified from the pinned matrix without leaving this
-                    page.
+                    Complete the walkthrough here, then continue with transferred
+                    risk rows in the separate editor below without leaving the
+                    assessment page.
                   </p>
                 </div>
               </div>
@@ -282,9 +256,8 @@ export function AssessmentWalkthrough({
                   </h2>
                   <p className="text-sm leading-6 text-white/75">
                     Answers save immediately. Notes auto-save shortly after typing
-                    pauses, and a blur saves any remaining edits. Transferred
-                    risk entries save manually so the saved classification stays
-                    explicit.
+                    pauses, and transferred risk rows continue as a separate
+                    manual-save editing step on this same page.
                   </p>
                 </div>
                 <div className="grid gap-2 text-sm text-white/80">
@@ -440,371 +413,7 @@ export function AssessmentWalkthrough({
               </section>
             ))}
 
-            <section className="rounded-[2rem] border border-black/10 bg-white/82 p-4 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur sm:p-5 lg:p-6">
-              <div className="flex flex-col gap-3 border-b border-black/8 pb-4 sm:flex-row sm:items-end sm:justify-between">
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
-                    Steps 2-5
-                  </p>
-                  <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-                    Risk register
-                  </h2>
-                  <p className="max-w-3xl text-sm leading-6 text-slate-700">
-                    Transferred rows keep their walkthrough traceability and save
-                    a server-derived classification from the pinned{" "}
-                    {riskMatrixTitle} matrix only after likelihood and
-                    consequence are persisted.
-                  </p>
-                </div>
-                <div className="rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1.5 text-sm font-medium text-slate-700">
-                  {transferredRiskCriteria.length} transferred{" "}
-                  {pluralize(transferredRiskCriteria.length, "entry", "entries")}
-                </div>
-              </div>
-
-              {transferredRiskCriteria.length === 0 ? (
-                <div className="mt-4 rounded-[1.75rem] border border-dashed border-black/12 bg-[#fbf7ef] px-5 py-6 text-sm leading-6 text-slate-600">
-                  Mark a walkthrough item as <span className="font-semibold">Not ok</span>{" "}
-                  and transfer it to the risk register to unlock editing here.
-                </div>
-              ) : (
-                <div className="mt-4 space-y-4">
-                  {transferredRiskCriteria.map(({ section, criterion }) => {
-                    const riskEntry = criterion.riskEntry;
-
-                    if (!riskEntry) {
-                      return null;
-                    }
-
-                    const riskEntryState = riskEntryStates[riskEntry.id];
-
-                    if (!riskEntryState) {
-                      return null;
-                    }
-
-                    return (
-                      <article
-                        className={getRiskEntryCardClassName(riskEntryState)}
-                        data-risk-entry-id={riskEntry.id}
-                        data-risk-level={riskEntryState.savedRiskLevel ?? "incomplete"}
-                        key={riskEntry.id}
-                      >
-                        <div className="flex flex-col gap-5">
-                          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                            <div className="space-y-3">
-                              <div className="flex flex-wrap gap-2">
-                                <span className="inline-flex w-fit items-center rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
-                                  Criterion {criterion.number}
-                                </span>
-                                <span className="inline-flex w-fit items-center rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                                  {section.translations.is.title}
-                                </span>
-                              </div>
-                              <div className="space-y-1">
-                                <h3 className="text-xl font-semibold tracking-tight text-slate-950">
-                                  {criterion.translations.is.title}
-                                </h3>
-                                <p className="max-w-3xl text-sm leading-6 text-slate-700">
-                                  Transferred from walkthrough step 1b. The saved
-                                  classification is recalculated from the pinned
-                                  matrix on every save.
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-start gap-2 lg:items-end">
-                              <RiskLevelBadge
-                                dirty={isRiskEntryDirty(riskEntryState)}
-                                riskLevel={riskEntryState.savedRiskLevel}
-                              />
-                              <RiskEntrySaveStatePill state={riskEntryState} />
-                            </div>
-                          </div>
-
-                          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-                            <div className="space-y-4">
-                              <div className="space-y-2">
-                                <label
-                                  className="text-sm font-medium text-slate-900"
-                                  htmlFor={`hazard-${riskEntry.id}`}
-                                >
-                                  Hazard
-                                </label>
-                                <textarea
-                                  className="min-h-24 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
-                                  data-field="hazard"
-                                  id={`hazard-${riskEntry.id}`}
-                                  onChange={(event) =>
-                                    handleRiskEntryFieldChange(
-                                      riskEntry.id,
-                                      "hazard",
-                                      event.target.value,
-                                    )
-                                  }
-                                  placeholder="Describe the hazard..."
-                                  value={riskEntryState.draft.hazard}
-                                />
-                              </div>
-
-                              <div className="grid gap-4 lg:grid-cols-2">
-                                <div className="space-y-2">
-                                  <label
-                                    className="text-sm font-medium text-slate-900"
-                                    htmlFor={`health-effects-${riskEntry.id}`}
-                                  >
-                                    Possible health effects
-                                  </label>
-                                  <textarea
-                                    className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
-                                    id={`health-effects-${riskEntry.id}`}
-                                    onChange={(event) =>
-                                      handleRiskEntryFieldChange(
-                                        riskEntry.id,
-                                        "healthEffects",
-                                        event.target.value,
-                                      )
-                                    }
-                                    placeholder="Possible injury or health outcome..."
-                                    value={riskEntryState.draft.healthEffects}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <label
-                                    className="text-sm font-medium text-slate-900"
-                                    htmlFor={`who-at-risk-${riskEntry.id}`}
-                                  >
-                                    Who is at risk
-                                  </label>
-                                  <textarea
-                                    className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
-                                    id={`who-at-risk-${riskEntry.id}`}
-                                    onChange={(event) =>
-                                      handleRiskEntryFieldChange(
-                                        riskEntry.id,
-                                        "whoAtRisk",
-                                        event.target.value,
-                                      )
-                                    }
-                                    placeholder="People or roles affected..."
-                                    value={riskEntryState.draft.whoAtRisk}
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="grid gap-4 lg:grid-cols-2">
-                                <div className="space-y-2">
-                                  <label
-                                    className="text-sm font-medium text-slate-900"
-                                    htmlFor={`current-controls-${riskEntry.id}`}
-                                  >
-                                    Current controls
-                                  </label>
-                                  <textarea
-                                    className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
-                                    id={`current-controls-${riskEntry.id}`}
-                                    onChange={(event) =>
-                                      handleRiskEntryFieldChange(
-                                        riskEntry.id,
-                                        "currentControls",
-                                        event.target.value,
-                                      )
-                                    }
-                                    placeholder="What is already in place?"
-                                    value={riskEntryState.draft.currentControls}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <label
-                                    className="text-sm font-medium text-slate-900"
-                                    htmlFor={`proposed-action-${riskEntry.id}`}
-                                  >
-                                    Corrective action or improvement
-                                  </label>
-                                  <textarea
-                                    className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
-                                    id={`proposed-action-${riskEntry.id}`}
-                                    onChange={(event) =>
-                                      handleRiskEntryFieldChange(
-                                        riskEntry.id,
-                                        "proposedAction",
-                                        event.target.value,
-                                      )
-                                    }
-                                    placeholder="What should change next?"
-                                    value={riskEntryState.draft.proposedAction}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-4">
-                              <div className="rounded-[1.75rem] border border-black/10 bg-[#f8f2e7] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                                <div className="space-y-4">
-                                  <div className="space-y-1">
-                                    <h4 className="text-base font-semibold text-slate-950">
-                                      Classification
-                                    </h4>
-                                    <p className="text-sm leading-6 text-slate-600">
-                                      Choose generic 1-{riskMatrixLikelihoodLevels} likelihood
-                                      and 1-{riskMatrixConsequenceLevels} consequence scores.
-                                      The saved level comes only from the pinned matrix on
-                                      the server.
-                                    </p>
-                                  </div>
-
-                                  <div className="space-y-3">
-                                    <ScoreSelector
-                                      label="Likelihood"
-                                      maxValue={riskMatrixLikelihoodLevels}
-                                      onClear={() =>
-                                        handleRiskScoreSelect(
-                                          riskEntry.id,
-                                          "likelihood",
-                                          null,
-                                        )
-                                      }
-                                      onSelect={(value) =>
-                                        handleRiskScoreSelect(
-                                          riskEntry.id,
-                                          "likelihood",
-                                          value,
-                                        )
-                                      }
-                                      selectedValue={riskEntryState.draft.likelihood}
-                                    />
-                                    <ScoreSelector
-                                      label="Consequence"
-                                      maxValue={riskMatrixConsequenceLevels}
-                                      onClear={() =>
-                                        handleRiskScoreSelect(
-                                          riskEntry.id,
-                                          "consequence",
-                                          null,
-                                        )
-                                      }
-                                      onSelect={(value) =>
-                                        handleRiskScoreSelect(
-                                          riskEntry.id,
-                                          "consequence",
-                                          value,
-                                        )
-                                      }
-                                      selectedValue={riskEntryState.draft.consequence}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="grid gap-4 sm:grid-cols-2">
-                                <FieldGroup
-                                  id={`cost-estimate-${riskEntry.id}`}
-                                  label="Cost estimate"
-                                >
-                                  <input
-                                    className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
-                                    id={`cost-estimate-${riskEntry.id}`}
-                                    min={0}
-                                    onChange={(event) =>
-                                      handleRiskEntryFieldChange(
-                                        riskEntry.id,
-                                        "costEstimate",
-                                        event.target.value,
-                                      )
-                                    }
-                                    placeholder="0"
-                                    type="number"
-                                    value={riskEntryState.draft.costEstimate}
-                                  />
-                                </FieldGroup>
-                                <FieldGroup
-                                  id={`responsible-owner-${riskEntry.id}`}
-                                  label="Responsible owner"
-                                >
-                                  <input
-                                    className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
-                                    id={`responsible-owner-${riskEntry.id}`}
-                                    onChange={(event) =>
-                                      handleRiskEntryFieldChange(
-                                        riskEntry.id,
-                                        "responsibleOwner",
-                                        event.target.value,
-                                      )
-                                    }
-                                    placeholder="Who owns this action?"
-                                    type="text"
-                                    value={riskEntryState.draft.responsibleOwner}
-                                  />
-                                </FieldGroup>
-                                <FieldGroup
-                                  id={`due-date-${riskEntry.id}`}
-                                  label="Planned completion"
-                                >
-                                  <input
-                                    className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
-                                    id={`due-date-${riskEntry.id}`}
-                                    onChange={(event) =>
-                                      handleRiskEntryFieldChange(
-                                        riskEntry.id,
-                                        "dueDate",
-                                        event.target.value,
-                                      )
-                                    }
-                                    type="date"
-                                    value={riskEntryState.draft.dueDate}
-                                  />
-                                </FieldGroup>
-                                <FieldGroup
-                                  id={`completed-at-${riskEntry.id}`}
-                                  label="Confirmed completion"
-                                >
-                                  <input
-                                    className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
-                                    id={`completed-at-${riskEntry.id}`}
-                                    onChange={(event) =>
-                                      handleRiskEntryFieldChange(
-                                        riskEntry.id,
-                                        "completedAt",
-                                        event.target.value,
-                                      )
-                                    }
-                                    type="date"
-                                    value={riskEntryState.draft.completedAt}
-                                  />
-                                </FieldGroup>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col gap-3 border-t border-black/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
-                            <p
-                              aria-live="polite"
-                              className={getRiskEntrySaveMessageClassName(riskEntryState)}
-                            >
-                              {getRiskEntrySaveMessage(riskEntryState)}
-                            </p>
-                            <button
-                              className={getRiskEntrySaveButtonClassName(
-                                riskEntryState.saveState === "saving" ||
-                                  !isRiskEntryDirty(riskEntryState),
-                              )}
-                              disabled={
-                                riskEntryState.saveState === "saving" ||
-                                !isRiskEntryDirty(riskEntryState)
-                              }
-                              onClick={() => handleRiskEntrySave(riskEntry.id)}
-                              type="button"
-                            >
-                              {riskEntryState.saveState === "saving"
-                                ? "Saving risk entry..."
-                                : "Save risk entry"}
-                            </button>
-                          </div>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
+            {children}
           </div>
         </div>
       </div>
@@ -960,122 +569,10 @@ export function AssessmentWalkthrough({
     })
       .then((response) => {
         startTransition(() => {
-          setCriterionStates((current) => {
-            return reconcileCriterionSaveSuccess(
+          setCriterionStates((current) =>
+            reconcileCriterionSaveSuccess(
               current,
               criterionId,
-              nextRequestId,
-              response,
-              nextDraft,
-            );
-          });
-        });
-      })
-      .catch((error: unknown) => {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "We could not save this walkthrough answer.";
-
-        startTransition(() => {
-          setCriterionStates((current) => {
-            return reconcileCriterionSaveFailure(
-              current,
-              criterionId,
-              nextRequestId,
-              errorMessage,
-            );
-          });
-        });
-      });
-  }
-
-  function handleRiskEntryFieldChange<Field extends keyof RiskEntryDraft>(
-    riskEntryId: string,
-    field: Field,
-    value: RiskEntryDraft[Field],
-  ) {
-    setRiskEntryStates((current) =>
-      updateRiskEntryDraftField(current, riskEntryId, field, value),
-    );
-  }
-
-  function handleRiskScoreSelect(
-    riskEntryId: string,
-    field: "likelihood" | "consequence",
-    value: number | null,
-  ) {
-    setRiskEntryStates((current) =>
-      updateRiskEntryDraftField(current, riskEntryId, field, value),
-    );
-  }
-
-  function handleRiskEntrySave(riskEntryId: string) {
-    const riskEntryState = riskEntryStatesRef.current[riskEntryId];
-
-    if (!riskEntryState) {
-      return;
-    }
-
-    if (!canPersistRiskEntryDraft(riskEntryState.draft)) {
-      setRiskEntryStates((current) => {
-        const currentRiskEntryState = current[riskEntryId];
-
-        if (!currentRiskEntryState) {
-          return current;
-        }
-
-        return {
-          ...current,
-          [riskEntryId]: {
-            ...currentRiskEntryState,
-            saveState: "error",
-            errorMessage: "Hazard is required before saving this risk entry.",
-          },
-        };
-      });
-      return;
-    }
-
-    persistRiskEntry(riskEntryId, riskEntryState.draft);
-  }
-
-  function persistRiskEntry(riskEntryId: string, nextDraft: RiskEntryDraft) {
-    let nextRequestId = 0;
-
-    setRiskEntryStates((current) => {
-      const startedSave = beginRiskEntrySave(current, riskEntryId);
-      nextRequestId = startedSave.requestId;
-      return startedSave.riskEntryStates;
-    });
-
-    if (nextRequestId === 0) {
-      return;
-    }
-
-    void saveAssessmentRiskEntryAction({
-      assessmentId,
-      input: {
-        riskEntryId,
-        hazard: nextDraft.hazard,
-        healthEffects: toOptionalString(nextDraft.healthEffects),
-        whoAtRisk: toOptionalString(nextDraft.whoAtRisk),
-        likelihood: nextDraft.likelihood ?? undefined,
-        consequence: nextDraft.consequence ?? undefined,
-        currentControls: toOptionalString(nextDraft.currentControls),
-        proposedAction: toOptionalString(nextDraft.proposedAction),
-        costEstimate: toOptionalInteger(nextDraft.costEstimate),
-        responsibleOwner: toOptionalString(nextDraft.responsibleOwner),
-        dueDate: toOptionalString(nextDraft.dueDate),
-        completedAt: toOptionalString(nextDraft.completedAt),
-      },
-    })
-      .then((response) => {
-        startTransition(() => {
-          setRiskEntryStates((current) =>
-            reconcileRiskEntrySaveSuccess(
-              current,
-              riskEntryId,
               nextRequestId,
               response,
               nextDraft,
@@ -1087,13 +584,13 @@ export function AssessmentWalkthrough({
         const errorMessage =
           error instanceof Error
             ? error.message
-            : "We could not save this risk entry.";
+            : "We could not save this walkthrough answer.";
 
         startTransition(() => {
-          setRiskEntryStates((current) =>
-            reconcileRiskEntrySaveFailure(
+          setCriterionStates((current) =>
+            reconcileCriterionSaveFailure(
               current,
-              riskEntryId,
+              criterionId,
               nextRequestId,
               errorMessage,
             ),
@@ -1146,54 +643,11 @@ function SaveStatePill({ state }: { readonly state: CriterionClientState }) {
           ? "Save issue"
           : state.draft.status === "unanswered" && state.draft.notes.length > 0
             ? "Needs answer"
-          : isDirty(state)
-            ? "Unsaved"
-            : state.saved.status === "unanswered" && state.saved.notes.length === 0
-              ? "Not started"
-              : "Saved"}
-    </div>
-  );
-}
-
-function RiskEntrySaveStatePill({
-  state,
-}: {
-  readonly state: RiskEntryClientState;
-}) {
-  return (
-    <div className={getRiskEntrySavePillClassName(state)}>
-      {state.saveState === "saving"
-        ? "Saving..."
-        : state.saveState === "error"
-          ? "Save issue"
-          : isRiskEntryDirty(state)
-            ? "Unsaved"
-            : "Saved"}
-    </div>
-  );
-}
-
-function RiskLevelBadge({
-  riskLevel,
-  dirty,
-}: {
-  readonly riskLevel: "low" | "medium" | "high" | null;
-  readonly dirty: boolean;
-}) {
-  return (
-    <div
-      className={getRiskLevelBadgeClassName(riskLevel, dirty)}
-      data-risk-level-state={dirty ? "pending" : riskLevel ?? "incomplete"}
-    >
-      <div className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] opacity-75">
-        Saved level
-      </div>
-      <div className="text-sm font-semibold">
-        {riskLevel ? capitalize(riskLevel) : "Incomplete"}
-      </div>
-      {dirty ? (
-        <div className="text-[0.7rem] leading-5 opacity-75">Save to refresh</div>
-      ) : null}
+            : isDirty(state)
+              ? "Unsaved"
+              : state.saved.status === "unanswered" && state.saved.notes.length === 0
+                ? "Not started"
+                : "Saved"}
     </div>
   );
 }
@@ -1215,17 +669,6 @@ function getCriterionCardClassName(state: CriterionClientState): string {
     state.saveState === "error"
       ? "border-[#bb6b4b] bg-[#fff4ed]"
       : isDirty(state)
-        ? "border-[#9aa986] bg-[#faf7ef]"
-        : "border-black/8",
-  );
-}
-
-function getRiskEntryCardClassName(state: RiskEntryClientState): string {
-  return joinClasses(
-    "rounded-[1.75rem] border bg-[#fffdf8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] transition-colors sm:p-5",
-    state.saveState === "error"
-      ? "border-[#bb6b4b] bg-[#fff4ed]"
-      : isRiskEntryDirty(state)
         ? "border-[#9aa986] bg-[#faf7ef]"
         : "border-black/8",
   );
@@ -1258,38 +701,6 @@ function getSavePillClassName(state: CriterionClientState): string {
         : isDirty(state)
           ? "border-[#8a7d6a] bg-[#f3eee5] text-[#564938]"
           : "border-black/10 bg-[#f7f2e8] text-slate-600",
-  );
-}
-
-function getRiskEntrySavePillClassName(state: RiskEntryClientState): string {
-  return joinClasses(
-    "inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]",
-    state.saveState === "saving"
-      ? "border-[#7a8f67] bg-[#edf4ea] text-[#335126]"
-      : state.saveState === "error"
-        ? "border-[#bb6b4b] bg-[#fff1e8] text-[#7d3211]"
-        : isRiskEntryDirty(state)
-          ? "border-[#8a7d6a] bg-[#f3eee5] text-[#564938]"
-          : "border-black/10 bg-[#f7f2e8] text-slate-600",
-  );
-}
-
-function getRiskLevelBadgeClassName(
-  riskLevel: "low" | "medium" | "high" | null,
-  dirty: boolean,
-): string {
-  const toneClassName =
-    riskLevel === "high"
-      ? "border-[#b96f47] bg-[#fff1e7] text-[#6a3212]"
-      : riskLevel === "medium"
-        ? "border-[#b59b42] bg-[#fff7dc] text-[#5d4b08]"
-        : riskLevel === "low"
-          ? "border-[#6f8460] bg-[#eef5e9] text-[#213019]"
-          : "border-black/10 bg-[#f7f2e8] text-slate-600";
-
-  return joinClasses(
-    "rounded-[1.2rem] border px-4 py-3 text-right shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]",
-    dirty ? "border-[#8a7d6a] bg-[#f3eee5] text-[#564938]" : toneClassName,
   );
 }
 
@@ -1328,36 +739,7 @@ function getSaveMessage(state: CriterionClientState): string {
     : "Saved and ready to resume.";
 }
 
-function getRiskEntrySaveMessage(state: RiskEntryClientState): string {
-  if (state.saveState === "saving") {
-    return "Saving this risk entry...";
-  }
-
-  if (state.saveState === "error") {
-    return state.errorMessage ?? "We could not save this risk entry.";
-  }
-
-  if (!canPersistRiskEntryDraft(state.draft)) {
-    return "Hazard is required before this row can be saved.";
-  }
-
-  if (isRiskEntryDirty(state)) {
-    return "Changes pending save. The saved classification updates after save.";
-  }
-
-  return state.savedRiskLevel
-    ? `Saved classification: ${capitalize(state.savedRiskLevel)}.`
-    : "Saved draft. Add both scores to derive the classification.";
-}
-
 function getSaveMessageClassName(state: CriterionClientState): string {
-  return joinClasses(
-    "text-sm leading-6",
-    state.saveState === "error" ? "text-[#8a2f0d]" : "text-slate-600",
-  );
-}
-
-function getRiskEntrySaveMessageClassName(state: RiskEntryClientState): string {
   return joinClasses(
     "text-sm leading-6",
     state.saveState === "error" ? "text-[#8a2f0d]" : "text-slate-600",
@@ -1413,15 +795,6 @@ function getTransferButtonClassName(disabled: boolean): string {
   );
 }
 
-function getRiskEntrySaveButtonClassName(disabled: boolean): string {
-  return joinClasses(
-    "w-full rounded-full px-4 py-3 text-sm font-semibold transition sm:w-auto",
-    disabled
-      ? "cursor-not-allowed border border-black/10 bg-[#ebe4d7] text-slate-500"
-      : "border border-[#243026] bg-[#243026] text-white shadow-[0_12px_28px_rgba(25,31,24,0.16)] hover:bg-[#314035]",
-  );
-}
-
 function getTransferButtonLabel(params: {
   readonly transferState: "idle" | "transferring" | "success" | "error";
   readonly remainingCriteria: number;
@@ -1458,100 +831,9 @@ function formatSavedAt(value: string): string {
   }).format(new Date(value));
 }
 
-function FieldGroup({
-  id,
-  label,
-  children,
-}: {
-  readonly id: string;
-  readonly label: string;
-  readonly children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-slate-900" htmlFor={id}>
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function ScoreSelector({
-  label,
-  maxValue,
-  selectedValue,
-  onSelect,
-  onClear,
-}: {
-  readonly label: string;
-  readonly maxValue: number;
-  readonly selectedValue: number | null;
-  readonly onSelect: (value: number) => void;
-  readonly onClear: () => void;
-}) {
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-medium text-slate-900">{label}</span>
-        {selectedValue != null ? (
-          <button
-            className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 transition hover:text-slate-900"
-            onClick={onClear}
-            type="button"
-          >
-            Clear
-          </button>
-        ) : null}
-      </div>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-        {Array.from({ length: maxValue }, (_, index) => index + 1).map((value) => (
-          <button
-            className={getScoreOptionClassName(selectedValue === value)}
-            data-score-label={label}
-            data-score-value={String(value)}
-            key={value}
-            onClick={() => onSelect(value)}
-            type="button"
-          >
-            {String(value)}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function getScoreOptionClassName(selected: boolean): string {
-  return joinClasses(
-    "rounded-[1rem] border px-3 py-3 text-sm font-semibold transition",
-    selected
-      ? "border-[#6f8460] bg-[#eef5e9] text-[#213019]"
-      : "border-black/10 bg-white text-slate-900 hover:border-slate-400",
-  );
-}
-
-function toOptionalString(value: string): string | undefined {
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : undefined;
-}
-
-function toOptionalInteger(value: string): number | undefined {
-  const trimmedValue = value.trim();
-
-  if (trimmedValue.length === 0) {
-    return undefined;
-  }
-
-  const parsedValue = Number(trimmedValue);
-  return Number.isInteger(parsedValue) ? parsedValue : undefined;
-}
-
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function joinClasses(...classNames: ReadonlyArray<string | false | null | undefined>): string {
+function joinClasses(
+  ...classNames: ReadonlyArray<string | false | null | undefined>
+): string {
   return classNames.filter(Boolean).join(" ");
 }
 

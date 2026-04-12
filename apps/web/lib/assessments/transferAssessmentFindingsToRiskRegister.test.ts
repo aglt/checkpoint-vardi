@@ -163,7 +163,6 @@ test("transferAssessmentFindingsToRiskRegister builds seeded hazard titles for p
                     notesLanguage: "is",
                   },
                   riskEntryStatus: "absent",
-                  riskEntry: null,
                 },
                 {
                   id: "criterion-ok",
@@ -184,7 +183,6 @@ test("transferAssessmentFindingsToRiskRegister builds seeded hazard titles for p
                     notesLanguage: null,
                   },
                   riskEntryStatus: "absent",
-                  riskEntry: null,
                 },
               ],
             },

@@ -1,4 +1,3 @@
-import { getRiskMatrixById } from "@vardi/checklists";
 import {
   AssessmentAggregateNotFoundError,
   AssessmentRiskEntryNotFoundError,
@@ -19,9 +18,9 @@ import {
 } from "@vardi/risk";
 
 import {
-  AssessmentReadModelIntegrityError,
-  loadAssessmentReadModel,
-} from "./loadAssessmentReadModel";
+  AssessmentRiskEntrySaveContextIntegrityError,
+  loadAssessmentRiskEntrySaveContext,
+} from "./loadAssessmentRiskEntrySaveContext";
 
 export interface SaveAssessmentRiskEntryParams {
   readonly db: VardiDatabase;
@@ -29,8 +28,7 @@ export interface SaveAssessmentRiskEntryParams {
   readonly assessmentId: string;
   readonly input: SaveAssessmentRiskEntryInput;
   readonly dependencies?: {
-    readonly loadAssessmentReadModel?: typeof loadAssessmentReadModel;
-    readonly getRiskMatrixById?: typeof getRiskMatrixById;
+    readonly loadAssessmentRiskEntrySaveContext?: typeof loadAssessmentRiskEntrySaveContext;
     readonly updateAssessmentRiskEntry?: typeof updateAssessmentRiskEntry;
     readonly classifyRisk?: typeof classifyRisk;
   };
@@ -74,28 +72,21 @@ export function saveAssessmentRiskEntry(
     });
   }
 
-  const loadReadModel =
-    params.dependencies?.loadAssessmentReadModel ?? loadAssessmentReadModel;
-  const getSeededRiskMatrix =
-    params.dependencies?.getRiskMatrixById ?? getRiskMatrixById;
+  const loadRiskEntrySaveContext =
+    params.dependencies?.loadAssessmentRiskEntrySaveContext ??
+    loadAssessmentRiskEntrySaveContext;
   const persistRiskEntry =
     params.dependencies?.updateAssessmentRiskEntry ?? updateAssessmentRiskEntry;
   const classifyPersistedRisk =
     params.dependencies?.classifyRisk ?? classifyRisk;
 
   try {
-    const readModel = loadReadModel({
+    const saveContext = loadRiskEntrySaveContext({
       db: params.db,
       ownerId: params.ownerId,
       assessmentId: params.assessmentId,
+      riskEntryId: parsedInput.data.riskEntryId,
     });
-    const seededRiskMatrix = getSeededRiskMatrix(readModel.riskMatrix.id);
-
-    if (!seededRiskMatrix) {
-      throw new AssessmentReadModelIntegrityError(
-        `Assessment ${params.assessmentId} references unknown risk matrix ${readModel.riskMatrix.id}.`,
-      );
-    }
 
     const updatedRiskEntry = persistRiskEntry({
       db: params.db,
@@ -107,11 +98,11 @@ export function saveAssessmentRiskEntry(
       whoAtRisk: parsedInput.data.whoAtRisk ?? null,
       likelihood: parsedInput.data.likelihood ?? null,
       consequence: parsedInput.data.consequence ?? null,
-      riskLevel: classifyPersistedRisk({
+      derivedRiskLevel: classifyPersistedRisk({
         matrix: {
-          likelihoodLevels: seededRiskMatrix.likelihoodLevels,
-          consequenceLevels: seededRiskMatrix.consequenceLevels,
-          lookup: seededRiskMatrix.lookup,
+          likelihoodLevels: saveContext.riskMatrix.likelihoodLevels,
+          consequenceLevels: saveContext.riskMatrix.consequenceLevels,
+          lookup: saveContext.riskMatrix.lookup,
         },
         likelihood: parsedInput.data.likelihood ?? null,
         consequence: parsedInput.data.consequence ?? null,
@@ -145,7 +136,7 @@ export function saveAssessmentRiskEntry(
     }
 
     if (
-      error instanceof AssessmentReadModelIntegrityError ||
+      error instanceof AssessmentRiskEntrySaveContextIntegrityError ||
       error instanceof InvalidRiskScoreError ||
       error instanceof MissingRiskMatrixLookupError
     ) {

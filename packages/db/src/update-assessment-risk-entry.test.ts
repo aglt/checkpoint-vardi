@@ -188,7 +188,7 @@ test("updateAssessmentRiskEntry updates only the owner-scoped transferred row an
     whoAtRisk: "Students",
     likelihood: 2,
     consequence: 3,
-    riskLevel: "high",
+    derivedRiskLevel: "high",
     currentControls: "Signage in place",
     proposedAction: "Install a replacement guard",
     costEstimate: 25000,
@@ -235,6 +235,7 @@ test("updateAssessmentRiskEntry rejects rows outside the owner or assessment bou
         assessmentId: "assessment-owner-1-a",
         riskEntryId: "risk-entry-owner-1-b",
         hazard: "Wrong assessment",
+        derivedRiskLevel: null,
       }),
     (error: unknown) => error instanceof AssessmentRiskEntryNotFoundError,
   );
@@ -247,6 +248,7 @@ test("updateAssessmentRiskEntry rejects rows outside the owner or assessment bou
         assessmentId: "assessment-owner-2",
         riskEntryId: "risk-entry-owner-2",
         hazard: "Wrong owner",
+        derivedRiskLevel: null,
       }),
     (error: unknown) => error instanceof AssessmentRiskEntryNotFoundError,
   );

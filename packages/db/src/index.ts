@@ -14,6 +14,11 @@ export {
   type LoadAssessmentAggregateParams,
 } from "./load-assessment-aggregate.js";
 export {
+  loadAssessmentRiskEntryContext,
+  type AssessmentRiskEntryContext,
+  type LoadAssessmentRiskEntryContextParams,
+} from "./load-assessment-risk-entry-context.js";
+export {
   createWorkplaceAssessment,
   EmptyAssessmentCriteriaError,
   type CreateWorkplaceAssessmentParams,

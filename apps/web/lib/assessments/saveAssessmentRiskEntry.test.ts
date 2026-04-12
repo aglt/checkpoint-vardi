@@ -10,9 +10,11 @@ import {
   createMigratedDatabase,
   createWorkplaceAssessment,
   loadAssessmentAggregate,
+  riskEntry,
 } from "@vardi/db";
 
-import { AssessmentReadModelIntegrityError, loadAssessmentReadModel } from "./loadAssessmentReadModel";
+import { loadAssessmentRiskRegisterProjection } from "./loadAssessmentRiskRegisterProjection";
+import { AssessmentRiskEntrySaveContextIntegrityError } from "./loadAssessmentRiskEntrySaveContext";
 
 const startedAt = new Date("2026-04-12T10:00:00.000Z");
 
@@ -43,10 +45,11 @@ function seedTransferredRiskEntryFixture() {
   );
   const checklist = getRequiredChecklist();
   const riskMatrix = getRequiredRiskMatrix();
+  const firstCriterion = checklist.sections[0]?.criteria[0];
   const targetCriterion = checklist.sections[0]?.criteria[1];
 
-  if (!targetCriterion) {
-    throw new Error("Expected checklist fixture to contain a transferable criterion.");
+  if (!firstCriterion || !targetCriterion) {
+    throw new Error("Expected checklist fixture to contain at least two transferable criteria.");
   }
 
   const connection = createMigratedDatabase(databasePath);
@@ -76,11 +79,15 @@ function seedTransferredRiskEntryFixture() {
     assessmentId: assessment.assessmentId,
     checklist,
     databasePath,
+    firstCriterion,
     targetCriterion,
   };
 }
 
-async function transferTargetCriterion(fixture: ReturnType<typeof seedTransferredRiskEntryFixture>) {
+async function transferCriteria(
+  fixture: ReturnType<typeof seedTransferredRiskEntryFixture>,
+  criterionIds: readonly string[],
+) {
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
   const { saveAssessmentCriterionResponseAction } = await import(
@@ -90,14 +97,16 @@ async function transferTargetCriterion(fixture: ReturnType<typeof seedTransferre
     "./transferAssessmentFindingsToRiskRegisterAction"
   );
 
-  await saveAssessmentCriterionResponseAction({
-    assessmentId: fixture.assessmentId,
-    input: {
-      criterionId: fixture.targetCriterion.id,
-      status: "notOk",
-      notes: "Missing guard",
-    },
-  });
+  for (const criterionId of criterionIds) {
+    await saveAssessmentCriterionResponseAction({
+      assessmentId: fixture.assessmentId,
+      input: {
+        criterionId,
+        status: "notOk",
+        notes: "Missing guard",
+      },
+    });
+  }
   await transferAssessmentFindingsToRiskRegisterAction({
     assessmentId: fixture.assessmentId,
   });
@@ -108,31 +117,40 @@ async function transferTargetCriterion(fixture: ReturnType<typeof seedTransferre
     ownerId: "owner-1",
     assessmentId: fixture.assessmentId,
   });
-  const findingRow = aggregate.findings.find(
-    (entry) => entry.criterionId === fixture.targetCriterion.id,
-  );
+  const transferredRiskEntryIds = Object.fromEntries(
+    criterionIds.map((criterionId) => {
+      const findingRow = aggregate.findings.find(
+        (entry) => entry.criterionId === criterionId,
+      );
 
-  if (!findingRow) {
-    closeDatabase(connection);
-    throw new Error("Expected transferred finding to exist.");
-  }
+      if (!findingRow) {
+        closeDatabase(connection);
+        throw new Error("Expected transferred finding to exist.");
+      }
 
-  const riskEntryRow = aggregate.riskEntries.find(
-    (entry) => entry.findingId === findingRow.id,
+      const riskEntryRow = aggregate.riskEntries.find(
+        (entry) => entry.findingId === findingRow.id,
+      );
+
+      if (!riskEntryRow) {
+        closeDatabase(connection);
+        throw new Error("Expected transferred risk entry to exist.");
+      }
+
+      return [criterionId, riskEntryRow.id] as const;
+    }),
   );
 
   closeDatabase(connection);
-
-  if (!riskEntryRow) {
-    throw new Error("Expected transferred risk entry to exist.");
-  }
-
-  return riskEntryRow.id;
+  return transferredRiskEntryIds;
 }
 
 test("saveAssessmentRiskEntryAction derives and persists the authoritative risk level from seeded matrix truth", async () => {
   const fixture = seedTransferredRiskEntryFixture();
-  const riskEntryId = await transferTargetCriterion(fixture);
+  const transferredRiskEntryIds = await transferCriteria(fixture, [
+    fixture.targetCriterion.id,
+  ]);
+  const riskEntryId = transferredRiskEntryIds[fixture.targetCriterion.id];
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
   const { saveAssessmentRiskEntryAction } = await import(
@@ -175,27 +193,28 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
   });
 
   const connection = createMigratedDatabase(fixture.databasePath);
-  const readModel = loadAssessmentReadModel({
+  const projection = loadAssessmentRiskRegisterProjection({
     db: connection.db,
     ownerId: "owner-1",
     assessmentId: fixture.assessmentId,
   });
-  const persistedCriterion = readModel.sections
-    .flatMap((section) => section.criteria)
-    .find((criterion) => criterion.id === fixture.targetCriterion.id);
+  const persistedRiskEntry = projection.entries.find((entry) => entry.id === riskEntryId);
 
-  assert.ok(persistedCriterion?.riskEntry);
-  assert.equal(persistedCriterion.riskEntry?.hazard, "Table saw without guard");
-  assert.equal(persistedCriterion.riskEntry?.riskLevel, "high");
-  assert.equal(persistedCriterion.riskEntry?.dueDate, "2026-04-20");
-  assert.equal(persistedCriterion.riskEntry?.completedAt, "2026-04-22");
+  assert.ok(persistedRiskEntry);
+  assert.equal(persistedRiskEntry?.hazard, "Table saw without guard");
+  assert.equal(persistedRiskEntry?.savedRiskLevel, "high");
+  assert.equal(persistedRiskEntry?.dueDate, "2026-04-20");
+  assert.equal(persistedRiskEntry?.completedAt, "2026-04-22");
 
   closeDatabase(connection);
 });
 
 test("saveAssessmentRiskEntryAction leaves risk level null until both scores are present", async () => {
   const fixture = seedTransferredRiskEntryFixture();
-  const riskEntryId = await transferTargetCriterion(fixture);
+  const transferredRiskEntryIds = await transferCriteria(fixture, [
+    fixture.targetCriterion.id,
+  ]);
+  const riskEntryId = transferredRiskEntryIds[fixture.targetCriterion.id];
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
   const { saveAssessmentRiskEntryAction } = await import(
@@ -223,26 +242,27 @@ test("saveAssessmentRiskEntryAction leaves risk level null until both scores are
   assert.equal(output.riskLevel, null);
 
   const connection = createMigratedDatabase(fixture.databasePath);
-  const readModel = loadAssessmentReadModel({
+  const projection = loadAssessmentRiskRegisterProjection({
     db: connection.db,
     ownerId: "owner-1",
     assessmentId: fixture.assessmentId,
   });
-  const persistedCriterion = readModel.sections
-    .flatMap((section) => section.criteria)
-    .find((criterion) => criterion.id === fixture.targetCriterion.id);
+  const persistedRiskEntry = projection.entries.find((entry) => entry.id === riskEntryId);
 
-  assert.ok(persistedCriterion?.riskEntry);
-  assert.equal(persistedCriterion.riskEntry?.likelihood, 2);
-  assert.equal(persistedCriterion.riskEntry?.consequence, null);
-  assert.equal(persistedCriterion.riskEntry?.riskLevel, null);
+  assert.ok(persistedRiskEntry);
+  assert.equal(persistedRiskEntry?.likelihood, 2);
+  assert.equal(persistedRiskEntry?.consequence, null);
+  assert.equal(persistedRiskEntry?.savedRiskLevel, null);
 
   closeDatabase(connection);
 });
 
 test("saveAssessmentRiskEntry rejects client-supplied riskLevel and missing rows with client-safe errors", async () => {
   const fixture = seedTransferredRiskEntryFixture();
-  const riskEntryId = await transferTargetCriterion(fixture);
+  const transferredRiskEntryIds = await transferCriteria(fixture, [
+    fixture.targetCriterion.id,
+  ]);
+  const riskEntryId = transferredRiskEntryIds[fixture.targetCriterion.id];
   const connection = createMigratedDatabase(fixture.databasePath);
   const { SaveAssessmentRiskEntryError, saveAssessmentRiskEntry } = await import(
     "./saveAssessmentRiskEntry"
@@ -304,8 +324,11 @@ test("saveAssessmentRiskEntry maps deterministic integrity failures to a client-
           hazard: "Hazard",
         },
         dependencies: {
-          loadAssessmentReadModel: () => {
-            throw new AssessmentReadModelIntegrityError("Seed drift");
+          loadAssessmentRiskEntrySaveContext: () => {
+            throw new AssessmentRiskEntrySaveContextIntegrityError(
+              fixture.assessmentId,
+              "missing-matrix",
+            );
           },
         },
       }),
@@ -316,4 +339,60 @@ test("saveAssessmentRiskEntry maps deterministic integrity failures to a client-
   );
 
   closeDatabase(connection);
+});
+
+test("saveAssessmentRiskEntryAction does not depend on unrelated stale rows in the same assessment", async () => {
+  const fixture = seedTransferredRiskEntryFixture();
+  const transferredRiskEntryIds = await transferCriteria(fixture, [
+    fixture.firstCriterion.id,
+    fixture.targetCriterion.id,
+  ]);
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const connection = createMigratedDatabase(fixture.databasePath);
+  connection.sqlite
+    .prepare(`
+      update risk_entry
+      set likelihood = ?, consequence = ?, risk_level = ?
+      where id = ?
+    `)
+    .run(1, 1, "high", transferredRiskEntryIds[fixture.firstCriterion.id]);
+  closeDatabase(connection);
+
+  const { saveAssessmentRiskEntryAction } = await import(
+    "./saveAssessmentRiskEntryAction"
+  );
+
+  const output = await saveAssessmentRiskEntryAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      riskEntryId: transferredRiskEntryIds[fixture.targetCriterion.id],
+      hazard: "Updated target hazard",
+      likelihood: 2,
+      consequence: 2,
+    },
+  });
+
+  assert.equal(output.riskEntryId, transferredRiskEntryIds[fixture.targetCriterion.id]);
+  assert.equal(output.riskLevel, "medium");
+
+  const projectionConnection = createMigratedDatabase(fixture.databasePath);
+  const projection = loadAssessmentRiskRegisterProjection({
+    db: projectionConnection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+  });
+
+  const staleEntry = projection.entries.find(
+    (entry) => entry.id === transferredRiskEntryIds[fixture.firstCriterion.id],
+  );
+  const updatedEntry = projection.entries.find(
+    (entry) => entry.id === transferredRiskEntryIds[fixture.targetCriterion.id],
+  );
+
+  assert.equal(staleEntry?.classificationState, "staleRiskLevel");
+  assert.equal(updatedEntry?.savedRiskLevel, "medium");
+  assert.equal(updatedEntry?.classificationState, "ready");
+
+  closeDatabase(projectionConnection);
 });

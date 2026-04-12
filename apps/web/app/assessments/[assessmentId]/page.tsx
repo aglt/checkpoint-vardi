@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { AssessmentAggregateNotFoundError } from "@vardi/db";
 
 import { AssessmentWalkthrough } from "./_components/AssessmentWalkthrough";
+import { RiskRegisterEditor } from "./_components/RiskRegisterEditor";
 import { loadAssessmentReadModel } from "@/lib/assessments/loadAssessmentReadModel";
+import { loadAssessmentRiskRegisterProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
 import { getDatabase } from "@/lib/server/db";
 import { getCurrentUser } from "@/lib/server/getCurrentUser";
 
@@ -19,10 +21,18 @@ export default async function AssessmentWalkthroughPage({
   const { assessmentId } = await params;
 
   try {
+    const db = getDatabase();
+    const ownerId = getCurrentUser().id;
     const readModel = loadAssessmentReadModel({
-      db: getDatabase(),
-      ownerId: getCurrentUser().id,
+      db,
+      ownerId,
       assessmentId,
+    });
+    const riskRegisterProjection = loadAssessmentRiskRegisterProjection({
+      db,
+      ownerId,
+      assessmentId,
+      readModel,
     });
 
     return (
@@ -31,11 +41,21 @@ export default async function AssessmentWalkthroughPage({
         checklistTitle={readModel.checklist.translations.is.title}
         checklistVersion={readModel.checklist.version}
         riskMatrixTitle={readModel.riskMatrix.translations.is.title}
-        riskMatrixLikelihoodLevels={readModel.riskMatrix.likelihoodLevels}
-        riskMatrixConsequenceLevels={readModel.riskMatrix.consequenceLevels}
         sections={readModel.sections}
         workplaceName={readModel.workplace.name}
-      />
+      >
+        <RiskRegisterEditor
+          assessmentId={readModel.assessment.id}
+          entries={riskRegisterProjection.entries}
+          riskMatrixConsequenceLevels={
+            riskRegisterProjection.riskMatrix.consequenceLevels
+          }
+          riskMatrixLikelihoodLevels={
+            riskRegisterProjection.riskMatrix.likelihoodLevels
+          }
+          riskMatrixTitle={riskRegisterProjection.riskMatrix.title}
+        />
+      </AssessmentWalkthrough>
     );
   } catch (error) {
     if (error instanceof AssessmentAggregateNotFoundError) {
