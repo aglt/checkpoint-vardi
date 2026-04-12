@@ -12,7 +12,7 @@ Depends on: S1-08
 
 ## Context
 
-This story is complete and is now open in PR `#12`. `S1-08` already established the full persisted
+This story is complete and is tracked in PR `#12`. `S1-08` already established the full persisted
 MVP assessment flow and export-readiness surface; `S1-10` now adds the
 first truthful browser-level verification seam on top of that flow
 without reviving `S1-09`, adding `safety_plan`, or widening the root
@@ -222,7 +222,7 @@ Target path:
 
 This story intentionally stops at truthful blocked readiness. Completing the
 entire walkthrough, unlocking export, and verifying a successful export trigger
-belongs to a focused follow-up story.
+belongs to the later stabilized browser regression story in `S1-16`.
 
 This test should verify real user-visible behavior, not just URL transitions.
 
@@ -270,7 +270,7 @@ Future stories may extend this into:
 - CI job wiring
 - visual regression if later justified
 
-But this story should stop after the first stable foundation and the blocked-readiness browser baseline. The happy-path export proof now belongs in `S1-11`.
+But this story should stop after the first stable foundation and the blocked-readiness browser baseline. The later happy-path export proof now belongs in `S1-16`.
 
 ## Execution rules
 

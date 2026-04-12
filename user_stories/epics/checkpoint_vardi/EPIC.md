@@ -18,8 +18,7 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-07` is complete and now lives under `done/`
 - `S1-08` is complete and now lives under `done/`
 - `S1-10` is complete and now lives under `done/`
-- `S1-11` is staged under `not_started/` as the happy-path export browser follow-up
-- `S1-09` remains staged under `not_started/` only as a conditional bridge story
+- `S1-09` and `S1-11` through `S1-16` are staged under `not_started/`
 - the next implementation story is `S1-11`
 - the maintenance workflow is defined by `$vardi-story-management`
 
@@ -30,7 +29,7 @@ The active stage is currently:
 - **S1 - MVP assessment workflow**
 - Most recently completed story: `S1-10 - Browser E2E foundation and blocked-readiness baseline`
 - Story file: `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
-- Next story: `S1-11 - Browser E2E ready-state and export proof`
+- Next story: `S1-11 - Risk mitigation planning on risk entries`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -65,11 +64,15 @@ persisted assessment state into deterministic checklist, register, and summary
 exports plus a downloadable Word/PDF bundle on the summary step. `S1-10` now
 adds the first Playwright-based browser-level proof layer together with a
 deterministic isolated SQLite bootstrap for local runs, explicit runtime/testing
-DB entrypoints, and a truthful blocked-readiness workflow spec. `S1-11` is the
-focused follow-up that will complete the happy-path browser proof for full
-readiness unlock and successful export trigger behavior. `S1-09` still exists
-only as a narrow bridge story if a concrete post-MVP need surfaces for broader
-platform groundwork.
+DB entrypoints, and a truthful blocked-readiness workflow spec. `S1-11` then
+introduces persisted mitigation planning on `risk_entry` rows, `S1-12`
+hardens truthful progression and completion guards, `S1-13` captures
+explicit saved reasoning for risk classifications, `S1-14` strengthens export
+framing and metadata without overclaiming compliance status, `S1-15` lets a
+small supported rule set flow from seed/runtime truth into the app, and
+`S1-16` closes the queue with a later stable browser regression once those
+flow-shaping slices settle. `S1-09` still exists only as a narrow bridge story
+if a concrete post-MVP need surfaces for broader platform groundwork.
 
 ### S0 - Foundations
 
@@ -77,8 +80,10 @@ platform groundwork.
 "runnable empty project" without widening into feature work, schema work, or product behavior.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
-dev-server loop. Stage One now has its first browser-proof baseline through `S1-10`, with `S1-11`
-queued as the happy-path export proof and `S1-09` still conditional and non-blocking.
+dev-server loop. Stage One now has its first browser-proof baseline through
+`S1-10`; the next staged story is `S1-11`, `S1-16` remains the later
+browser-export regression proof once the flow settles, and `S1-09` stays
+conditional and non-blocking.
 
 ## Guardrails
 

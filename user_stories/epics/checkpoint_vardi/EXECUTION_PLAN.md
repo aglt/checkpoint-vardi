@@ -11,7 +11,7 @@
 - Next queued step: `S1-11`
 - Most recently completed step: `S1-10`
 - Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-11-browser-e2e-ready-export-proof.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-11-risk-mitigation-planning-on-risk-entries.md`
 
 ## S0 - Foundations
 
@@ -42,9 +42,10 @@ S0-01 (Runnable Empty Scaffold)
 ### Dependency Graph
 
 ```text
-S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 -> S1-10 -> S1-11
-                 \
-                  -> S1-09 (only if a concrete S1 story needs narrow groundwork)
+S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
+S1-08 -> S1-10 -> S1-16
+S1-08 -> S1-11 -> S1-12 -> S1-13 -> S1-14 -> S1-15 -> S1-16
+S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 ```
 
 ### Step S1-01: Seed catalog foundation for assessment runtime
@@ -218,12 +219,12 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 ->
 > `node v25.6.1`; Node 22 remains the declared repo contract, but was not
 > directly re-verified here. PR: `#10`.
 
-### Step S1-10: Browser E2E testing foundation
+### Step S1-10: Browser E2E foundation and blocked-readiness baseline
 
 **Status:** Completed.
 **Story file:** `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
 **Start gate:** Closed.
-**Unblocks:** Truthful browser-level smoke and blocked-readiness regression coverage plus the happy-path export browser follow-up in `S1-11`.
+**Unblocks:** Truthful browser-level smoke and blocked-readiness regression coverage plus the later stable browser assessment-to-export flow in `S1-16`.
 
 **Completion note:**
 > Verified locally on branch `codex/s1-10-browser-e2e-foundation`: added
@@ -243,16 +244,51 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 ->
 > session used `node v25.6.1`; Node 22 remains the declared repo contract, but
 > was not directly re-verified here. PR: `#12`.
 
-### Step S1-11: Browser E2E ready-state and export proof
+### Step S1-11: Risk mitigation planning on risk entries
 
 **Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-11-browser-e2e-ready-export-proof.md`
-**Start gate:** Open. `S1-10` is complete.
-**Unblocks:** Browser-level proof of full walkthrough completion, readiness unlock, and successful export trigger behavior.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-11-risk-mitigation-planning-on-risk-entries.md`
+**Start gate:** Open. `S1-08` is complete and the current flow can now widen from classification into persisted action planning.
+**Unblocks:** `S1-12`, richer export/register truth, and any later runtime rule that needs mitigation state.
+
+### Step S1-12: Guided assessment progression and completion guards
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-12-guided-assessment-progression-and-completion-guards.md`
+**Start gate:** Closed until `S1-11` lands or an equivalent action-planning truth owner is intentionally documented.
+**Unblocks:** `S1-13`, later runtime-driven completion rules, and clearer server-owned gating across the assessment flow.
+
+### Step S1-13: Explicit risk reasoning capture
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-13-explicit-risk-reasoning-capture.md`
+**Start gate:** Closed until `S1-12` establishes the current owner for completion and readiness truth.
+**Unblocks:** `S1-14`, template-driven justification requirements, and less opaque saved risk classifications.
+
+### Step S1-14: Compliance-oriented export framing and assessment metadata
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-14-compliance-oriented-export-framing-and-assessment-metadata.md`
+**Start gate:** Closed until `S1-13` lands and the persisted assessment flow includes any newly saved reasoning fields the export layer should render.
+**Unblocks:** `S1-15`, later stable export-facing browser verification, and more professional report framing.
+
+### Step S1-15: Sector/profile-specific assessment rules via seed-owned runtime extensions
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
+**Start gate:** Closed until `S1-11`, `S1-12`, and `S1-13` have established concrete mitigation, completion, and reasoning seams for runtime rules to drive.
+**Unblocks:** Sector-specific workflow behavior without scattered app conditionals, plus the final stabilized flow for `S1-16`.
+
+### Step S1-16: Stable browser E2E for end-to-end assessment-to-export flow
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
+**Start gate:** Closed until `S1-10` is complete and the queued assessment-flow and export follow-up stories that change readiness truth have landed or been intentionally deferred.
+**Unblocks:** A stable browser-level regression net for the real persisted assessment-to-export journey after the flow settles.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-10` browser proof slice or another concrete follow-up MVP need exposes a real requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-16` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.
