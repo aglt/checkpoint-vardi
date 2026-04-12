@@ -12,10 +12,10 @@ Depends on: S1-08
 
 ## Context
 
-This story is complete. The current MVP web flow now resolves a temporary
-request-derived app display language at the page/layout boundary, normalizes to
-`is` or `en`, and falls back to `is` without treating request language as
-durable product truth.
+This story is complete and is tracked in PR `#14`. The current MVP web flow
+now resolves a temporary request-derived app display language at the
+page/layout boundary, normalizes to `is` or `en`, and falls back to `is`
+without treating request language as durable product truth.
 
 App-owned copy for the start page, walkthrough, risk register, and
 summary/readiness surfaces now lives in `apps/web/lib/i18n/`. Lower

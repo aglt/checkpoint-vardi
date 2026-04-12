@@ -307,7 +307,7 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > Ran `pnpm test`, `pnpm typecheck`, `pnpm lint`, and targeted browser specs
 > via `pnpm --filter @vardi/web test:e2e -- e2e/specs/start-page.smoke.spec.ts e2e/specs/assessment-workflow.spec.ts`.
 > This session used `node v25.6.1`; Node 22 remains the declared repo
-> contract, but was not directly re-verified here.
+> contract, but was not directly re-verified here. PR: `#14`.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
