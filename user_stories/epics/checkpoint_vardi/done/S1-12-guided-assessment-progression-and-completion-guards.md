@@ -12,7 +12,7 @@ Depends on: S1-11
 
 ## Context
 
-This story is complete. The assessment page now uses a dedicated
+This story is complete and is tracked in PR `#15`. The assessment page now uses a dedicated
 app-owned progression projection to derive walkthrough, risk-register,
 summary, and export status from persisted assessment truth only. The
 projection stays structural and reviewable: it returns step completion,

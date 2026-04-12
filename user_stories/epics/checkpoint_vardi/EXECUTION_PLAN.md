@@ -290,7 +290,7 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > blocked/allowed states, reopened-step regressions, orphaned transferred rows,
 > and unsaved-default behavior. Ran `pnpm test`, `pnpm typecheck`, and
 > `pnpm lint` after installing workspace dependencies in this worktree and
-> verifying under `node v22.22.2`. PR: pending.
+> verifying under `node v22.22.2`. PR: `#15`.
 
 ### Step S1-13: Explicit risk reasoning capture
 
