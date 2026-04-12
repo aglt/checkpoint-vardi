@@ -22,7 +22,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-05 | Transfer non-compliant findings into risk register      | done         | #7 |
 | S1-06 | Risk classification engine and risk-entry editing       | done         | #8 |
 | S1-07 | Summary form and export readiness                       | done         | #9 |
-| S1-08 | Report export for checklist, register, and summary      | not_started  |    |
+| S1-08 | Report export for checklist, register, and summary      | done         | #10 |
 
 ## S1/S2 - Stage bridge
 
@@ -34,5 +34,5 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 **Next up:**
 
-- `S1-08 - Report export for checklist, register, and summary`
-- Continue through `S1-08` with the export mapping work while keeping `S1-09` narrowly scoped and non-blocking.
+- `S1-09 - Foundation for broader safety-plan modules`
+- Open `S1-09` only if a concrete post-MVP expansion seam is now blocking follow-up work.

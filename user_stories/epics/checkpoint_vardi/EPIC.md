@@ -16,8 +16,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-05` is complete and now lives under `done/`
 - `S1-06` is complete and now lives under `done/`
 - `S1-07` is complete and now lives under `done/`
-- `S1-08` and `S1-09` are now staged under `not_started/`
-- the next implementation story is `S1-08`
+- `S1-08` is complete and now lives under `done/`
+- `S1-09` remains staged under `not_started/`
+- the next implementation story is `S1-09`, only if a concrete post-MVP bridge is needed
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -25,9 +26,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S1-07 - Summary form and export readiness`
-- Story file: `user_stories/epics/checkpoint_vardi/done/S1-07-summary-form-and-export-readiness.md`
-- Next story: `S1-08 - Report export for checklist, register, and summary`
+- Most recently completed story: `S1-08 - Report export for checklist, register, and summary`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S1-08-report-export-checklist-register-summary.md`
+- Next story: `S1-09 - Foundation for broader safety-plan modules`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -55,8 +56,11 @@ and deriving reproducible risk levels from pinned seeded matrix truth without
 widening into summary or export work. `S1-07` now completes the final in-app
 assessment flow by persisting the step-6 summary and computing export
 readiness from persisted walkthrough, transfer, classification, and summary
-state. `S1-08` is now the immediate next story. `S1-09` exists as a narrow bridge story only if a
-concrete S1 need surfaces for broader platform groundwork.
+state. `S1-08` now completes the teacher-deliverable MVP path by mapping the
+persisted assessment state into deterministic checklist, register, and summary
+exports plus a downloadable Word/PDF bundle on the summary step. `S1-09`
+exists only as a narrow bridge story if a concrete post-MVP need now surfaces
+for broader platform groundwork.
 
 ### S0 - Foundations
 
@@ -64,7 +68,7 @@ concrete S1 need surfaces for broader platform groundwork.
 "runnable empty project" without widening into feature work, schema work, or product behavior.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
-dev-server loop. The next staged story is `S1-08`.
+dev-server loop. The next staged story is `S1-09`, only if a concrete bridge need appears.
 
 ## Guardrails
 
