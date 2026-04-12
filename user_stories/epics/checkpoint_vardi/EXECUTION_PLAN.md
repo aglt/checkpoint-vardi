@@ -42,7 +42,7 @@ S0-01 (Runnable Empty Scaffold)
 ### Dependency Graph
 
 ```text
-S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
+S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 -> S1-10
                  \
                   -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 ```
@@ -202,6 +202,13 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-08-report-export-checklist-register-summary.md`
 **Start gate:** Open. `S1-07` is complete.
 **Unblocks:** The assignment-ready MVP deliverable path.
+
+### Step S1-10: Browser E2E testing foundation
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-10-browser-e2e-testing-foundation.md`
+**Start gate:** Closed until `S1-08` is complete.
+**Unblocks:** Truthful browser-level regression coverage for the current MVP workflow and future repo-local Playwright guidance.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
