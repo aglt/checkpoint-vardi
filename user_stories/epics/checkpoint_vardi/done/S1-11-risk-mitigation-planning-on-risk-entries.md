@@ -41,7 +41,8 @@ classification result.
 ## Scope
 
 - Add an app-owned mitigation action model attached to `risk_entry`.
-- Add persistence, migrations, and owner-scoped access for mitigation
+- Add persistence, bootstrap schema ownership, and owner-scoped access
+  for mitigation actions
   actions.
 - Add app-owned mutation seams for create, edit, and delete.
 - Add any dedicated projection or read seam needed to render risk-entry

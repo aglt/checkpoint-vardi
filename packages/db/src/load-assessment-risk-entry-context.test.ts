@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { closeDatabase, createMigratedDatabase } from "./database.js";
+import { closeDatabase, createBootstrappedDatabase } from "./database.js";
 import { AssessmentAggregateNotFoundError } from "./load-assessment-aggregate.js";
 import { loadAssessmentRiskEntryContext } from "./load-assessment-risk-entry-context.js";
 import { finding, riskAssessment, riskEntry, workplace } from "./schema.js";
@@ -11,7 +11,7 @@ const startedAt = new Date("2026-04-12T09:00:00.000Z");
 const createdAt = new Date("2026-04-12T09:05:00.000Z");
 
 function seedRiskEntryContextFixture() {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values({
     id: "workplace-1",

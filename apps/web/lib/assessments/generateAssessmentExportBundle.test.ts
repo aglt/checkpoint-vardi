@@ -8,7 +8,7 @@ import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   assessmentSummary,
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
   riskMitigationAction,
   riskEntry,
@@ -61,7 +61,7 @@ function seedExportAssessmentFixture() {
     throw new Error("Expected seeded checklist to contain an unresolved legal reference.");
   }
 
-  const connection = createMigratedDatabase(databasePath);
+  const connection = createBootstrappedDatabase(databasePath);
   const assessment = createWorkplaceAssessment({
     db: connection.db,
     ownerId: "owner-1",
@@ -95,7 +95,7 @@ function seedExportAssessmentFixture() {
 function prepareExportReadyState(
   fixture: ReturnType<typeof seedExportAssessmentFixture>,
 ) {
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   connection.sqlite
     .prepare(`
       update finding
@@ -192,7 +192,7 @@ test("buildAssessmentExportDocuments preserves checklist order and maps summary/
   const fixture = seedExportAssessmentFixture();
   prepareExportReadyState(fixture);
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const readModel = loadAssessmentReadModel({
     db: connection.db,
     ownerId: "owner-1",
@@ -266,7 +266,7 @@ test("generateAssessmentExportBundle returns a bundle manifest and typed not-rea
   const readyFixture = seedExportAssessmentFixture();
   prepareExportReadyState(readyFixture);
 
-  const readyConnection = createMigratedDatabase(readyFixture.databasePath);
+  const readyConnection = createBootstrappedDatabase(readyFixture.databasePath);
   const successOutput = await generateAssessmentExportBundle({
     db: readyConnection.db,
     ownerId: "owner-1",
@@ -285,7 +285,7 @@ test("generateAssessmentExportBundle returns a bundle manifest and typed not-rea
   closeDatabase(readyConnection);
 
   const blockedFixture = seedExportAssessmentFixture();
-  const blockedConnection = createMigratedDatabase(blockedFixture.databasePath);
+  const blockedConnection = createBootstrappedDatabase(blockedFixture.databasePath);
 
   await assert.rejects(
     async () =>

@@ -1,7 +1,7 @@
 export * from "./index.js";
 export {
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   openDatabase,
   type DatabaseConnection,
   type VardiDatabase,

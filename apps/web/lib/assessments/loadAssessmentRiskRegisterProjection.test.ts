@@ -4,7 +4,7 @@ import test from "node:test";
 import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   finding,
   riskAssessment,
   riskEntry,
@@ -39,7 +39,7 @@ function getRequiredRiskMatrix() {
 }
 
 function seedAssessmentWithTransferredRows() {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
   const firstCriterion = checklist.sections[0]?.criteria[0];
   const secondCriterion = checklist.sections[0]?.criteria[1];
 

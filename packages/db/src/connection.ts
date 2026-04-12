@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,8 +14,8 @@ export interface DatabaseConnection {
   readonly db: VardiDatabase;
 }
 
-function getMigrationsDirectory(): string {
-  return join(dirname(fileURLToPath(import.meta.url)), "../migrations");
+function getBootstrapSchemaPath(): string {
+  return join(dirname(fileURLToPath(import.meta.url)), "../bootstrap/schema.sql");
 }
 
 export function createDatabaseConnection(sqlite: Database.Database): DatabaseConnection {
@@ -27,23 +27,16 @@ export function createDatabaseConnection(sqlite: Database.Database): DatabaseCon
   };
 }
 
-export function applyMigrations(connection: DatabaseConnection): void {
-  const migrationDirectory = getMigrationsDirectory();
-  const migrationFiles = readdirSync(migrationDirectory)
-    .filter((fileName) => fileName.endsWith(".sql"))
-    .sort();
-
-  for (const migrationFile of migrationFiles) {
-    const migrationSql = readFileSync(join(migrationDirectory, migrationFile), "utf8");
-    connection.sqlite.exec(migrationSql);
-  }
+export function applyBootstrapSchema(connection: DatabaseConnection): void {
+  const bootstrapSql = readFileSync(getBootstrapSchemaPath(), "utf8");
+  connection.sqlite.exec(bootstrapSql);
 }
 
-export function createMigratedDatabaseConnection(
+export function createBootstrappedDatabaseConnection(
   sqlite: Database.Database,
 ): DatabaseConnection {
   const connection = createDatabaseConnection(sqlite);
-  applyMigrations(connection);
+  applyBootstrapSchema(connection);
   return connection;
 }
 

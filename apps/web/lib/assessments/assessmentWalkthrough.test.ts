@@ -7,7 +7,7 @@ import test from "node:test";
 import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
   updateAssessmentFindingResponse,
 } from "@vardi/db/testing";
@@ -65,7 +65,7 @@ function seedWalkthroughAssessment() {
     throw new Error("Expected checklist fixture to contain at least two criteria.");
   }
 
-  const connection = createMigratedDatabase(databasePath);
+  const connection = createBootstrappedDatabase(databasePath);
   const result = createWorkplaceAssessment({
     db: connection.db,
     ownerId: "owner-1",
@@ -126,7 +126,7 @@ async function transferCriteriaToRiskRegister(
     assessmentId: fixture.assessmentId,
   });
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const projection = loadAssessmentRiskRegisterProjection({
     db: connection.db,
     ownerId: "owner-1",
@@ -163,7 +163,7 @@ async function transferSecondCriterionRiskEntry(
 function markAllFindingsOk(
   fixture: ReturnType<typeof seedWalkthroughAssessment>,
 ) {
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   connection.sqlite
     .prepare(`
       update finding
@@ -201,7 +201,7 @@ test("walkthrough save action persists answers by stable criterion id", async ()
   assert.equal(payload.status, "notOk");
   assert.equal(payload.notes, "Missing guard");
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const readModel = loadAssessmentReadModel({
     db: connection.db,
     ownerId: "owner-1",
@@ -222,7 +222,7 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
   const fixture = seedWalkthroughAssessment();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   updateAssessmentFindingResponse({
     db: connection.db,
     ownerId: "owner-1",
@@ -270,7 +270,7 @@ test("assessment page re-renders with the persisted answer state selected", asyn
   const fixture = seedWalkthroughAssessment();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   updateAssessmentFindingResponse({
     db: connection.db,
     ownerId: "owner-1",
@@ -348,7 +348,7 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
     existingRiskEntryCount: 0,
   });
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const readModel = loadAssessmentReadModel({
     db: connection.db,
     ownerId: "owner-1",
@@ -486,7 +486,7 @@ test("assessment page localizes stale risk classifications to the affected card"
     },
   });
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   connection.sqlite
     .prepare(`
       update risk_entry

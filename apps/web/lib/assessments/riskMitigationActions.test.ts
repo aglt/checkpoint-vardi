@@ -7,7 +7,7 @@ import test, { mock } from "node:test";
 import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
   loadAssessmentAggregate,
 } from "@vardi/db/testing";
@@ -60,7 +60,7 @@ function seedTransferredRiskEntryFixture() {
     throw new Error("Expected checklist fixture to contain a transferable criterion.");
   }
 
-  const connection = createMigratedDatabase(databasePath);
+  const connection = createBootstrappedDatabase(databasePath);
   const assessment = createWorkplaceAssessment({
     db: connection.db,
     ownerId: "owner-1",
@@ -115,7 +115,7 @@ async function transferCriterion(
     assessmentId: fixture.assessmentId,
   });
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const aggregate = loadAssessmentAggregate({
     db: connection.db,
     ownerId: "owner-1",
@@ -146,7 +146,7 @@ async function transferCriterion(
 test("createAssessmentRiskMitigationAction trims values and stores date-only fields at UTC midnight", async () => {
   const fixture = seedTransferredRiskEntryFixture();
   const riskEntryId = await transferCriterion(fixture);
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
 
   const output = createAssessmentRiskMitigationAction({
     db: connection.db,
@@ -187,7 +187,7 @@ test("createAssessmentRiskMitigationAction trims values and stores date-only fie
 test("updateAssessmentRiskMitigationAction normalizes optional fields and deleteAssessmentRiskMitigationAction removes the saved row", async () => {
   const fixture = seedTransferredRiskEntryFixture();
   const riskEntryId = await transferCriterion(fixture);
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
 
   const createdAction = createAssessmentRiskMitigationAction({
     db: connection.db,
@@ -251,7 +251,7 @@ test("updateAssessmentRiskMitigationAction normalizes optional fields and delete
 test("risk mitigation action mutations return client-safe validation and missing-row errors", async () => {
   const fixture = seedTransferredRiskEntryFixture();
   const riskEntryId = await transferCriterion(fixture);
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
 
   assert.throws(
     () =>
@@ -329,7 +329,7 @@ test("risk mitigation action mutations return client-safe validation and missing
 test("risk mitigation action mutations convert unexpected failures into client-safe 500 errors", async () => {
   const fixture = seedTransferredRiskEntryFixture();
   const riskEntryId = await transferCriterion(fixture);
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const consoleErrorMock = mock.method(console, "error", () => undefined);
 
   assert.throws(

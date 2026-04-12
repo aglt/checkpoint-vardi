@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import type { VardiDatabase } from "./database.js";
 import {
@@ -6,12 +6,10 @@ import {
   finding,
   riskAssessment,
   riskEntry,
-  riskMitigationAction,
   type AssessmentSummaryRow,
   type FindingRow,
   type RiskAssessmentRow,
   type RiskEntryRow,
-  type RiskMitigationActionRow,
   type WorkplaceRow,
   workplace,
 } from "./schema.js";
@@ -27,7 +25,6 @@ export interface AssessmentAggregate {
   readonly assessment: RiskAssessmentRow;
   readonly findings: readonly FindingRow[];
   readonly riskEntries: readonly RiskEntryRow[];
-  readonly mitigationActions: readonly RiskMitigationActionRow[];
   readonly summary: AssessmentSummaryRow | null;
 }
 
@@ -88,26 +85,6 @@ export function loadAssessmentAggregate(
         )
         .all();
 
-  const mitigationActions = riskEntries.length === 0
-    ? []
-    : params.db
-        .select()
-        .from(riskMitigationAction)
-        .where(
-          and(
-            eq(riskMitigationAction.ownerId, params.ownerId),
-            inArray(
-              riskMitigationAction.riskEntryId,
-              riskEntries.map((entry) => entry.id),
-            ),
-          ),
-        )
-        .orderBy(
-          asc(riskMitigationAction.createdAt),
-          asc(riskMitigationAction.id),
-        )
-        .all();
-
   const summary = params.db
     .select()
     .from(assessmentSummary)
@@ -124,7 +101,6 @@ export function loadAssessmentAggregate(
     assessment: assessmentRow.assessment,
     findings,
     riskEntries,
-    mitigationActions,
     summary,
   };
 }

@@ -5,7 +5,7 @@ import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   assessmentSummary,
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   finding,
   riskAssessment,
   riskEntry,
@@ -28,7 +28,7 @@ function seedBaseAssessment(options?: {
   readonly checklistVersion?: string;
   readonly riskMatrixId?: string;
 }) {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values({
     id: "workplace-1",

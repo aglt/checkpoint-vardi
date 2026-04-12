@@ -1,6 +1,7 @@
 import { getRiskMatrixById, type RiskMatrix } from "@vardi/checklists";
 import {
   loadAssessmentAggregate,
+  loadAssessmentRiskMitigationActions,
   type RiskEntryRow,
   type RiskMitigationActionRow,
   type VardiDatabase,
@@ -72,6 +73,11 @@ export function loadAssessmentRiskRegisterProjection(
 ): AssessmentRiskRegisterProjection {
   const readModel = params.readModel ?? loadAssessmentReadModel(params);
   const aggregate = loadAssessmentAggregate(params);
+  const mitigationActions = loadAssessmentRiskMitigationActions({
+    db: params.db,
+    ownerId: params.ownerId,
+    assessmentId: params.assessmentId,
+  });
   const riskMatrix = getRiskMatrixById(readModel.riskMatrix.id);
 
   if (!riskMatrix) {
@@ -85,7 +91,7 @@ export function loadAssessmentRiskRegisterProjection(
   );
   const mitigationActionsByRiskEntryId = new Map<string, RiskMitigationActionRow[]>();
 
-  for (const action of aggregate.mitigationActions) {
+  for (const action of mitigationActions) {
     const existingActions = mitigationActionsByRiskEntryId.get(action.riskEntryId) ?? [];
     existingActions.push(action);
     mitigationActionsByRiskEntryId.set(action.riskEntryId, existingActions);

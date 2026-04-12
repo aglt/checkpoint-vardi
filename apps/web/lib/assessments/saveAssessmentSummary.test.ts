@@ -7,7 +7,7 @@ import test from "node:test";
 import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
   loadAssessmentAggregate,
 } from "@vardi/db/testing";
@@ -53,7 +53,7 @@ function seedSummaryAssessmentFixture() {
     throw new Error("Expected checklist fixture to contain at least one criterion.");
   }
 
-  const connection = createMigratedDatabase(databasePath);
+  const connection = createBootstrappedDatabase(databasePath);
   const assessment = createWorkplaceAssessment({
     db: connection.db,
     ownerId: "owner-1",
@@ -87,7 +87,7 @@ test("saveAssessmentSummaryAction upserts normalized summary values and returns 
   const fixture = seedSummaryAssessmentFixture();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   connection.sqlite
     .prepare(`
       update finding
@@ -208,7 +208,7 @@ test("saveAssessmentSummaryAction upserts normalized summary values and returns 
     },
   });
 
-  const persistedConnection = createMigratedDatabase(fixture.databasePath);
+  const persistedConnection = createBootstrappedDatabase(fixture.databasePath);
   const aggregate = loadAssessmentAggregate({
     db: persistedConnection.db,
     ownerId: "owner-1",
@@ -229,7 +229,7 @@ test("saveAssessmentSummaryAction upserts normalized summary values and returns 
 
 test("saveAssessmentSummary returns client-safe validation and missing-assessment errors", () => {
   const fixture = seedSummaryAssessmentFixture();
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
 
   assert.throws(
     () =>

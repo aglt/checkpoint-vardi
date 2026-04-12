@@ -4,12 +4,13 @@ import test from "node:test";
 import { eq } from "drizzle-orm";
 
 import {
-  applyMigrations,
+  applyBootstrapSchema,
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   openDatabase,
 } from "./database.js";
 import { AssessmentAggregateNotFoundError, loadAssessmentAggregate } from "./load-assessment-aggregate.js";
+import { loadAssessmentRiskMitigationActions } from "./load-assessment-risk-mitigation-actions.js";
 import {
   assessmentSummary,
   finding,
@@ -24,7 +25,7 @@ const baseCreatedAt = new Date("2026-04-11T09:05:00.000Z");
 const baseUpdatedAt = new Date("2026-04-11T09:10:00.000Z");
 
 function seedAssessmentFixture(ownerId = "owner-1") {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values({
     id: `workplace-${ownerId}`,
@@ -51,11 +52,11 @@ function seedAssessmentFixture(ownerId = "owner-1") {
   return connection;
 }
 
-test("migrations replay cleanly on a fresh SQLite database", () => {
+test("bootstrap schema applies cleanly on a fresh SQLite database", () => {
   const connection = openDatabase();
 
-  assert.doesNotThrow(() => applyMigrations(connection));
-  assert.doesNotThrow(() => applyMigrations(connection));
+  assert.doesNotThrow(() => applyBootstrapSchema(connection));
+  assert.doesNotThrow(() => applyBootstrapSchema(connection));
 
   const tableNames = connection.sqlite
     .prepare("select name from sqlite_master where type = 'table' order by name")
@@ -280,13 +281,18 @@ test("loadAssessmentAggregate returns the owner-scoped persisted graph", () => {
     ownerId: "owner-1",
     assessmentId: "assessment-owner-1",
   });
+  const mitigationActions = loadAssessmentRiskMitigationActions({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: "assessment-owner-1",
+  });
 
   assert.equal(aggregate.workplace.id, "workplace-owner-1");
   assert.equal(aggregate.assessment.id, "assessment-owner-1");
   assert.equal(aggregate.findings.length, 2);
   assert.equal(aggregate.riskEntries.length, 1);
   assert.deepEqual(
-    aggregate.mitigationActions.map((action) => action.id),
+    mitigationActions.map((action) => action.id),
     ["action-1", "action-2"],
   );
   assert.equal(aggregate.summary?.assessmentId, "assessment-owner-1");

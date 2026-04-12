@@ -5,7 +5,7 @@ import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   assessmentSummary,
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
   finding,
   riskEntry,
@@ -38,7 +38,7 @@ function getRequiredRiskMatrix() {
 }
 
 function seedAssessmentFixture() {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
   const checklist = getRequiredChecklist();
   const riskMatrix = getRequiredRiskMatrix();
   const criteria = checklist.sections.flatMap((section) => section.criteria);

@@ -8,6 +8,10 @@ export {
   type LoadAssessmentAggregateParams,
 } from "./load-assessment-aggregate.js";
 export {
+  loadAssessmentRiskMitigationActions,
+  type LoadAssessmentRiskMitigationActionsParams,
+} from "./load-assessment-risk-mitigation-actions.js";
+export {
   loadAssessmentRiskEntryContext,
   type AssessmentRiskEntryContext,
   type LoadAssessmentRiskEntryContextParams,

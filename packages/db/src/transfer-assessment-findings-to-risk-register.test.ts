@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { closeDatabase, createMigratedDatabase } from "./database.js";
+import { closeDatabase, createBootstrappedDatabase } from "./database.js";
 import {
   MissingRiskEntryHazardError,
   transferAssessmentFindingsToRiskRegister,
@@ -13,7 +13,7 @@ const createdAt = new Date("2026-04-12T09:05:00.000Z");
 const updatedAt = new Date("2026-04-12T09:10:00.000Z");
 
 function seedTransferFixture() {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values({
     id: "workplace-1",
