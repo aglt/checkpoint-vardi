@@ -27,6 +27,25 @@ export const workplace = sqliteTable(
   }),
 );
 
+export const safetyPlan = sqliteTable(
+  "safety_plan",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull(),
+    workplaceId: text("workplace_id")
+      .notNull()
+      .references(() => workplace.id, { onDelete: "cascade" }),
+    status: text("status").notNull().default("active"),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+    reviewDueAt: integer("review_due_at", { mode: "timestamp_ms" }),
+    reviewCadence: text("review_cadence").notNull().default("yearly"),
+  },
+  (table) => ({
+    ownerIdx: index("safety_plan_owner_idx").on(table.ownerId),
+    workplaceIdx: index("safety_plan_workplace_idx").on(table.workplaceId),
+  }),
+);
+
 export const riskAssessment = sqliteTable(
   "risk_assessment",
   {
@@ -123,6 +142,7 @@ export const assessmentSummary = sqliteTable(
 );
 
 export type WorkplaceRow = typeof workplace.$inferSelect;
+export type SafetyPlanRow = typeof safetyPlan.$inferSelect;
 export type RiskAssessmentRow = typeof riskAssessment.$inferSelect;
 export type FindingRow = typeof finding.$inferSelect;
 export type RiskEntryRow = typeof riskEntry.$inferSelect;

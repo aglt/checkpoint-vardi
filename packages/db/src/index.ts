@@ -55,11 +55,13 @@ export {
   riskAssessment,
   riskEntry,
   riskLevels,
+  safetyPlan,
   workplace,
   workplaceArchetypes,
   type AssessmentSummaryRow,
   type FindingRow,
   type RiskAssessmentRow,
   type RiskEntryRow,
+  type SafetyPlanRow,
   type WorkplaceRow,
 } from "./schema.js";

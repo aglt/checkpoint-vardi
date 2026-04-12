@@ -62,8 +62,11 @@ persisted assessment state into deterministic checklist, register, and summary
 exports plus a downloadable Word/PDF bundle on the summary step. `S1-10`
 follows it to add Playwright-based browser-level proof for the real MVP flow
 and to capture repo-local Playwright usage guidance for future agents. `S1-09`
-exists only as a narrow bridge story if a concrete post-MVP need surfaces for
-broader platform groundwork.
+is now narrowed to a tiny additive persistence seam in `packages/db` plus the
+architecture boundary docs that record the future `safetyPlan` container
+direction without touching the current assessment, export, or browser-test
+seams. Any real root/container implementation still belongs in a later
+explicit post-`S1-10` story.
 
 ### S0 - Foundations
 
@@ -72,7 +75,8 @@ broader platform groundwork.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. The next staged story is `S1-10`, while `S1-09` remains
-conditional and non-blocking.
+non-blocking and limited to additive persistence groundwork plus architecture
+planning.
 
 ## Guardrails
 

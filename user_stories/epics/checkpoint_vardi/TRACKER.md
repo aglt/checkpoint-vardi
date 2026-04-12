@@ -36,4 +36,6 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 **Next up:**
 
 - `S1-10 - Browser E2E testing foundation`
-- Keep `S1-09` narrowly scoped and non-blocking unless `S1-10` or another active follow-up exposes a concrete need for it.
+- Keep `S1-09` non-blocking and limited to the additive `packages/db`
+  `safetyPlan` seam; any runtime root rewrite must be restaged as an explicit
+  post-`S1-10` story.
