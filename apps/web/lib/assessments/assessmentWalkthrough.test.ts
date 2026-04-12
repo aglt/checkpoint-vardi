@@ -10,7 +10,7 @@ import {
   createMigratedDatabase,
   createWorkplaceAssessment,
   updateAssessmentFindingResponse,
-} from "@vardi/db";
+} from "@vardi/db/testing";
 import {
   AppRouterContext,
   type AppRouterInstance,

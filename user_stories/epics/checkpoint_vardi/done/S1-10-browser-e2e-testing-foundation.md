@@ -1,6 +1,6 @@
 # S1-10 - Browser E2E testing foundation
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P1
@@ -9,6 +9,48 @@ Role: **Implementation source of truth** for browser-level end-to-end testing of
 Depends on: S1-08
 
 ---
+
+## Context
+
+This story is complete. `S1-08` already established the full persisted
+MVP assessment flow and export-readiness surface; `S1-10` now adds a
+truthful browser-level verification seam on top of that existing flow
+without reviving `S1-09`, adding `safety_plan`, or widening the root
+truth beyond `workplace -> risk_assessment`.
+
+The repo now uses Playwright as the narrow browser E2E baseline for the
+current MVP workflow. The root `pnpm test:e2e` command delegates into
+`apps/web`, where `playwright.config.mjs` starts the Next app on
+`http://127.0.0.1:3001`, runs Chromium-only, and uses an isolated SQLite
+database path for deterministic runs.
+
+Deterministic bootstrap/reset now lives under `apps/web/e2e/`. The
+isolated state directory is `apps/web/.e2e/state/`, path resolution and
+cleanup live in `apps/web/e2e/support/e2eDatabase.mjs`, and the actual
+SQLite recreation plus package-owned migration replay lives in
+`apps/web/e2e/scripts/resetE2eDatabase.ts`. The app keeps using
+`VARDI_DATABASE_PATH`, but Playwright now points that env var at the
+isolated E2E database instead of normal local state.
+
+The browser suite currently contains two specs in
+`apps/web/e2e/specs/`: a smoke test for `/` boot plus seeded template
+visibility, and a real assessment workflow test that starts an
+assessment, persists a `Not ok` walkthrough answer, transfers the
+finding into the risk register, edits and saves a transferred risk row,
+saves the summary, and confirms the current MVP export/readiness surface
+stays truthfully blocked until the walkthrough is complete.
+
+This change also fixed the current MVP assessment editors so imported
+server actions actually dispatch from the browser and the client-side
+save state no longer stalls in `saving` because of request-id sequencing.
+The repo-local Playwright guidance under
+`.claude/skills/vardi-web-e2e-testing/` now documents the exact run
+commands, isolated DB behavior, and extension rules for future agents.
+
+This implementation was verified locally with `pnpm test`,
+`pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e`. The local shell used
+`node v25.6.1`; Node 22 remains the declared repo contract, but that
+exact runtime was not directly re-verified in this environment.
 
 ## Goal
 

@@ -2,8 +2,9 @@ import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import Database from "better-sqlite3";
 import {
-  createMigratedDatabase,
+  createMigratedDatabaseConnection,
   type DatabaseConnection,
   type VardiDatabase,
 } from "@vardi/db";
@@ -27,7 +28,7 @@ declare global {
 function initializeDatabaseConnection(): DatabaseConnection {
   const databasePath = resolveDatabasePath();
   mkdirSync(dirname(databasePath), { recursive: true });
-  return createMigratedDatabase(databasePath);
+  return createMigratedDatabaseConnection(new Database(databasePath));
 }
 
 // Guarded one-time bootstrap for the shared SQLite file connection.

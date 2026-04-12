@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { getSeedChecklistById, getSeedChecklistBySlug, getRiskMatrixBySlug } from "@vardi/checklists";
-import { closeDatabase, createMigratedDatabase } from "@vardi/db";
+import { closeDatabase, createMigratedDatabase } from "@vardi/db/testing";
 
 import {
   SeedChecklistNotFoundError,

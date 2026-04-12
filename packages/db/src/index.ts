@@ -2,11 +2,11 @@
 export {
   applyMigrations,
   closeDatabase,
-  createMigratedDatabase,
-  openDatabase,
+  createDatabaseConnection,
+  createMigratedDatabaseConnection,
   type DatabaseConnection,
   type VardiDatabase,
-} from "./database.js";
+} from "./connection.js";
 export {
   AssessmentAggregateNotFoundError,
   loadAssessmentAggregate,

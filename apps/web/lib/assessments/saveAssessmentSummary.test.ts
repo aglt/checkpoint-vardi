@@ -10,7 +10,7 @@ import {
   createMigratedDatabase,
   createWorkplaceAssessment,
   loadAssessmentAggregate,
-} from "@vardi/db";
+} from "@vardi/db/testing";
 
 import {
   SaveAssessmentSummaryError,

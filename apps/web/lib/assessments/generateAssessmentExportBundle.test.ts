@@ -11,7 +11,7 @@ import {
   createMigratedDatabase,
   createWorkplaceAssessment,
   riskEntry,
-} from "@vardi/db";
+} from "@vardi/db/testing";
 
 import { buildAssessmentExportDocuments } from "./buildAssessmentExportDocuments";
 import {

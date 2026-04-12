@@ -9,7 +9,7 @@ import {
   createWorkplaceAssessment,
   finding,
   riskEntry,
-} from "@vardi/db";
+} from "@vardi/db/testing";
 
 import { loadAssessmentSummaryProjection } from "./loadAssessmentSummaryProjection";
 

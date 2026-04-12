@@ -483,10 +483,12 @@ export function AssessmentWalkthrough({
       message: null,
     });
 
-    void transferAssessmentFindingsToRiskRegisterAction({
-      assessmentId,
-    })
-      .then((response) => {
+    startTransition(async () => {
+      try {
+        const response = await transferAssessmentFindingsToRiskRegisterAction({
+          assessmentId,
+        });
+
         startTransition(() => {
           setRiskEntryStatusByCriterionId((current) =>
             markTransferredRiskEntriesPresent(criterionStatesRef.current, current),
@@ -497,8 +499,7 @@ export function AssessmentWalkthrough({
           });
           router.refresh();
         });
-      })
-      .catch((error: unknown) => {
+      } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
             ? error.message
@@ -510,7 +511,8 @@ export function AssessmentWalkthrough({
             message: errorMessage,
           });
         });
-      });
+      }
+    });
   }
 
   function scheduleSave(criterionId: string) {
@@ -548,27 +550,31 @@ export function AssessmentWalkthrough({
       return;
     }
 
-    let nextRequestId = 0;
-
-    setCriterionStates((current) => {
-      const startedSave = beginCriterionSave(current, criterionId, nextDraft);
-      nextRequestId = startedSave.requestId;
-      return startedSave.criterionStates;
-    });
+    const startedSave = beginCriterionSave(
+      criterionStatesRef.current,
+      criterionId,
+      nextDraft,
+    );
+    const nextRequestId = startedSave.requestId;
 
     if (nextRequestId === 0) {
       return;
     }
 
-    void saveAssessmentCriterionResponseAction({
-      assessmentId,
-      input: {
-        criterionId,
-        status: nextDraft.status,
-        notes: nextDraft.notes,
-      },
-    })
-      .then((response) => {
+    criterionStatesRef.current = startedSave.criterionStates;
+    setCriterionStates(startedSave.criterionStates);
+
+    startTransition(async () => {
+      try {
+        const response = await saveAssessmentCriterionResponseAction({
+          assessmentId,
+          input: {
+            criterionId,
+            status: nextDraft.status,
+            notes: nextDraft.notes,
+          },
+        });
+
         startTransition(() => {
           setCriterionStates((current) =>
             reconcileCriterionSaveSuccess(
@@ -580,8 +586,7 @@ export function AssessmentWalkthrough({
             ),
           );
         });
-      })
-      .catch((error: unknown) => {
+      } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
             ? error.message
@@ -597,7 +602,8 @@ export function AssessmentWalkthrough({
             ),
           );
         });
-      });
+      }
+    });
   }
 }
 
