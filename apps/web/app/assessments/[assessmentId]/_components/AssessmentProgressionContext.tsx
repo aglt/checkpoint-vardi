@@ -10,11 +10,15 @@ import React, {
 } from "react";
 
 import { loadAssessmentProgressionAction } from "@/lib/assessments/loadAssessmentProgressionAction";
+import { loadAssessmentSummaryPrioritizedEntriesAction } from "@/lib/assessments/loadAssessmentSummaryPrioritizedEntriesAction";
 import type { AssessmentProgressionProjection } from "@/lib/assessments/loadAssessmentProgressionProjection";
+import type { AssessmentSummaryPrioritizedEntry } from "@/lib/assessments/assessmentSummaryPriorityEntries";
 
 interface AssessmentProgressionContextValue {
   readonly progression: AssessmentProgressionProjection;
+  readonly summaryPrioritizedEntries: readonly AssessmentSummaryPrioritizedEntry[];
   readonly refreshProgression: () => Promise<void>;
+  readonly refreshSummary: () => Promise<void>;
 }
 
 const AssessmentProgressionContext =
@@ -24,21 +28,31 @@ export function AssessmentProgressionProvider({
   assessmentId,
   children,
   initialProgression,
+  initialSummaryPrioritizedEntries,
 }: {
   readonly assessmentId: string;
   readonly children: React.ReactNode;
   readonly initialProgression: AssessmentProgressionProjection;
+  readonly initialSummaryPrioritizedEntries: readonly AssessmentSummaryPrioritizedEntry[];
 }) {
   const [progression, setProgression] =
     useState<AssessmentProgressionProjection>(initialProgression);
+  const [summaryPrioritizedEntries, setSummaryPrioritizedEntries] = useState<
+    readonly AssessmentSummaryPrioritizedEntry[]
+  >(initialSummaryPrioritizedEntries);
 
   useEffect(() => {
     setProgression(initialProgression);
   }, [initialProgression]);
 
+  useEffect(() => {
+    setSummaryPrioritizedEntries(initialSummaryPrioritizedEntries);
+  }, [initialSummaryPrioritizedEntries]);
+
   const value = useMemo<AssessmentProgressionContextValue>(
     () => ({
       progression,
+      summaryPrioritizedEntries,
       refreshProgression: async () => {
         try {
           const nextProgression = await loadAssessmentProgressionAction({
@@ -55,8 +69,25 @@ export function AssessmentProgressionProvider({
           });
         }
       },
+      refreshSummary: async () => {
+        try {
+          const nextPrioritizedEntries =
+            await loadAssessmentSummaryPrioritizedEntriesAction({
+              assessmentId,
+            });
+
+          startTransition(() => {
+            setSummaryPrioritizedEntries(nextPrioritizedEntries);
+          });
+        } catch (error) {
+          console.error("Summary refresh failed", {
+            assessmentId,
+            error,
+          });
+        }
+      },
     }),
-    [assessmentId, progression],
+    [assessmentId, progression, summaryPrioritizedEntries],
   );
 
   return (

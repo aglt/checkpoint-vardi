@@ -13,11 +13,7 @@ import {
   type AssessmentSummaryClientState,
   type AssessmentSummaryDraft,
 } from "@/lib/assessments/assessmentSummaryController";
-import {
-  ASSESSMENT_RISK_ENTRY_SAVED_EVENT,
-  isAssessmentRiskEntrySavedEvent,
-} from "@/lib/assessments/assessmentRiskEntrySavedEvent";
-import { upsertAssessmentSummaryPrioritizedEntry } from "@/lib/assessments/assessmentSummaryPriorityEntries";
+import type { AssessmentSummaryPrioritizedEntry } from "@/lib/assessments/assessmentSummaryPriorityEntries";
 import type { AppLanguage } from "@/lib/i18n/appLanguage";
 import {
   getAssessmentProgressionBlockerMessages,
@@ -42,25 +38,21 @@ interface AssessmentSummaryEditorProps {
   readonly assessmentId: string;
   readonly language: AppLanguage;
   readonly summary: AssessmentSummaryProjection["summary"];
-  readonly prioritizedEntries: AssessmentSummaryProjection["prioritizedEntries"];
 }
 
 export function AssessmentSummaryEditor({
   assessmentId,
   language,
   summary,
-  prioritizedEntries,
 }: AssessmentSummaryEditorProps) {
-  const { progression, refreshProgression } = useAssessmentProgression();
+  const { progression, refreshProgression, summaryPrioritizedEntries } =
+    useAssessmentProgression();
   const copy = getAssessmentSummaryStaticCopy(language);
   const readiness = progression.exportReadiness;
   const summaryStep = progression.summary;
   const exportStep = progression.export;
   const [summaryState, setSummaryState] = useState<AssessmentSummaryClientState>(
     () => buildInitialAssessmentSummaryState(summary),
-  );
-  const [priorityEntriesState, setPriorityEntriesState] = useState(
-    prioritizedEntries,
   );
   const [exportState, setExportState] = useState<{
     readonly status: "idle" | "exporting" | "error" | "success";
@@ -75,45 +67,11 @@ export function AssessmentSummaryEditor({
   }, [summary]);
 
   useEffect(() => {
-    setPriorityEntriesState(prioritizedEntries);
-  }, [prioritizedEntries]);
-
-  useEffect(() => {
     setExportState({
       status: "idle",
       message: null,
     });
   }, [assessmentId, readiness.exportReady, summary]);
-
-  useEffect(() => {
-    const handleRiskEntrySaved = (event: Event) => {
-      if (!isAssessmentRiskEntrySavedEvent(event)) {
-        return;
-      }
-
-      if (event.detail.assessmentId !== assessmentId) {
-        return;
-      }
-
-      startTransition(() => {
-        setPriorityEntriesState((current) =>
-          upsertAssessmentSummaryPrioritizedEntry(current, event.detail.entry),
-        );
-      });
-    };
-
-    window.addEventListener(
-      ASSESSMENT_RISK_ENTRY_SAVED_EVENT,
-      handleRiskEntrySaved,
-    );
-
-    return () => {
-      window.removeEventListener(
-        ASSESSMENT_RISK_ENTRY_SAVED_EVENT,
-        handleRiskEntrySaved,
-      );
-    };
-  }, [assessmentId]);
 
   const readinessBlockers = getReadinessBlockers(language, readiness);
   const summaryBlockerMessages = getAssessmentProgressionBlockerMessages(
@@ -381,13 +339,13 @@ export function AssessmentSummaryEditor({
                 </p>
               </div>
 
-              {priorityEntriesState.length === 0 ? (
+              {summaryPrioritizedEntries.length === 0 ? (
                 <div className="rounded-[1.4rem] border border-dashed border-black/12 bg-[#fbf7ef] px-4 py-4 text-sm leading-6 text-slate-600">
                   {copy.priority.empty}
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {priorityEntriesState.map((entry) => (
+                  {summaryPrioritizedEntries.map((entry) => (
                     <article
                       className="rounded-[1.3rem] border border-black/8 bg-[#fbf7ef] px-3 py-3"
                       data-priority-state={entry.classificationState}
@@ -699,7 +657,7 @@ function ReadinessRow({
 
 function getPriorityBadgeClassName(
   riskLevel: "low" | "medium" | "high" | null,
-  state: AssessmentSummaryEditorProps["prioritizedEntries"][number]["classificationState"],
+  state: AssessmentSummaryPrioritizedEntry["classificationState"],
 ): string {
   if (state === "staleRiskLevel" || state === "invalidClassification") {
     return "inline-flex shrink-0 items-center rounded-full border border-[#d7b778] bg-[#fff2d4] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#805312]";

@@ -19,8 +19,6 @@ import {
   type RiskMitigationActionDraft,
   type RiskMitigationActionStateMap,
 } from "@/lib/assessments/assessmentRiskMitigationController";
-import { dispatchAssessmentRiskEntrySavedEvent } from "@/lib/assessments/assessmentRiskEntrySavedEvent";
-import { toAssessmentSummaryPrioritizedEntry } from "@/lib/assessments/assessmentSummaryPriorityEntries";
 import {
   beginRiskEntrySave,
   buildInitialRiskEntryState,
@@ -76,7 +74,8 @@ export function RiskRegisterEditor({
   riskMatrixSeverityChoices,
   entries,
 }: RiskRegisterEditorProps) {
-  const { progression, refreshProgression } = useAssessmentProgression();
+  const { progression, refreshProgression, refreshSummary } =
+    useAssessmentProgression();
   const copy = getRiskRegisterStaticCopy(language);
   const [riskEntryStates, setRiskEntryStates] = useState<RiskEntryStateMap>(() =>
     buildInitialRiskEntryState(entries),
@@ -939,20 +938,7 @@ export function RiskRegisterEditor({
             ),
           );
         });
-        const savedEntry = entries.find((entry) => entry.id === riskEntryId);
-
-        if (savedEntry) {
-          dispatchAssessmentRiskEntrySavedEvent({
-            assessmentId,
-            entry: toAssessmentSummaryPrioritizedEntry({
-              ...savedEntry,
-              hazard: response.hazard,
-              savedRiskLevel: response.riskLevel,
-              classificationState: "ready",
-            }),
-          });
-        }
-        await refreshProgression();
+        await Promise.all([refreshProgression(), refreshSummary()]);
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error

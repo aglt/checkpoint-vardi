@@ -59,6 +59,7 @@ export default async function AssessmentWalkthroughPage({
       <AssessmentProgressionProvider
         assessmentId={readModel.assessment.id}
         initialProgression={progression}
+        initialSummaryPrioritizedEntries={summaryProjection.prioritizedEntries}
       >
         <AssessmentWalkthrough
           assessmentId={readModel.assessment.id}
@@ -81,7 +82,6 @@ export default async function AssessmentWalkthroughPage({
           <AssessmentSummaryEditor
             assessmentId={readModel.assessment.id}
             language={language}
-            prioritizedEntries={summaryProjection.prioritizedEntries}
             summary={summaryProjection.summary}
           />
         </AssessmentWalkthrough>

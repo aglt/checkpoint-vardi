@@ -30,22 +30,7 @@ export function buildAssessmentSummaryPrioritizedEntries(
     .map(({ entry }) => entry);
 }
 
-export function upsertAssessmentSummaryPrioritizedEntry(
-  entries: readonly AssessmentSummaryPrioritizedEntry[],
-  entry: AssessmentSummaryPrioritizedEntry,
-): readonly AssessmentSummaryPrioritizedEntry[] {
-  const existingIndex = entries.findIndex((current) => current.id === entry.id);
-  const nextEntries =
-    existingIndex === -1
-      ? [...entries, entry]
-      : entries.map((current, index) => (index === existingIndex ? entry : current));
-
-  return [...nextEntries].sort(
-    (left, right) => getPrioritySortOrder(left) - getPrioritySortOrder(right),
-  );
-}
-
-export function toAssessmentSummaryPrioritizedEntry(
+function toAssessmentSummaryPrioritizedEntry(
   entry: Pick<
     AssessmentRiskRegisterEntryProjection,
     | "id"

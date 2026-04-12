@@ -593,11 +593,11 @@ test("risk register and summary editors localize grouped severity choices in Eng
             assessmentId: fixture.assessmentId,
             key: "summary",
             language: "en",
-            prioritizedEntries: summaryProjection.prioritizedEntries,
             summary: summaryProjection.summary,
           }),
         ],
         initialProgression: progression,
+        initialSummaryPrioritizedEntries: summaryProjection.prioritizedEntries,
       },
     ),
   );
