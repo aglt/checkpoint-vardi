@@ -21,7 +21,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-04 | Assessment walkthrough form slice                       | done         | #6 |
 | S1-05 | Transfer non-compliant findings into risk register      | done         | #7 |
 | S1-06 | Risk classification engine and risk-entry editing       | done         | #8 |
-| S1-07 | Summary form and export readiness                       | done         |    |
+| S1-07 | Summary form and export readiness                       | done         | #9 |
 | S1-08 | Report export for checklist, register, and summary      | not_started  |    |
 
 ## S1/S2 - Stage bridge

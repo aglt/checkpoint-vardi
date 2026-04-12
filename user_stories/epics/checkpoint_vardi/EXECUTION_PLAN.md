@@ -194,7 +194,7 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 > Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing
 > workspace dependencies in this worktree. This session used `node v25.6.1`;
 > Node 22 remains the declared repo contract, but was not directly re-verified
-> here.
+> here. PR: `#9`.
 
 ### Step S1-08: Report export for checklist, register, and summary
 
