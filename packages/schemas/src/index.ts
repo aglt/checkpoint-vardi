@@ -288,6 +288,31 @@ export const transferAssessmentFindingsToRiskRegisterOutputSchema = z.object({
   existingRiskEntryCount: z.number().int().nonnegative(),
 });
 
+export const generateAssessmentExportBundleInputSchema = z
+  .object({
+    assessmentId: z.preprocess(
+      trimString,
+      z.string().min(1, "Assessment id is required.").max(200),
+    ),
+  })
+  .strict();
+
+export const assessmentExportBundleFileSchema = z.object({
+  kind: z.enum(["checklist", "register", "summary"]),
+  format: z.enum(["docx", "pdf"]),
+  fileName: z.string().min(1).max(200),
+  contentType: z.string().min(1).max(200),
+  sizeBytes: z.number().int().nonnegative(),
+});
+
+export const generateAssessmentExportBundleOutputSchema = z.object({
+  assessmentId: z.string().min(1),
+  fileName: z.string().min(1).max(300),
+  contentType: z.literal("application/zip"),
+  payloadBase64: z.string().min(1),
+  files: z.array(assessmentExportBundleFileSchema).length(6),
+});
+
 export type WorkplaceArchetype = z.infer<typeof workplaceArchetypeSchema>;
 export type AssessmentWalkthroughStatus = z.infer<
   typeof assessmentWalkthroughStatusSchema
@@ -330,4 +355,13 @@ export type TransferAssessmentFindingsToRiskRegisterInput = z.infer<
 >;
 export type TransferAssessmentFindingsToRiskRegisterOutput = z.infer<
   typeof transferAssessmentFindingsToRiskRegisterOutputSchema
+>;
+export type GenerateAssessmentExportBundleInput = z.infer<
+  typeof generateAssessmentExportBundleInputSchema
+>;
+export type AssessmentExportBundleFile = z.infer<
+  typeof assessmentExportBundleFileSchema
+>;
+export type GenerateAssessmentExportBundleOutput = z.infer<
+  typeof generateAssessmentExportBundleOutputSchema
 >;

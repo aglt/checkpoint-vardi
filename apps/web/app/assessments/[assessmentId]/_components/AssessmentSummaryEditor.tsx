@@ -4,6 +4,7 @@ import React, { startTransition, useEffect, useState } from "react";
 import type {
   AssessmentExportReadiness,
   AssessmentSummaryRequiredField,
+  GenerateAssessmentExportBundleOutput,
 } from "@vardi/schemas";
 
 import {
@@ -16,6 +17,7 @@ import {
   type AssessmentSummaryClientState,
   type AssessmentSummaryDraft,
 } from "@/lib/assessments/assessmentSummaryController";
+import { generateAssessmentExportBundleAction } from "@/lib/assessments/generateAssessmentExportBundleAction";
 import type { AssessmentSummaryProjection } from "@/lib/assessments/loadAssessmentSummaryProjection";
 import { saveAssessmentSummaryAction } from "@/lib/assessments/saveAssessmentSummaryAction";
 
@@ -35,16 +37,36 @@ export function AssessmentSummaryEditor({
   const [summaryState, setSummaryState] = useState<AssessmentSummaryClientState>(
     () => buildInitialAssessmentSummaryState(summary, readiness),
   );
+  const [exportState, setExportState] = useState<{
+    readonly status: "idle" | "exporting" | "error" | "success";
+    readonly message: string | null;
+  }>({
+    status: "idle",
+    message: null,
+  });
 
   useEffect(() => {
     setSummaryState(buildInitialAssessmentSummaryState(summary, readiness));
   }, [readiness, summary]);
+
+  useEffect(() => {
+    setExportState({
+      status: "idle",
+      message: null,
+    });
+  }, [assessmentId, readiness, summary]);
 
   const readinessBlockers = getReadinessBlockers(summaryState.readiness);
   const classificationPendingCount =
     summaryState.readiness.classification.unclassifiedRiskEntryCount +
     summaryState.readiness.classification.staleRiskEntryCount +
     summaryState.readiness.classification.invalidRiskEntryCount;
+  const summaryDirty = isAssessmentSummaryDirty(summaryState);
+  const exportDisabled =
+    exportState.status === "exporting" ||
+    summaryState.saveState === "saving" ||
+    !summaryState.readiness.exportReady ||
+    summaryDirty;
 
   return (
     <section
@@ -308,30 +330,52 @@ export function AssessmentSummaryEditor({
         </aside>
       </div>
 
-      <div className="mt-4 flex flex-col gap-3 border-t border-black/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p
-          aria-live="polite"
-          className={getSummarySaveMessageClassName(summaryState)}
-        >
-          {getSummarySaveMessage(summaryState)}
-        </p>
-        <button
-          className={getSummarySaveButtonClassName(
-            summaryState.saveState === "saving" ||
-              !isAssessmentSummaryDirty(summaryState),
-          )}
-          data-summary-save-state={summaryState.saveState}
-          disabled={
-            summaryState.saveState === "saving" ||
-            !isAssessmentSummaryDirty(summaryState)
-          }
-          onClick={handleSummarySave}
-          type="button"
-        >
-          {summaryState.saveState === "saving"
-            ? "Saving summary..."
-            : "Save summary"}
-        </button>
+      <div className="mt-4 flex flex-col gap-3 border-t border-black/8 pt-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-1">
+          <p
+            aria-live="polite"
+            className={getSummarySaveMessageClassName(summaryState)}
+          >
+            {getSummarySaveMessage(summaryState)}
+          </p>
+          <p
+            aria-live="polite"
+            className={getExportMessageClassName(exportState.status)}
+            data-export-state={exportState.status}
+          >
+            {getExportMessage({
+              exportReady: summaryState.readiness.exportReady,
+              exportState,
+              summaryDirty,
+            })}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <button
+            className={getSummarySaveButtonClassName(
+              summaryState.saveState === "saving" || !summaryDirty,
+            )}
+            data-summary-save-state={summaryState.saveState}
+            disabled={summaryState.saveState === "saving" || !summaryDirty}
+            onClick={handleSummarySave}
+            type="button"
+          >
+            {summaryState.saveState === "saving"
+              ? "Saving summary..."
+              : "Save summary"}
+          </button>
+          <button
+            className={getExportButtonClassName(exportDisabled)}
+            data-export-button-state={exportState.status}
+            disabled={exportDisabled}
+            onClick={handleExportDownload}
+            type="button"
+          >
+            {exportState.status === "exporting"
+              ? "Building export bundle..."
+              : "Download Word + PDF bundle"}
+          </button>
+        </div>
       </div>
     </section>
   );
@@ -399,6 +443,46 @@ export function AssessmentSummaryEditor({
               errorMessage,
             ),
           );
+        });
+      });
+  }
+
+  function handleExportDownload() {
+    if (exportDisabled) {
+      return;
+    }
+
+    setExportState({
+      status: "exporting",
+      message: null,
+    });
+
+    void generateAssessmentExportBundleAction({
+      input: {
+        assessmentId,
+      },
+    })
+      .then((response) => {
+        downloadAssessmentExportBundle(response);
+
+        startTransition(() => {
+          setExportState({
+            status: "success",
+            message: `Downloaded ${response.fileName}.`,
+          });
+        });
+      })
+      .catch((error: unknown) => {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "We could not generate the export bundle.";
+
+        startTransition(() => {
+          setExportState({
+            status: "error",
+            message: errorMessage,
+          });
         });
       });
   }
@@ -572,6 +656,59 @@ function getSummarySaveButtonClassName(disabled: boolean): string {
   );
 }
 
+function getExportButtonClassName(disabled: boolean): string {
+  return joinClasses(
+    "rounded-full px-4 py-2.5 text-sm font-semibold transition",
+    disabled
+      ? "cursor-not-allowed border border-black/8 bg-black/5 text-slate-400"
+      : "border border-[#132b4f] bg-[#132b4f] text-white hover:bg-[#0f2340]",
+  );
+}
+
+function getExportMessage(params: {
+  readonly exportReady: boolean;
+  readonly exportState: {
+    readonly status: "idle" | "exporting" | "error" | "success";
+    readonly message: string | null;
+  };
+  readonly summaryDirty: boolean;
+}): string {
+  if (params.exportState.status === "exporting") {
+    return "Generating Word and PDF files from the persisted assessment state...";
+  }
+
+  if (params.exportState.status === "error") {
+    return params.exportState.message ?? "We could not generate the export bundle.";
+  }
+
+  if (params.exportState.status === "success") {
+    return params.exportState.message ?? "Export bundle downloaded.";
+  }
+
+  if (!params.exportReady) {
+    return "Finish the readiness blockers above before export unlocks.";
+  }
+
+  if (params.summaryDirty) {
+    return "Save summary changes before exporting the persisted bundle.";
+  }
+
+  return "Export uses the persisted checklist, risk register, and summary values.";
+}
+
+function getExportMessageClassName(
+  status: "idle" | "exporting" | "error" | "success",
+): string {
+  return joinClasses(
+    "text-sm leading-6",
+    status === "error"
+      ? "text-[#8a2f0d]"
+      : status === "success"
+        ? "text-[#355428]"
+        : "text-slate-600",
+  );
+}
+
 function formatSummaryFieldList(
   fields: readonly AssessmentSummaryRequiredField[],
 ): string {
@@ -617,4 +754,21 @@ function pluralize(
   plural: string,
 ): string {
   return count === 1 ? singular : plural;
+}
+
+function downloadAssessmentExportBundle(
+  response: GenerateAssessmentExportBundleOutput,
+) {
+  const binary = atob(response.payloadBase64);
+  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  const blob = new Blob([bytes], {
+    type: response.contentType,
+  });
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+
+  anchor.href = url;
+  anchor.download = response.fileName;
+  anchor.click();
+  window.URL.revokeObjectURL(url);
 }
