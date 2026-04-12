@@ -12,7 +12,7 @@ Depends on: S1-06
 
 ## Context
 
-This story is complete locally. `S1-06` already established the in-flow
+This story is complete and merged to `main`. `S1-06` already established the in-flow
 walkthrough and risk-register editors on `/assessments/[assessmentId]`, and
 `S1-07` now adds the final summary step plus the server-owned readiness gate
 that `S1-08` can consume without reshaping the assessment page again.
@@ -49,7 +49,7 @@ same route. The implementation was verified locally on branch
 `feat/assessment-summary-export-readiness` with `pnpm test`, `pnpm typecheck`,
 and `pnpm lint`. This session used `node v25.6.1`; Node 22 remains the
 declared repo contract, but that exact runtime was not directly re-verified in
-this shell. The ready-for-review PR for this local completion is `#9`.
+this shell. This completion merged to `main` in PR `#9`.
 
 ## Goal
 
