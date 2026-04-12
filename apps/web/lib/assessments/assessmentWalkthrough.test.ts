@@ -98,6 +98,49 @@ function seedWalkthroughAssessment() {
   };
 }
 
+async function transferSecondCriterionRiskEntry(
+  fixture: ReturnType<typeof seedWalkthroughAssessment>,
+) {
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const { saveAssessmentCriterionResponseAction } = await import(
+    "./saveAssessmentCriterionResponseAction"
+  );
+  const { transferAssessmentFindingsToRiskRegisterAction } = await import(
+    "./transferAssessmentFindingsToRiskRegisterAction"
+  );
+
+  await saveAssessmentCriterionResponseAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      criterionId: fixture.secondCriterion.id,
+      status: "notOk",
+      notes: "Missing guard",
+    },
+  });
+  await transferAssessmentFindingsToRiskRegisterAction({
+    assessmentId: fixture.assessmentId,
+  });
+
+  const connection = createMigratedDatabase(fixture.databasePath);
+  const readModel = loadAssessmentReadModel({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+  });
+  const transferredCriterion = readModel.sections
+    .flatMap((section) => section.criteria)
+    .find((criterion) => criterion.id === fixture.secondCriterion.id);
+
+  closeDatabase(connection);
+
+  if (!transferredCriterion?.riskEntry) {
+    throw new Error("Expected transferred risk entry to exist.");
+  }
+
+  return transferredCriterion.riskEntry.id;
+}
+
 test("walkthrough save action persists answers by stable criterion id", async () => {
   const fixture = seedWalkthroughAssessment();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
@@ -306,6 +349,65 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
       ].join(""),
     ),
   );
+});
+
+test("assessment page renders transferred risk-entry editing and resumes saved classification fields", async () => {
+  const fixture = seedWalkthroughAssessment();
+  const riskEntryId = await transferSecondCriterionRiskEntry(fixture);
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const { saveAssessmentRiskEntryAction } = await import(
+    "./saveAssessmentRiskEntryAction"
+  );
+
+  await saveAssessmentRiskEntryAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      riskEntryId,
+      hazard: "Table saw without guard",
+      healthEffects: "Hand injury",
+      whoAtRisk: "Students and staff",
+      likelihood: 2,
+      consequence: 3,
+      currentControls: "Safety signage",
+      proposedAction: "Install a replacement guard",
+      costEstimate: 25000,
+      responsibleOwner: "Workshop lead",
+      dueDate: "2026-04-20",
+      completedAt: "2026-04-22",
+    },
+  });
+
+  const { default: AssessmentPage } = await import(
+    "../../app/assessments/[assessmentId]/page"
+  );
+  const markup = renderWithAppRouter(
+    await AssessmentPage({
+      params: Promise.resolve({
+        assessmentId: fixture.assessmentId,
+      }),
+    }),
+  );
+
+  assert.match(markup, /Risk register/);
+  assert.match(
+    markup,
+    new RegExp(escapeRegExp(`data-risk-entry-id="${riskEntryId}"`)),
+  );
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp(`data-risk-entry-id="${riskEntryId}"`),
+        '[\\s\\S]*?',
+        escapeRegExp('data-risk-level="high"'),
+      ].join(""),
+    ),
+  );
+  assert.match(markup, new RegExp(escapeRegExp("Table saw without guard")));
+  assert.match(markup, new RegExp(escapeRegExp("Students and staff")));
+  assert.match(markup, new RegExp(escapeRegExp("Install a replacement guard")));
+  assert.match(markup, /Saved classification: High\./);
 });
 
 function escapeRegExp(value: string): string {

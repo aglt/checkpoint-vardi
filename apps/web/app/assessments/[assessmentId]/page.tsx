@@ -31,6 +31,8 @@ export default async function AssessmentWalkthroughPage({
         checklistTitle={readModel.checklist.translations.is.title}
         checklistVersion={readModel.checklist.version}
         riskMatrixTitle={readModel.riskMatrix.translations.is.title}
+        riskMatrixLikelihoodLevels={readModel.riskMatrix.likelihoodLevels}
+        riskMatrixConsequenceLevels={readModel.riskMatrix.consequenceLevels}
         sections={readModel.sections}
         workplaceName={readModel.workplace.name}
       />

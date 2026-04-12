@@ -13,6 +13,10 @@ import {
   type VardiDatabase,
   type WorkplaceRow,
 } from "@vardi/db";
+import {
+  classifyRisk,
+  type RiskLevel,
+} from "@vardi/risk";
 
 export interface LoadAssessmentReadModelParams {
   readonly db: VardiDatabase;
@@ -38,6 +42,7 @@ export interface AssessmentCriterionReadModel {
   readonly translations: SeedChecklist["sections"][number]["criteria"][number]["translations"];
   readonly response: AssessmentCriterionResponseReadModel;
   readonly riskEntryStatus: PresenceStatus;
+  readonly riskEntry: AssessmentRiskEntryReadModel | null;
 }
 
 export interface AssessmentSectionReadModel {
@@ -45,6 +50,22 @@ export interface AssessmentSectionReadModel {
   readonly order: number;
   readonly translations: SeedChecklist["sections"][number]["translations"];
   readonly criteria: readonly AssessmentCriterionReadModel[];
+}
+
+export interface AssessmentRiskEntryReadModel {
+  readonly id: string;
+  readonly hazard: string;
+  readonly healthEffects: string | null;
+  readonly whoAtRisk: string | null;
+  readonly likelihood: number | null;
+  readonly consequence: number | null;
+  readonly riskLevel: RiskLevel | null;
+  readonly currentControls: string | null;
+  readonly proposedAction: string | null;
+  readonly costEstimate: number | null;
+  readonly responsibleOwner: string | null;
+  readonly dueDate: string | null;
+  readonly completedAt: string | null;
 }
 
 export interface AssessmentReadModel {
@@ -90,8 +111,8 @@ export function loadAssessmentReadModel(
   const responseByCriterionId = new Map(
     aggregate.findings.map((responseRow) => [responseRow.criterionId, responseRow] as const),
   );
-  const riskEntryFindingIds = new Set(
-    aggregate.riskEntries.map((entry) => entry.findingId),
+  const riskEntryByFindingId = new Map(
+    aggregate.riskEntries.map((entry) => [entry.findingId, entry] as const),
   );
 
   return {
@@ -118,6 +139,12 @@ export function loadAssessmentReadModel(
       translations: section.translations,
       criteria: section.criteria.map((criterion) => {
         const responseRow = responseByCriterionId.get(criterion.id);
+        const riskEntryRow = responseRow
+          ? riskEntryByFindingId.get(responseRow.id)
+          : undefined;
+        const riskEntry = riskEntryRow
+          ? buildRiskEntryReadModel(aggregate.assessment.id, riskMatrix, riskEntryRow)
+          : null;
 
         return {
           id: criterion.id,
@@ -132,8 +159,8 @@ export function loadAssessmentReadModel(
             voiceTranscript: responseRow?.voiceTranscript ?? null,
             notesLanguage: responseRow?.notesLanguage ?? null,
           },
-          riskEntryStatus:
-            responseRow && riskEntryFindingIds.has(responseRow.id) ? "present" : "absent",
+          riskEntryStatus: riskEntry ? "present" : "absent",
+          riskEntry,
         };
       }),
     })),
@@ -176,4 +203,54 @@ function resolveRiskMatrix(aggregate: AssessmentAggregate): RiskMatrix {
 
 function toPresenceStatus(value: AssessmentSummaryRow | null): PresenceStatus {
   return value ? "present" : "absent";
+}
+
+function buildRiskEntryReadModel(
+  assessmentId: string,
+  riskMatrix: RiskMatrix,
+  riskEntry: AssessmentAggregate["riskEntries"][number],
+): AssessmentRiskEntryReadModel {
+  let derivedRiskLevel: RiskLevel | null;
+
+  try {
+    derivedRiskLevel = classifyRisk({
+      matrix: {
+        likelihoodLevels: riskMatrix.likelihoodLevels,
+        consequenceLevels: riskMatrix.consequenceLevels,
+        lookup: riskMatrix.lookup,
+      },
+      likelihood: riskEntry.likelihood,
+      consequence: riskEntry.consequence,
+    });
+  } catch (error) {
+    throw new AssessmentReadModelIntegrityError(
+      `Assessment ${assessmentId} contains an invalid risk entry classification for ${riskEntry.id}: ${error instanceof Error ? error.message : "unknown classification failure"}`,
+    );
+  }
+
+  if (derivedRiskLevel !== riskEntry.riskLevel) {
+    throw new AssessmentReadModelIntegrityError(
+      `Assessment ${assessmentId} contains a stale risk level for ${riskEntry.id}.`,
+    );
+  }
+
+  return {
+    id: riskEntry.id,
+    hazard: riskEntry.hazard ?? "",
+    healthEffects: riskEntry.healthEffects,
+    whoAtRisk: riskEntry.whoAtRisk,
+    likelihood: riskEntry.likelihood,
+    consequence: riskEntry.consequence,
+    riskLevel: derivedRiskLevel,
+    currentControls: riskEntry.currentControls,
+    proposedAction: riskEntry.proposedAction,
+    costEstimate: riskEntry.costEstimate,
+    responsibleOwner: riskEntry.responsibleOwner,
+    dueDate: formatDateOnly(riskEntry.dueDate),
+    completedAt: formatDateOnly(riskEntry.completedAt),
+  };
+}
+
+function formatDateOnly(value: Date | null): string | null {
+  return value ? value.toISOString().slice(0, 10) : null;
 }

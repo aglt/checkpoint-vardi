@@ -4,14 +4,21 @@ import test from "node:test";
 import type { SaveAssessmentCriterionResponseOutput } from "@vardi/schemas";
 
 import {
+  beginRiskEntrySave,
   beginCriterionSave,
   buildInitialCriterionRiskEntryStatus,
   buildInitialCriterionState,
+  buildInitialRiskEntryState,
+  canPersistRiskEntryDraft,
   getAssessmentRiskTransferProgress,
   getAssessmentWalkthroughProgress,
+  isRiskEntryDirty,
   markTransferredRiskEntriesPresent,
   reconcileCriterionSaveFailure,
   reconcileCriterionSaveSuccess,
+  reconcileRiskEntrySaveFailure,
+  reconcileRiskEntrySaveSuccess,
+  updateRiskEntryDraftField,
   updateCriterionDraftNotes,
 } from "./assessmentWalkthroughController";
 import type { AssessmentSectionReadModel } from "./loadAssessmentReadModel";
@@ -45,6 +52,7 @@ const sections: readonly AssessmentSectionReadModel[] = [
           notesLanguage: null,
         },
         riskEntryStatus: "absent",
+        riskEntry: null,
       },
       {
         id: "criterion-2",
@@ -65,6 +73,21 @@ const sections: readonly AssessmentSectionReadModel[] = [
           notesLanguage: null,
         },
         riskEntryStatus: "absent",
+        riskEntry: {
+          id: "risk-entry-2",
+          hazard: "Criterion two hazard",
+          healthEffects: null,
+          whoAtRisk: null,
+          likelihood: null,
+          consequence: null,
+          riskLevel: null,
+          currentControls: null,
+          proposedAction: null,
+          costEstimate: null,
+          responsibleOwner: null,
+          dueDate: null,
+          completedAt: null,
+        },
       },
     ],
   },
@@ -210,4 +233,73 @@ test("controller preserves newer drafts and surfaces save failures", () => {
 
   assert.equal(failed["criterion-1"]?.saveState, "error");
   assert.equal(failed["criterion-1"]?.errorMessage, "Save failed");
+});
+
+test("risk entry state tracks manual saves and preserves edited drafts", () => {
+  const riskEntryStates = buildInitialRiskEntryState(sections);
+
+  assert.equal(riskEntryStates["risk-entry-2"]?.saved.hazard, "Criterion two hazard");
+  assert.equal(
+    canPersistRiskEntryDraft(riskEntryStates["risk-entry-2"]?.draft ?? {
+      hazard: "",
+      healthEffects: "",
+      whoAtRisk: "",
+      likelihood: null,
+      consequence: null,
+      currentControls: "",
+      proposedAction: "",
+      costEstimate: "",
+      responsibleOwner: "",
+      dueDate: "",
+      completedAt: "",
+    }),
+    true,
+  );
+
+  const edited = updateRiskEntryDraftField(
+    riskEntryStates,
+    "risk-entry-2",
+    "hazard",
+    "Updated hazard",
+  );
+
+  assert.equal(isRiskEntryDirty(edited["risk-entry-2"]!), true);
+
+  const started = beginRiskEntrySave(edited, "risk-entry-2");
+  const completed = reconcileRiskEntrySaveSuccess(
+    started.riskEntryStates,
+    "risk-entry-2",
+    started.requestId,
+    {
+      assessmentId: "assessment-1",
+      riskEntryId: "risk-entry-2",
+      hazard: "Updated hazard",
+      healthEffects: null,
+      whoAtRisk: null,
+      likelihood: 2,
+      consequence: 3,
+      riskLevel: "high",
+      currentControls: null,
+      proposedAction: null,
+      costEstimate: null,
+      responsibleOwner: null,
+      dueDate: null,
+      completedAt: null,
+    },
+    edited["risk-entry-2"]!.draft,
+  );
+
+  assert.equal(completed["risk-entry-2"]?.saved.hazard, "Updated hazard");
+  assert.equal(completed["risk-entry-2"]?.saved.likelihood, 2);
+  assert.equal(completed["risk-entry-2"]?.savedRiskLevel, "high");
+
+  const failed = reconcileRiskEntrySaveFailure(
+    completed,
+    "risk-entry-2",
+    started.requestId,
+    "Save failed",
+  );
+
+  assert.equal(failed["risk-entry-2"]?.saveState, "error");
+  assert.equal(failed["risk-entry-2"]?.errorMessage, "Save failed");
 });

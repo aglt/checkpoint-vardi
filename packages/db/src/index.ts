@@ -26,6 +26,11 @@ export {
   type UpdateAssessmentFindingResponseParams,
 } from "./update-assessment-finding-response.js";
 export {
+  AssessmentRiskEntryNotFoundError,
+  updateAssessmentRiskEntry,
+  type UpdateAssessmentRiskEntryParams,
+} from "./update-assessment-risk-entry.js";
+export {
   MissingRiskEntryHazardError,
   transferAssessmentFindingsToRiskRegister,
   type TransferAssessmentFindingsToRiskRegisterParams,
