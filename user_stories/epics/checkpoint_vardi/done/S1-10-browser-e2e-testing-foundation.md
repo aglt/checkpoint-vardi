@@ -1,11 +1,11 @@
-# S1-10 - Browser E2E testing foundation
+# S1-10 - Browser E2E foundation and blocked-readiness baseline
 
 > **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P1
 
-Role: **Implementation source of truth** for browser-level end-to-end testing of the current MVP workflow.  
+Role: **Implementation source of truth** for the first browser-level Playwright seam and blocked-readiness proof of the current MVP assessment flow.  
 Depends on: S1-08
 
 ---
@@ -13,13 +13,13 @@ Depends on: S1-08
 ## Context
 
 This story is complete and is now open in PR `#12`. `S1-08` already established the full persisted
-MVP assessment flow and export-readiness surface; `S1-10` now adds a
-truthful browser-level verification seam on top of that existing flow
+MVP assessment flow and export-readiness surface; `S1-10` now adds the
+first truthful browser-level verification seam on top of that flow
 without reviving `S1-09`, adding `safety_plan`, or widening the root
 truth beyond `workplace -> risk_assessment`.
 
 The repo now uses Playwright as the narrow browser E2E baseline for the
-current MVP workflow. The root `pnpm test:e2e` command delegates into
+current start-to-blocked-readiness slice. The root `pnpm test:e2e` command delegates into
 `apps/web`, where `playwright.config.mjs` starts the Next app on
 `http://127.0.0.1:3001`, runs Chromium-only, and uses an isolated SQLite
 database path for deterministic runs.
@@ -34,15 +34,18 @@ isolated E2E database instead of normal local state.
 
 The browser suite currently contains two specs in
 `apps/web/e2e/specs/`: a smoke test for `/` boot plus seeded template
-visibility, and a real assessment workflow test that starts an
+visibility, and a blocked-readiness workflow test that starts an
 assessment, persists a `Not ok` walkthrough answer, transfers the
 finding into the risk register, edits and saves a transferred risk row,
 saves the summary, and confirms the current MVP export/readiness surface
 stays truthfully blocked until the walkthrough is complete.
 
-This change also fixed the current MVP assessment editors so imported
-server actions actually dispatch from the browser and the client-side
-save state no longer stalls in `saving` because of request-id sequencing.
+This change also includes two explicit supporting corrections that were
+required to make truthful browser verification possible:
+
+- the assessment editors now dispatch imported server actions correctly from the browser, and the client-side save state no longer stalls in `saving` because request ids were derived from asynchronous state updaters
+- `packages/db` now exposes explicit `@vardi/db/runtime` and `@vardi/db/testing` entrypoints so the real app runtime and deterministic SQLite test bootstrap can use the right connection helpers without widening the default `@vardi/db` surface
+
 The repo-local Playwright guidance under
 `.claude/skills/vardi-web-e2e-testing/` now documents the exact run
 commands, isolated DB behavior, and extension rules for future agents.
@@ -54,23 +57,27 @@ exact runtime was not directly re-verified in this environment.
 
 ## Goal
 
-Introduce a stable browser E2E testing foundation that verifies the real user workflow through the running app, using deterministic local data and the same product seams the app already ships.
+Introduce a stable browser E2E testing foundation that verifies the real running app through a smoke path and a truthful blocked-readiness workflow path, using deterministic local data and the same product seams the app already ships.
 
 ## Why this story exists
 
-The current repo has good package-level and app-level tests, but the MVP workflow is now broad enough that it needs browser-level confidence across the actual page flow:
+The current repo has good package-level and app-level tests, but the MVP flow is now broad enough
+that it needs browser-level confidence across the actual running page flow. This first slice is
+intentionally a baseline, not the final happy-path browser proof.
+
+This story adds browser-level confidence across:
 
 - start assessment
 - walkthrough answers
 - transfer into risk register
 - risk-entry editing
 - summary
-- export trigger
+- blocked export-readiness truth
 
 This story should add that confidence without widening into flaky network mocking, visual-regression tooling, or a giant cross-browser matrix.
 
 The primary objective is not "add a test tool."
-The primary objective is to add a trustworthy browser-level verification seam for the real product workflow.
+The primary objective is to add a trustworthy browser-level verification seam for the real product flow and its current blocked-readiness truth.
 
 ## Scope
 
@@ -82,8 +89,9 @@ Deliver:
 - a deterministic local test strategy for seeded DB/runtime truth
 - a CI-friendly Playwright config
 - one smoke test
-- one core MVP workflow test
+- one blocked-readiness workflow test
 - repo-local Playwright skill guidance so future agents know how to run, debug, and extend the browser suite in this repo
+- the smallest runtime or boundary fixes required to make truthful browser verification actually work
 
 The resulting test foundation must be suitable for expanding later, but this story should stay narrow.
 
@@ -115,10 +123,11 @@ Do not push Playwright-specific logic into shared packages unless a file is trul
 - Add a local browser E2E directory and conventions
 - Add a deterministic test-data/bootstrap approach for the local SQLite-backed app
 - Add one smoke spec for app boot/basic page render
-- Add one core workflow spec for the current MVP assessment flow
+- Add one blocked-readiness workflow spec for the current MVP assessment flow
 - Add minimal documentation for how to run E2E locally
 - Add or update repo-local skill guidance under `.claude/skills/` for Playwright setup, execution, and suite extension
 - Make the setup reasonable for CI use later
+- Include only the smallest browser-discovered runtime or boundary corrections needed for the suite to exercise the real product seam honestly
 
 ## Out of scope
 
@@ -197,9 +206,9 @@ Example scope:
 - seeded templates are visible
 - no fatal app boot error
 
-### First core workflow spec
+### First blocked-readiness workflow spec
 
-Add one real workflow browser test that covers the MVP path end to end with as much real behavior as is reasonable now.
+Add one real workflow browser test that covers the current blocked-readiness path with as much real behavior as is reasonable now.
 
 Target path:
 
@@ -211,6 +220,10 @@ Target path:
 - save the summary
 - confirm export/readiness UI is present and truthful for the current product state
 
+This story intentionally stops at truthful blocked readiness. Completing the
+entire walkthrough, unlocking export, and verifying a successful export trigger
+belongs to a focused follow-up story.
+
 This test should verify real user-visible behavior, not just URL transitions.
 
 ## Acceptance criteria
@@ -219,11 +232,12 @@ This test should verify real user-visible behavior, not just URL transitions.
 - `pnpm test:e2e` exists and works.
 - Browser E2E tests run against a deterministic local app state.
 - There is one smoke test proving the app boots and the start surface renders.
-- There is one core workflow test proving the current MVP flow works through the browser.
+- There is one blocked-readiness workflow test proving the current running MVP slice behaves truthfully through the browser.
 - The tests use real app seams and do not bypass product truth with fake client-only state.
 - The new setup is documented enough that another engineer can run it locally.
 - A repo-local skill exists or is updated with repo-specific Playwright usage guidance.
 - Existing repo boundaries remain intact.
+- Any browser-discovered runtime or boundary fix included in this slice is explicitly documented as part of the story rather than hidden as incidental collateral.
 
 ## Suggested file ownership
 
@@ -251,12 +265,12 @@ The story is not done unless the E2E suite actually runs successfully in local d
 Future stories may extend this into:
 
 - more workflow coverage
-- export download verification
+- successful export-unlock and export-download verification
 - failure-path coverage
 - CI job wiring
 - visual regression if later justified
 
-But this story should stop after the first stable foundation and two meaningful specs.
+But this story should stop after the first stable foundation and the blocked-readiness browser baseline. The happy-path export proof now belongs in `S1-11`.
 
 ## Execution rules
 

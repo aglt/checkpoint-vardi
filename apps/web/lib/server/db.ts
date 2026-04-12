@@ -7,7 +7,7 @@ import {
   createMigratedDatabaseConnection,
   type DatabaseConnection,
   type VardiDatabase,
-} from "@vardi/db";
+} from "@vardi/db/runtime";
 
 function resolveDefaultDatabasePath(): string {
   return join(

@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: none
+- Next queued step: `S1-11`
 - Most recently completed step: `S1-10`
 - Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
-- Next queued story file: none; `S1-09` remains conditional and is not automatically queued
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-11-browser-e2e-ready-export-proof.md`
 
 ## S0 - Foundations
 
@@ -42,7 +42,7 @@ S0-01 (Runnable Empty Scaffold)
 ### Dependency Graph
 
 ```text
-S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 -> S1-10
+S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 -> S1-10 -> S1-11
                  \
                   -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 ```
@@ -223,23 +223,32 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 ->
 **Status:** Completed.
 **Story file:** `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
 **Start gate:** Closed.
-**Unblocks:** Truthful browser-level regression coverage for the current MVP workflow and future repo-local Playwright guidance.
+**Unblocks:** Truthful browser-level smoke and blocked-readiness regression coverage plus the happy-path export browser follow-up in `S1-11`.
 
 **Completion note:**
 > Verified locally on branch `codex/s1-10-browser-e2e-foundation`: added
 > Playwright as the narrow repo-local browser E2E baseline, added the root
 > `pnpm test:e2e` entrypoint, added an isolated SQLite bootstrap/reset seam
 > under `apps/web/e2e/` using `VARDI_DATABASE_PATH`, added a smoke spec for
-> `/` boot plus seeded templates, added a real assessment workflow spec that
+> `/` boot plus seeded templates, added a blocked-readiness workflow spec that
 > covers walkthrough save, transfer, risk-entry save, summary save, and the
 > current blocked export-readiness truth, and updated the repo-local
 > `vardi-web-e2e-testing` skill guidance with exact local run/debug rules.
 > This slice also fixed the assessment editors so imported server actions now
 > dispatch correctly from the browser and save-state request ids no longer
-> stall in `saving`.
+> stall in `saving`, while splitting the DB package into explicit
+> `@vardi/db/runtime` and `@vardi/db/testing` entrypoints so the root package
+> seam stays narrower.
 > Ran `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e`. This
 > session used `node v25.6.1`; Node 22 remains the declared repo contract, but
 > was not directly re-verified here. PR: `#12`.
+
+### Step S1-11: Browser E2E ready-state and export proof
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-11-browser-e2e-ready-export-proof.md`
+**Start gate:** Open. `S1-10` is complete.
+**Unblocks:** Browser-level proof of full walkthrough completion, readiness unlock, and successful export trigger behavior.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 

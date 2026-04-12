@@ -23,7 +23,8 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-06 | Risk classification engine and risk-entry editing       | done         | #8 |
 | S1-07 | Summary form and export readiness                       | done         | #9 |
 | S1-08 | Report export for checklist, register, and summary      | done         | #10 |
-| S1-10 | Browser E2E testing foundation                          | done         | #12 |
+| S1-10 | Browser E2E foundation and blocked-readiness baseline   | done         | #12 |
+| S1-11 | Browser E2E ready-state and export proof                | not_started  |    |
 
 ## S1/S2 - Stage bridge
 
@@ -35,5 +36,5 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 **Next up:**
 
-- No required implementation story is queued right now.
+- `S1-11 - Browser E2E ready-state and export proof`
 - Keep `S1-09` narrowly scoped and non-blocking unless a concrete follow-up need exposes a real requirement for that groundwork.

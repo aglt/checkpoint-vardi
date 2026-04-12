@@ -18,8 +18,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-07` is complete and now lives under `done/`
 - `S1-08` is complete and now lives under `done/`
 - `S1-10` is complete and now lives under `done/`
+- `S1-11` is staged under `not_started/` as the happy-path export browser follow-up
 - `S1-09` remains staged under `not_started/` only as a conditional bridge story
-- there is no required next implementation story queued right now
+- the next implementation story is `S1-11`
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -27,9 +28,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S1-10 - Browser E2E testing foundation`
+- Most recently completed story: `S1-10 - Browser E2E foundation and blocked-readiness baseline`
 - Story file: `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
-- Next story: none queued; `S1-09` stays conditional and non-blocking unless a concrete follow-up need appears
+- Next story: `S1-11 - Browser E2E ready-state and export proof`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -40,9 +41,10 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 The completed delivery slice now runs from `S1-02` through `S1-10`. Together these stories moved
 the repo from "runnable scaffold" to a teacher-deliverable assessment flow with truthful browser
-regression coverage: seed truth, assessment data model, assessment start, walkthrough capture,
-transfer into the risk register, risk scoring, summary capture, final exports, and now
-Playwright-backed end-to-end verification of the real MVP path.
+regression coverage for smoke and blocked-readiness behavior: seed truth, assessment data model,
+assessment start, walkthrough capture, transfer into the risk register, risk scoring, summary
+capture, final exports, and now Playwright-backed proof that the real app boots and that the
+current blocked-readiness path behaves honestly in the browser.
 
 `S1-01` established the canonical seed runtime truth and the package-owned
 read seam that every later S1 story depends on. `S1-02` established the narrow
@@ -61,10 +63,13 @@ readiness from persisted walkthrough, transfer, classification, and summary
 state. `S1-08` now completes the teacher-deliverable MVP path by mapping the
 persisted assessment state into deterministic checklist, register, and summary
 exports plus a downloadable Word/PDF bundle on the summary step. `S1-10` now
-adds Playwright-based browser-level proof for the real MVP flow together with a
-deterministic isolated SQLite bootstrap for local runs and repo-local guidance
-for extending that suite honestly. `S1-09` still exists only as a narrow bridge
-story if a concrete post-MVP need surfaces for broader platform groundwork.
+adds the first Playwright-based browser-level proof layer together with a
+deterministic isolated SQLite bootstrap for local runs, explicit runtime/testing
+DB entrypoints, and a truthful blocked-readiness workflow spec. `S1-11` is the
+focused follow-up that will complete the happy-path browser proof for full
+readiness unlock and successful export trigger behavior. `S1-09` still exists
+only as a narrow bridge story if a concrete post-MVP need surfaces for broader
+platform groundwork.
 
 ### S0 - Foundations
 
@@ -72,8 +77,8 @@ story if a concrete post-MVP need surfaces for broader platform groundwork.
 "runnable empty project" without widening into feature work, schema work, or product behavior.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
-dev-server loop. Stage One is now complete through `S1-10`, while `S1-09`
-remains conditional and non-blocking.
+dev-server loop. Stage One now has its first browser-proof baseline through `S1-10`, with `S1-11`
+queued as the happy-path export proof and `S1-09` still conditional and non-blocking.
 
 ## Guardrails
 

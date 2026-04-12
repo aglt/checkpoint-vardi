@@ -1,12 +1,6 @@
-// @vardi/db — Drizzle ORM schema, narrow migration helpers, and typed assessment persistence queries.
-export {
-  applyMigrations,
-  closeDatabase,
-  createDatabaseConnection,
-  createMigratedDatabaseConnection,
-  type DatabaseConnection,
-  type VardiDatabase,
-} from "./connection.js";
+// @vardi/db — typed assessment persistence queries and schema-owned read/write
+// seams. Runtime/test SQLite bootstrap lives behind explicit subpath entrypoints.
+export type { VardiDatabase } from "./connection.js";
 export {
   AssessmentAggregateNotFoundError,
   loadAssessmentAggregate,
