@@ -15,8 +15,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-04` is complete and now lives under `done/`
 - `S1-05` is complete and now lives under `done/`
 - `S1-06` is complete and now lives under `done/`
-- `S1-07` through `S1-09` are now staged under `not_started/`
-- the next implementation story is `S1-07`
+- `S1-07` is complete and now lives under `done/`
+- `S1-08` and `S1-09` are now staged under `not_started/`
+- the next implementation story is `S1-08`
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -24,9 +25,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S1-06 - Risk classification engine and risk-entry editing`
-- Story file: `user_stories/epics/checkpoint_vardi/done/S1-06-risk-classification-engine-and-editing.md`
-- Next story: `S1-07 - Summary form and export readiness`
+- Most recently completed story: `S1-07 - Summary form and export readiness`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S1-07-summary-form-and-export-readiness.md`
+- Next story: `S1-08 - Report export for checklist, register, and summary`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -51,8 +52,10 @@ the deterministic Step `1b` bridge by transferring persisted `notOk` findings
 into `risk_entry` rows without widening into risk editing or scoring. `S1-06`
 now completes the next narrow slice by editing those transferred rows in-flow
 and deriving reproducible risk levels from pinned seeded matrix truth without
-widening into summary or export work. `S1-07` is now the immediate next story.
-`S1-09` exists as a narrow bridge story only if a
+widening into summary or export work. `S1-07` now completes the final in-app
+assessment flow by persisting the step-6 summary and computing export
+readiness from persisted walkthrough, transfer, classification, and summary
+state. `S1-08` is now the immediate next story. `S1-09` exists as a narrow bridge story only if a
 concrete S1 need surfaces for broader platform groundwork.
 
 ### S0 - Foundations
@@ -61,7 +64,7 @@ concrete S1 need surfaces for broader platform groundwork.
 "runnable empty project" without widening into feature work, schema work, or product behavior.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
-dev-server loop. The next staged story is `S1-07`.
+dev-server loop. The next staged story is `S1-08`.
 
 ## Guardrails
 

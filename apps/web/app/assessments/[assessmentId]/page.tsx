@@ -2,10 +2,12 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { AssessmentAggregateNotFoundError } from "@vardi/db";
 
+import { AssessmentSummaryEditor } from "./_components/AssessmentSummaryEditor";
 import { AssessmentWalkthrough } from "./_components/AssessmentWalkthrough";
 import { RiskRegisterEditor } from "./_components/RiskRegisterEditor";
 import { loadAssessmentReadModel } from "@/lib/assessments/loadAssessmentReadModel";
 import { loadAssessmentRiskRegisterProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
+import { loadAssessmentSummaryProjection } from "@/lib/assessments/loadAssessmentSummaryProjection";
 import { getDatabase } from "@/lib/server/db";
 import { getCurrentUser } from "@/lib/server/getCurrentUser";
 
@@ -34,6 +36,12 @@ export default async function AssessmentWalkthroughPage({
       assessmentId,
       readModel,
     });
+    const summaryProjection = loadAssessmentSummaryProjection({
+      db,
+      ownerId,
+      assessmentId,
+      riskRegisterProjection,
+    });
 
     return (
       <AssessmentWalkthrough
@@ -43,7 +51,7 @@ export default async function AssessmentWalkthroughPage({
         riskMatrixTitle={readModel.riskMatrix.translations.is.title}
         sections={readModel.sections}
         workplaceName={readModel.workplace.name}
-      >
+        >
         <RiskRegisterEditor
           assessmentId={readModel.assessment.id}
           entries={riskRegisterProjection.entries}
@@ -54,6 +62,12 @@ export default async function AssessmentWalkthroughPage({
             riskRegisterProjection.riskMatrix.likelihoodLevels
           }
           riskMatrixTitle={riskRegisterProjection.riskMatrix.title}
+        />
+        <AssessmentSummaryEditor
+          assessmentId={readModel.assessment.id}
+          prioritizedEntries={summaryProjection.prioritizedEntries}
+          readiness={summaryProjection.readiness}
+          summary={summaryProjection.summary}
         />
       </AssessmentWalkthrough>
     );

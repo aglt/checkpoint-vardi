@@ -36,6 +36,11 @@ export {
   type UpdateAssessmentRiskEntryParams,
 } from "./update-assessment-risk-entry.js";
 export {
+  AssessmentSummaryNotFoundError,
+  upsertAssessmentSummary,
+  type UpsertAssessmentSummaryParams,
+} from "./upsert-assessment-summary.js";
+export {
   MissingRiskEntryHazardError,
   transferAssessmentFindingsToRiskRegister,
   type TransferAssessmentFindingsToRiskRegisterParams,

@@ -178,6 +178,65 @@ export const saveAssessmentRiskEntryInputSchema = z
   })
   .strict();
 
+export const assessmentSummaryRequiredFieldSchema = z.enum([
+  "companyName",
+  "location",
+  "assessmentDate",
+  "participants",
+  "method",
+  "notes",
+]);
+
+export const assessmentExportReadinessSchema = z.object({
+  exportReady: z.boolean(),
+  walkthrough: z.object({
+    ready: z.boolean(),
+    unansweredCriterionCount: z.number().int().nonnegative(),
+  }),
+  transfer: z.object({
+    ready: z.boolean(),
+    eligibleFindingCount: z.number().int().nonnegative(),
+    missingRiskEntryCount: z.number().int().nonnegative(),
+  }),
+  classification: z.object({
+    ready: z.boolean(),
+    transferredRiskEntryCount: z.number().int().nonnegative(),
+    unclassifiedRiskEntryCount: z.number().int().nonnegative(),
+    staleRiskEntryCount: z.number().int().nonnegative(),
+    invalidRiskEntryCount: z.number().int().nonnegative(),
+  }),
+  summary: z.object({
+    ready: z.boolean(),
+    missingFields: z.array(assessmentSummaryRequiredFieldSchema),
+  }),
+});
+
+export const saveAssessmentSummaryInputSchema = z
+  .object({
+    companyName: z.preprocess(
+      trimOptionalString,
+      z.string().max(200, "Company name must be 200 characters or fewer.").optional(),
+    ),
+    location: z.preprocess(
+      trimOptionalString,
+      z.string().max(300, "Location must be 300 characters or fewer.").optional(),
+    ),
+    assessmentDate: optionalDateOnlySchema,
+    participants: z.preprocess(
+      trimOptionalString,
+      z.string().max(1000, "Participants must be 1000 characters or fewer.").optional(),
+    ),
+    method: z.preprocess(
+      trimOptionalString,
+      z.string().max(500, "Method must be 500 characters or fewer.").optional(),
+    ),
+    notes: z.preprocess(
+      trimOptionalString,
+      z.string().max(4000, "Notes must be 4000 characters or fewer.").optional(),
+    ),
+  })
+  .strict();
+
 export const saveAssessmentRiskEntryOutputSchema = z.object({
   assessmentId: z.string().min(1),
   riskEntryId: z.string().min(1),
@@ -199,6 +258,20 @@ export const saveAssessmentRiskEntryOutputSchema = z.object({
     .string()
     .refine(isDateOnlyValue, "Date must use YYYY-MM-DD format.")
     .nullable(),
+});
+
+export const saveAssessmentSummaryOutputSchema = z.object({
+  assessmentId: z.string().min(1),
+  companyName: z.string().nullable(),
+  location: z.string().nullable(),
+  assessmentDate: z
+    .string()
+    .refine(isDateOnlyValue, "Date must use YYYY-MM-DD format.")
+    .nullable(),
+  participants: z.string().nullable(),
+  method: z.string().nullable(),
+  notes: z.string().nullable(),
+  readiness: assessmentExportReadinessSchema,
 });
 
 export const transferAssessmentFindingsToRiskRegisterInputSchema = z.object({
@@ -237,8 +310,20 @@ export type SaveAssessmentCriterionResponseOutput = z.infer<
 export type SaveAssessmentRiskEntryInput = z.infer<
   typeof saveAssessmentRiskEntryInputSchema
 >;
+export type AssessmentSummaryRequiredField = z.infer<
+  typeof assessmentSummaryRequiredFieldSchema
+>;
+export type AssessmentExportReadiness = z.infer<
+  typeof assessmentExportReadinessSchema
+>;
+export type SaveAssessmentSummaryInput = z.infer<
+  typeof saveAssessmentSummaryInputSchema
+>;
 export type SaveAssessmentRiskEntryOutput = z.infer<
   typeof saveAssessmentRiskEntryOutputSchema
+>;
+export type SaveAssessmentSummaryOutput = z.infer<
+  typeof saveAssessmentSummaryOutputSchema
 >;
 export type TransferAssessmentFindingsToRiskRegisterInput = z.infer<
   typeof transferAssessmentFindingsToRiskRegisterInputSchema

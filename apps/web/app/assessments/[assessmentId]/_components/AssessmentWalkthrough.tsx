@@ -141,8 +141,8 @@ export function AssessmentWalkthrough({
                     {workplaceName}
                   </h1>
                   <p className="max-w-3xl text-base leading-7 text-slate-700">
-                    Complete the walkthrough here, then continue with transferred
-                    risk rows in the separate editor below without leaving the
+                    Complete the walkthrough here, then continue through the
+                    risk register and final summary below without leaving the
                     assessment page.
                   </p>
                 </div>
@@ -256,8 +256,9 @@ export function AssessmentWalkthrough({
                   </h2>
                   <p className="text-sm leading-6 text-white/75">
                     Answers save immediately. Notes auto-save shortly after typing
-                    pauses, and transferred risk rows continue as a separate
-                    manual-save editing step on this same page.
+                    pauses, transferred risk rows stay in their own editing
+                    surface, and the saved summary step now closes the flow on
+                    this same page.
                   </p>
                 </div>
                 <div className="grid gap-2 text-sm text-white/80">
@@ -266,8 +267,8 @@ export function AssessmentWalkthrough({
                     slice.
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
-                    Summary capture, export, and broader safety-plan work stay in
-                    later stories.
+                    Export generation and broader safety-plan work stay in later
+                    stories.
                   </div>
                 </div>
               </div>
