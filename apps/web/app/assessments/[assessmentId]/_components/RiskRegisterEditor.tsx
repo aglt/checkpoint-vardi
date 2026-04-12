@@ -56,8 +56,8 @@ export function RiskRegisterEditor({
           <p className="max-w-3xl text-sm leading-6 text-slate-700">
             Transferred rows stay editable inside this assessment flow. Each save
             recalculates the stored classification from the pinned{" "}
-            {riskMatrixTitle} matrix, while summary and export shaping remain in
-            later stories.
+            {riskMatrixTitle} matrix, while the summary step and later export
+            shaping stay as separate owners below.
           </p>
         </div>
         <div className="rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1.5 text-sm font-medium text-slate-700">

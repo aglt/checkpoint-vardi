@@ -160,6 +160,26 @@ async function transferSecondCriterionRiskEntry(
   return transferredRiskEntryIds[fixture.secondCriterion.id];
 }
 
+function markAllFindingsOk(
+  fixture: ReturnType<typeof seedWalkthroughAssessment>,
+) {
+  const connection = createMigratedDatabase(fixture.databasePath);
+  connection.sqlite
+    .prepare(`
+      update finding
+      set status = ?, notes = ?, notes_language = ?, updated_at = ?
+      where assessment_id = ?
+    `)
+    .run(
+      "ok",
+      null,
+      null,
+      new Date("2026-04-11T10:09:00.000Z").getTime(),
+      fixture.assessmentId,
+    );
+  closeDatabase(connection);
+}
+
 test("walkthrough save action persists answers by stable criterion id", async () => {
   const fixture = seedWalkthroughAssessment();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
@@ -495,6 +515,139 @@ test("assessment page localizes stale risk classifications to the affected card"
         ),
         '[\\s\\S]*?',
         escapeRegExp('data-risk-level="high"'),
+      ].join(""),
+    ),
+  );
+});
+
+test("assessment page renders the summary editor with workplace defaults and readiness blockers", async () => {
+  const fixture = seedWalkthroughAssessment();
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const { default: AssessmentPage } = await import(
+    "../../app/assessments/[assessmentId]/page"
+  );
+  const markup = renderWithAppRouter(
+    await AssessmentPage({
+      params: Promise.resolve({
+        assessmentId: fixture.assessmentId,
+      }),
+    }),
+  );
+
+  assert.match(markup, /Summary and export readiness/);
+  assert.match(markup, /data-summary-readiness="blocked"/);
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp('data-summary-field="companyName"'),
+        '[\\s\\S]*?',
+        escapeRegExp('value="FB workshop"'),
+      ].join(""),
+    ),
+  );
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp('data-summary-field="location"'),
+        '[\\s\\S]*?',
+        escapeRegExp('value="Austurberg 5"'),
+      ].join(""),
+    ),
+  );
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp('data-summary-field="assessmentDate"'),
+        '[\\s\\S]*?',
+        escapeRegExp('value="2026-04-11"'),
+      ].join(""),
+    ),
+  );
+  assert.match(markup, /walkthrough items still need answers/);
+  assert.match(markup, /Summary is still missing saved values/);
+});
+
+test("summary save round-trip persists the final summary and flips export readiness after the persisted flow is complete", async () => {
+  const fixture = seedWalkthroughAssessment();
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  markAllFindingsOk(fixture);
+
+  const riskEntryId = await transferSecondCriterionRiskEntry(fixture);
+
+  const { saveAssessmentRiskEntryAction } = await import(
+    "./saveAssessmentRiskEntryAction"
+  );
+  const { saveAssessmentSummaryAction } = await import(
+    "./saveAssessmentSummaryAction"
+  );
+
+  await saveAssessmentRiskEntryAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      riskEntryId,
+      hazard: "Table saw without guard",
+      healthEffects: "Hand injury",
+      whoAtRisk: "Students and staff",
+      likelihood: 2,
+      consequence: 3,
+      currentControls: "Safety signage",
+      proposedAction: "Install a replacement guard",
+      costEstimate: 25000,
+      responsibleOwner: "Workshop lead",
+      dueDate: "2026-04-20",
+      completedAt: "2026-04-22",
+    },
+  });
+
+  await saveAssessmentSummaryAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      companyName: "  FB workshop  ",
+      location: "  Austurberg 5  ",
+      assessmentDate: "2026-04-20",
+      participants: "  Student assessor  ",
+      method: "  Walkthrough  ",
+      notes: "  Prioritize guarding and dust extraction first.  ",
+    },
+  });
+
+  const { default: AssessmentPage } = await import(
+    "../../app/assessments/[assessmentId]/page"
+  );
+  const markup = renderWithAppRouter(
+    await AssessmentPage({
+      params: Promise.resolve({
+        assessmentId: fixture.assessmentId,
+      }),
+    }),
+  );
+
+  assert.match(markup, /data-summary-readiness="ready"/);
+  assert.match(markup, /Export-ready state reached/);
+  assert.match(markup, /All persisted prerequisites are ready/);
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp('data-summary-field="participants"'),
+        '[\\s\\S]*?',
+        escapeRegExp('value="Student assessor"'),
+      ].join(""),
+    ),
+  );
+  assert.match(markup, /Prioritize guarding and dust extraction first\./);
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp('data-summary-field="assessmentDate"'),
+        '[\\s\\S]*?',
+        escapeRegExp('value="2026-04-20"'),
       ].join(""),
     ),
   );

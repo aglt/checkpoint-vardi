@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-07`
-- Most recently completed step: `S1-06`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-06-risk-classification-engine-and-editing.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-07-summary-form-and-export-readiness.md`
+- Next queued step: `S1-08`
+- Most recently completed step: `S1-07`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-07-summary-form-and-export-readiness.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-08-report-export-checklist-register-summary.md`
 
 ## S0 - Foundations
 
@@ -175,16 +175,32 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 
 ### Step S1-07: Summary form and export readiness
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-07-summary-form-and-export-readiness.md`
-**Start gate:** Open. `S1-06` is complete.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-07-summary-form-and-export-readiness.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-08` by defining when an assessment is export-ready.
+
+**Completion note:**
+> Verified locally on branch `feat/assessment-summary-export-readiness`:
+> added the narrow owner-scoped summary upsert seam in `packages/db`, added
+> the strict summary save contract and nested export-readiness response shape
+> in `@vardi/schemas`, added a separate app-owned summary projection plus save
+> boundary in `apps/web/lib/assessments`, and split the assessment page into a
+> third focused summary/readiness surface below the risk register. Export
+> readiness is now derived on the server from persisted walkthrough answers,
+> transferred risk rows, verified classifications, and required saved summary
+> fields, while `loadAssessmentReadModel` stays walkthrough-centric and
+> export rendering remains out of scope for this slice.
+> Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing
+> workspace dependencies in this worktree. This session used `node v25.6.1`;
+> Node 22 remains the declared repo contract, but was not directly re-verified
+> here.
 
 ### Step S1-08: Report export for checklist, register, and summary
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-08-report-export-checklist-register-summary.md`
-**Start gate:** Closed until `S1-07` is complete.
+**Start gate:** Open. `S1-07` is complete.
 **Unblocks:** The assignment-ready MVP deliverable path.
 
 ### Step S1-09: Foundation for broader safety-plan modules
