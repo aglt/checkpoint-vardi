@@ -13,6 +13,7 @@ export interface RiskEntryDraft {
   readonly whoAtRisk: string;
   readonly likelihood: number | null;
   readonly consequence: number | null;
+  readonly classificationReasoning: string;
   readonly currentControls: string;
   readonly costEstimate: string;
 }
@@ -183,6 +184,7 @@ function areRiskEntryDraftsEqual(
     left.whoAtRisk === right.whoAtRisk &&
     left.likelihood === right.likelihood &&
     left.consequence === right.consequence &&
+    left.classificationReasoning === right.classificationReasoning &&
     left.currentControls === right.currentControls &&
     left.costEstimate === right.costEstimate
   );
@@ -199,6 +201,7 @@ function toRiskEntryDraft(
     whoAtRisk: riskEntry.whoAtRisk ?? "",
     likelihood: riskEntry.likelihood ?? null,
     consequence: riskEntry.consequence ?? null,
+    classificationReasoning: riskEntry.classificationReasoning ?? "",
     currentControls: riskEntry.currentControls ?? "",
     costEstimate:
       riskEntry.costEstimate == null ? "" : String(riskEntry.costEstimate),

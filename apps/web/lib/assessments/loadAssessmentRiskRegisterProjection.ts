@@ -42,6 +42,7 @@ export interface AssessmentRiskRegisterEntryProjection {
   readonly consequence: number | null;
   readonly savedRiskLevel: RiskLevel | null;
   readonly classificationState: RiskEntryClassificationState;
+  readonly classificationReasoning: string | null;
   readonly currentControls: string | null;
   readonly costEstimate: number | null;
   readonly mitigationActions: readonly AssessmentRiskMitigationActionProjection[];
@@ -166,6 +167,7 @@ function buildRiskRegisterEntryProjection(
       consequence: riskEntry.consequence,
       savedRiskLevel: isStale ? null : riskEntry.riskLevel,
       classificationState: isStale ? "staleRiskLevel" : "ready",
+      classificationReasoning: riskEntry.classificationReasoning,
       currentControls: riskEntry.currentControls,
       costEstimate: riskEntry.costEstimate,
       mitigationActions: mitigationActions.map(buildRiskMitigationActionProjection),
@@ -186,6 +188,7 @@ function buildRiskRegisterEntryProjection(
       consequence: riskEntry.consequence,
       savedRiskLevel: null,
       classificationState: "invalidClassification",
+      classificationReasoning: riskEntry.classificationReasoning,
       currentControls: riskEntry.currentControls,
       costEstimate: riskEntry.costEstimate,
       mitigationActions: mitigationActions.map(buildRiskMitigationActionProjection),

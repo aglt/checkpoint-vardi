@@ -59,6 +59,7 @@ export function buildAssessmentExportDocuments(
         likelihood: formatOptionalNumber(entry.likelihood),
         consequence: formatOptionalNumber(entry.consequence),
         riskLevel: formatRiskLevel(entry.savedRiskLevel),
+        classificationReasoning: entry.classificationReasoning ?? "",
         currentControls: entry.currentControls ?? "",
         costEstimate: formatOptionalNumber(entry.costEstimate),
         mitigationActions: entry.mitigationActions.map((action) => ({

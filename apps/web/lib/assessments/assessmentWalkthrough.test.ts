@@ -417,6 +417,8 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
       whoAtRisk: "Students and staff",
       likelihood: 2,
       consequence: 3,
+      classificationReasoning:
+        "Students use this saw every day and the missing guard can cause severe injury.",
       currentControls: "Safety signage",
       costEstimate: 25000,
     },
@@ -461,6 +463,14 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
   );
   assert.match(markup, new RegExp(escapeRegExp("Table saw without guard")));
   assert.match(markup, new RegExp(escapeRegExp("Students and staff")));
+  assert.match(
+    markup,
+    new RegExp(
+      escapeRegExp(
+        "Students use this saw every day and the missing guard can cause severe injury.",
+      ),
+    ),
+  );
   assert.match(markup, new RegExp(escapeRegExp("Mótvægisaðgerðir")));
   assert.match(markup, new RegExp(escapeRegExp("Install a replacement guard")));
   assert.match(markup, new RegExp(escapeRegExp("Workshop lead")));

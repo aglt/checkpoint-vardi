@@ -166,6 +166,8 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
       whoAtRisk: "  Students and staff  ",
       likelihood: 2,
       consequence: 3,
+      classificationReasoning:
+        "  Students use this saw every day and the missing guard can cause severe injury.  ",
       currentControls: "  Safety signage  ",
       costEstimate: 25000,
     },
@@ -180,6 +182,8 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
     likelihood: 2,
     consequence: 3,
     riskLevel: "high",
+    classificationReasoning:
+      "Students use this saw every day and the missing guard can cause severe injury.",
     currentControls: "Safety signage",
     costEstimate: 25000,
   });
@@ -195,6 +199,10 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
   assert.ok(persistedRiskEntry);
   assert.equal(persistedRiskEntry?.hazard, "Table saw without guard");
   assert.equal(persistedRiskEntry?.savedRiskLevel, "high");
+  assert.equal(
+    persistedRiskEntry?.classificationReasoning,
+    "Students use this saw every day and the missing guard can cause severe injury.",
+  );
 
   closeDatabase(connection);
 });
@@ -220,12 +228,14 @@ test("saveAssessmentRiskEntryAction leaves risk level null until both scores are
       whoAtRisk: undefined,
       likelihood: 2,
       consequence: undefined,
+      classificationReasoning: "   ",
       currentControls: undefined,
       costEstimate: undefined,
     },
   });
 
   assert.equal(output.riskLevel, null);
+  assert.equal(output.classificationReasoning, null);
 
   const connection = createBootstrappedDatabase(fixture.databasePath);
   const projection = loadAssessmentRiskRegisterProjection({
@@ -239,6 +249,7 @@ test("saveAssessmentRiskEntryAction leaves risk level null until both scores are
   assert.equal(persistedRiskEntry?.likelihood, 2);
   assert.equal(persistedRiskEntry?.consequence, null);
   assert.equal(persistedRiskEntry?.savedRiskLevel, null);
+  assert.equal(persistedRiskEntry?.classificationReasoning, null);
 
   closeDatabase(connection);
 });
@@ -356,11 +367,17 @@ test("saveAssessmentRiskEntryAction does not depend on unrelated stale rows in t
       hazard: "Updated target hazard",
       likelihood: 2,
       consequence: 2,
+      classificationReasoning:
+        "The target row still needs a saved explanation, but it should save independently.",
     },
   });
 
   assert.equal(output.riskEntryId, transferredRiskEntryIds[fixture.targetCriterion.id]);
   assert.equal(output.riskLevel, "medium");
+  assert.equal(
+    output.classificationReasoning,
+    "The target row still needs a saved explanation, but it should save independently.",
+  );
 
   const projectionConnection = createBootstrappedDatabase(fixture.databasePath);
   const projection = loadAssessmentRiskRegisterProjection({
@@ -379,6 +396,10 @@ test("saveAssessmentRiskEntryAction does not depend on unrelated stale rows in t
   assert.equal(staleEntry?.classificationState, "staleRiskLevel");
   assert.equal(updatedEntry?.savedRiskLevel, "medium");
   assert.equal(updatedEntry?.classificationState, "ready");
+  assert.equal(
+    updatedEntry?.classificationReasoning,
+    "The target row still needs a saved explanation, but it should save independently.",
+  );
 
   closeDatabase(projectionConnection);
 });

@@ -57,6 +57,7 @@ export interface RegisterEntryReport {
   readonly likelihood: string;
   readonly consequence: string;
   readonly riskLevel: string;
+  readonly classificationReasoning: string;
   readonly currentControls: string;
   readonly costEstimate: string;
   readonly mitigationActions: readonly RegisterMitigationActionReport[];
@@ -320,6 +321,10 @@ export async function renderRegisterReportDocx(
       createKeyValueParagraph("Likelihood", toDisplayValue(entry.likelihood)),
       createKeyValueParagraph("Consequence", toDisplayValue(entry.consequence)),
       createKeyValueParagraph("Risk level", toDisplayValue(entry.riskLevel)),
+      createKeyValueParagraph(
+        "Classification reasoning",
+        toDisplayValue(entry.classificationReasoning),
+      ),
       createKeyValueParagraph("Current controls", toDisplayValue(entry.currentControls)),
       createKeyValueParagraph("Cost estimate", toDisplayValue(entry.costEstimate)),
       createKeyValueParagraph(
@@ -359,6 +364,11 @@ export async function renderRegisterReportPdf(
       writePdfKeyValue(pdf, "Likelihood", toDisplayValue(entry.likelihood));
       writePdfKeyValue(pdf, "Consequence", toDisplayValue(entry.consequence));
       writePdfKeyValue(pdf, "Risk level", toDisplayValue(entry.riskLevel));
+      writePdfKeyValue(
+        pdf,
+        "Classification reasoning",
+        toDisplayValue(entry.classificationReasoning),
+      );
       writePdfKeyValue(pdf, "Current controls", toDisplayValue(entry.currentControls));
       writePdfKeyValue(pdf, "Cost estimate", toDisplayValue(entry.costEstimate));
       writePdfKeyValue(

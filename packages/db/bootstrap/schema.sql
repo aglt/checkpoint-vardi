@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS risk_entry (
   likelihood INTEGER,
   consequence INTEGER,
   risk_level TEXT CHECK (risk_level IN ('low', 'medium', 'high')),
+  classification_reasoning TEXT,
   current_controls TEXT,
   control_hierarchy TEXT CHECK (control_hierarchy IN ('eliminate', 'substitute', 'engineering', 'administrative', 'ppe')),
   cost_estimate INTEGER

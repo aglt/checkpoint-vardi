@@ -107,6 +107,7 @@ export function saveAssessmentRiskEntry(
         likelihood: parsedInput.data.likelihood ?? null,
         consequence: parsedInput.data.consequence ?? null,
       }),
+      classificationReasoning: parsedInput.data.classificationReasoning ?? null,
       currentControls: parsedInput.data.currentControls ?? null,
       costEstimate: parsedInput.data.costEstimate ?? null,
     });
@@ -176,6 +177,7 @@ function buildSaveAssessmentRiskEntryOutput(
     likelihood: riskEntry.likelihood,
     consequence: riskEntry.consequence,
     riskLevel: riskEntry.riskLevel,
+    classificationReasoning: riskEntry.classificationReasoning,
     currentControls: riskEntry.currentControls,
     costEstimate: riskEntry.costEstimate,
   };

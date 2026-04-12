@@ -33,6 +33,7 @@ const riskEntries: readonly AssessmentRiskRegisterEntryProjection[] = [
     consequence: null,
     savedRiskLevel: null,
     classificationState: "staleRiskLevel",
+    classificationReasoning: null,
     currentControls: null,
     costEstimate: null,
     mitigationActions: [

@@ -340,6 +340,28 @@ export function RiskRegisterEditor({
                               selectedValue={riskEntryState.draft.consequence}
                             />
                           </div>
+
+                          <div className="space-y-2">
+                            <label
+                              className="text-sm font-medium text-slate-900"
+                              htmlFor={`classification-reasoning-${entry.id}`}
+                            >
+                              {copy.labels.classificationReasoning}
+                            </label>
+                            <textarea
+                              className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
+                              id={`classification-reasoning-${entry.id}`}
+                              onChange={(event) =>
+                                handleRiskEntryFieldChange(
+                                  entry.id,
+                                  "classificationReasoning",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder={copy.placeholders.classificationReasoning}
+                              value={riskEntryState.draft.classificationReasoning}
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -861,6 +883,9 @@ export function RiskRegisterEditor({
             whoAtRisk: toOptionalString(nextDraft.whoAtRisk),
             likelihood: nextDraft.likelihood ?? undefined,
             consequence: nextDraft.consequence ?? undefined,
+            classificationReasoning: toOptionalString(
+              nextDraft.classificationReasoning,
+            ),
             currentControls: toOptionalString(nextDraft.currentControls),
             costEstimate: toOptionalInteger(nextDraft.costEstimate),
           },

@@ -94,6 +94,9 @@ function seedExportAssessmentFixture() {
 
 function prepareExportReadyState(
   fixture: ReturnType<typeof seedExportAssessmentFixture>,
+  overrides?: {
+    readonly classificationReasoning?: string | null;
+  },
 ) {
   const connection = createBootstrappedDatabase(fixture.databasePath);
   connection.sqlite
@@ -144,6 +147,7 @@ function prepareExportReadyState(
     likelihood: 2,
     consequence: 3,
     riskLevel: "high",
+    classificationReasoning: overrides?.classificationReasoning ?? null,
     currentControls: "Daily pre-start checks",
     controlHierarchy: null,
     costEstimate: 42000,
@@ -190,7 +194,10 @@ function prepareExportReadyState(
 
 test("buildAssessmentExportDocuments preserves checklist order and maps summary/register data deterministically", () => {
   const fixture = seedExportAssessmentFixture();
-  prepareExportReadyState(fixture);
+  prepareExportReadyState(fixture, {
+    classificationReasoning:
+      "Workers pass the machine often and an unguarded contact could cause severe injury.",
+  });
 
   const connection = createBootstrappedDatabase(fixture.databasePath);
   const readModel = loadAssessmentReadModel({
@@ -229,6 +236,10 @@ test("buildAssessmentExportDocuments preserves checklist order and maps summary/
     riskRegisterProjection.entries.map((entry) => entry.id),
   );
   assert.equal(documents.register.entries[0]?.riskLevel, "High");
+  assert.equal(
+    documents.register.entries[0]?.classificationReasoning,
+    "Workers pass the machine often and an unguarded contact could cause severe injury.",
+  );
   assert.deepEqual(documents.register.entries[0]?.mitigationActions, [
     {
       id: "action-1",
@@ -267,6 +278,17 @@ test("generateAssessmentExportBundle returns a bundle manifest and typed not-rea
   prepareExportReadyState(readyFixture);
 
   const readyConnection = createBootstrappedDatabase(readyFixture.databasePath);
+  const readyRiskRegisterProjection = loadAssessmentRiskRegisterProjection({
+    db: readyConnection.db,
+    ownerId: "owner-1",
+    assessmentId: readyFixture.assessmentId,
+  });
+
+  assert.equal(
+    readyRiskRegisterProjection.entries[0]?.classificationReasoning,
+    null,
+  );
+
   const successOutput = await generateAssessmentExportBundle({
     db: readyConnection.db,
     ownerId: "owner-1",

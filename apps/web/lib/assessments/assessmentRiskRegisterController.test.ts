@@ -28,6 +28,7 @@ const riskEntries: readonly AssessmentRiskRegisterEntryProjection[] = [
     consequence: null,
     savedRiskLevel: null,
     classificationState: "staleRiskLevel",
+    classificationReasoning: null,
     currentControls: null,
     costEstimate: null,
     mitigationActions: [],
@@ -74,6 +75,8 @@ test("risk-entry controller updates drafts and clears stale warnings after a suc
       likelihood: 2,
       consequence: 3,
       riskLevel: "high",
+      classificationReasoning:
+        "The saw is used often and a guard failure could cause severe injury.",
       currentControls: null,
       costEstimate: null,
     },
@@ -83,6 +86,10 @@ test("risk-entry controller updates drafts and clears stale warnings after a suc
   assert.equal(completed["risk-entry-1"]?.saved.hazard, "Updated hazard");
   assert.equal(completed["risk-entry-1"]?.savedRiskLevel, "high");
   assert.equal(completed["risk-entry-1"]?.savedClassificationState, "ready");
+  assert.equal(
+    completed["risk-entry-1"]?.saved.classificationReasoning,
+    "The saw is used often and a guard failure could cause severe injury.",
+  );
   assert.equal(
     Object.prototype.hasOwnProperty.call(
       completed["risk-entry-1"] ?? {},
@@ -100,4 +107,20 @@ test("risk-entry controller updates drafts and clears stale warnings after a suc
 
   assert.equal(failed["risk-entry-1"]?.saveState, "error");
   assert.equal(failed["risk-entry-1"]?.errorMessage, "Save failed");
+});
+
+test("risk-entry controller treats classification reasoning as part of dirty state", () => {
+  const states = buildInitialRiskEntryState(riskEntries);
+  const edited = updateRiskEntryDraftField(
+    states,
+    "risk-entry-1",
+    "classificationReasoning",
+    "This row needs an explicit saved explanation.",
+  );
+
+  assert.equal(isRiskEntryDirty(edited["risk-entry-1"]!), true);
+  assert.equal(
+    edited["risk-entry-1"]?.draft.classificationReasoning,
+    "This row needs an explicit saved explanation.",
+  );
 });

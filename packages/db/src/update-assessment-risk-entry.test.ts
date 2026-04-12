@@ -175,6 +175,7 @@ test("updateAssessmentRiskEntry updates only the owner-scoped transferred row an
     likelihood: 2,
     consequence: 3,
     derivedRiskLevel: "high",
+    classificationReasoning: "Students use the saw every day and the exposed blade can cause severe injury.",
     currentControls: "Signage in place",
     costEstimate: 25000,
   });
@@ -187,6 +188,10 @@ test("updateAssessmentRiskEntry updates only the owner-scoped transferred row an
   assert.equal(updatedRiskEntry.likelihood, 2);
   assert.equal(updatedRiskEntry.consequence, 3);
   assert.equal(updatedRiskEntry.riskLevel, "high");
+  assert.equal(
+    updatedRiskEntry.classificationReasoning,
+    "Students use the saw every day and the exposed blade can cause severe injury.",
+  );
   assert.equal(updatedRiskEntry.currentControls, "Signage in place");
   assert.equal(updatedRiskEntry.costEstimate, 25000);
 
@@ -198,6 +203,24 @@ test("updateAssessmentRiskEntry updates only the owner-scoped transferred row an
 
   assert.equal(untouchedRiskEntry?.hazard, "Safety signage");
   assert.equal(untouchedRiskEntry?.findingId, "finding-owner-1-b");
+
+  closeDatabase(connection);
+});
+
+test("updateAssessmentRiskEntry normalizes blank classification reasoning to null", () => {
+  const connection = seedRiskEntryFixture();
+
+  const updatedRiskEntry = updateAssessmentRiskEntry({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: "assessment-owner-1-a",
+    riskEntryId: "risk-entry-owner-1-a",
+    hazard: "Updated guarding on saw",
+    derivedRiskLevel: null,
+    classificationReasoning: "   ",
+  });
+
+  assert.equal(updatedRiskEntry.classificationReasoning, null);
 
   closeDatabase(connection);
 });

@@ -90,6 +90,7 @@ export const riskEntry = sqliteTable(
     likelihood: integer("likelihood"),
     consequence: integer("consequence"),
     riskLevel: text("risk_level", { enum: riskLevels }),
+    classificationReasoning: text("classification_reasoning"),
     currentControls: text("current_controls"),
     controlHierarchy: text("control_hierarchy", { enum: controlHierarchies }),
     costEstimate: integer("cost_estimate"),

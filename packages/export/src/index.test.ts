@@ -58,6 +58,8 @@ function createSampleDocuments(): AssessmentReportDocuments {
           likelihood: "2",
           consequence: "3",
           riskLevel: "High",
+          classificationReasoning:
+            "Students use the saw daily and the missing guard can cause severe injury.",
           currentControls: "Safety signage",
           costEstimate: "25000",
           mitigationActions: [
@@ -122,6 +124,11 @@ test("renderAssessmentReportFiles creates valid docx and pdf outputs for all thr
   assert.match(checklistDocumentXml ?? "", /Workshop Alpha/);
   assert.match(checklistDocumentXml ?? "", /Missing table saw guard/);
   assert.match(registerDocumentXml ?? "", /Table saw without guard/);
+  assert.match(registerDocumentXml ?? "", /Classification reasoning/);
+  assert.match(
+    registerDocumentXml ?? "",
+    /Students use the saw daily and the missing guard can cause severe injury\./,
+  );
   assert.match(registerDocumentXml ?? "", /Install replacement guard/);
   assert.match(registerDocumentXml ?? "", /Mitigation actions/);
   assert.match(summaryDocumentXml ?? "", /Student assessor/);

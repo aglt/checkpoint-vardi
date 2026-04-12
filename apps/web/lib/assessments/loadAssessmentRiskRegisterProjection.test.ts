@@ -107,6 +107,7 @@ function seedAssessmentWithTransferredRows() {
       likelihood: null,
       consequence: null,
       riskLevel: null,
+      classificationReasoning: "This second row stays lower priority for now.",
       currentControls: null,
       controlHierarchy: null,
       costEstimate: null,
@@ -121,6 +122,8 @@ function seedAssessmentWithTransferredRows() {
       likelihood: null,
       consequence: null,
       riskLevel: null,
+      classificationReasoning:
+        "Workers are near this machine often and the missing guard can cause severe injury.",
       currentControls: null,
       controlHierarchy: null,
       costEstimate: null,
@@ -213,6 +216,10 @@ test("loadAssessmentRiskRegisterProjection reports stale risk-level mismatches w
     ),
     false,
   );
+  assert.equal(
+    projection.entries[0]?.classificationReasoning,
+    "Workers are near this machine often and the missing guard can cause severe injury.",
+  );
   assert.equal(projection.entries[1]?.classificationState, "ready");
 
   closeDatabase(connection);
@@ -230,6 +237,10 @@ test("loadAssessmentRiskRegisterProjection includes mitigation actions in persis
   assert.deepEqual(
     projection.entries[0]?.mitigationActions.map((action) => action.id),
     ["action-1", "action-2"],
+  );
+  assert.equal(
+    projection.entries[1]?.classificationReasoning,
+    "This second row stays lower priority for now.",
   );
   assert.equal(projection.entries[0]?.mitigationActions[0]?.dueDate, "2026-04-15");
   assert.equal(projection.entries[1]?.mitigationActions.length, 0);

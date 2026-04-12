@@ -14,6 +14,7 @@ export interface UpdateAssessmentRiskEntryParams {
   readonly likelihood?: number | null;
   readonly consequence?: number | null;
   readonly derivedRiskLevel: RiskEntryRow["riskLevel"];
+  readonly classificationReasoning?: string | null;
   readonly currentControls?: string | null;
   readonly costEstimate?: number | null;
 }
@@ -64,6 +65,7 @@ export function updateAssessmentRiskEntry(
       likelihood: params.likelihood ?? null,
       consequence: params.consequence ?? null,
       riskLevel: params.derivedRiskLevel,
+      classificationReasoning: normalizeOptionalText(params.classificationReasoning),
       currentControls: normalizeOptionalText(params.currentControls),
       costEstimate: params.costEstimate ?? null,
     })

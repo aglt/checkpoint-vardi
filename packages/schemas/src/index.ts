@@ -157,6 +157,13 @@ export const saveAssessmentRiskEntryInputSchema = z
       normalizeOptionalInteger,
       z.number().int().positive().optional(),
     ),
+    classificationReasoning: z.preprocess(
+      trimOptionalString,
+      z
+        .string()
+        .max(4000, "Classification reasoning must be 4000 characters or fewer.")
+        .optional(),
+    ),
     currentControls: z.preprocess(
       trimOptionalString,
       z
@@ -298,6 +305,7 @@ export const saveAssessmentRiskEntryOutputSchema = z.object({
   likelihood: z.number().int().positive().nullable(),
   consequence: z.number().int().positive().nullable(),
   riskLevel: z.enum(["low", "medium", "high"]).nullable(),
+  classificationReasoning: z.string().nullable(),
   currentControls: z.string().nullable(),
   costEstimate: z.number().int().nonnegative().nullable(),
 });

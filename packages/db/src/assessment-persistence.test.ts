@@ -74,6 +74,14 @@ test("bootstrap schema applies cleanly on a fresh SQLite database", () => {
     ],
   );
 
+  const riskEntryColumns = connection.sqlite
+    .prepare("select name from pragma_table_info('risk_entry') order by cid")
+    .all() as Array<{ name: string }>;
+
+  assert.ok(
+    riskEntryColumns.some((column) => column.name === "classification_reasoning"),
+  );
+
   closeDatabase(connection);
 });
 
@@ -235,6 +243,7 @@ test("loadAssessmentAggregate returns the owner-scoped persisted graph", () => {
     likelihood: null,
     consequence: null,
     riskLevel: null,
+    classificationReasoning: "Workers pass the edge frequently and cuts are plausible.",
     currentControls: null,
     controlHierarchy: null,
     costEstimate: null,
@@ -291,6 +300,10 @@ test("loadAssessmentAggregate returns the owner-scoped persisted graph", () => {
   assert.equal(aggregate.assessment.id, "assessment-owner-1");
   assert.equal(aggregate.findings.length, 2);
   assert.equal(aggregate.riskEntries.length, 1);
+  assert.equal(
+    aggregate.riskEntries[0]?.classificationReasoning,
+    "Workers pass the edge frequently and cuts are plausible.",
+  );
   assert.deepEqual(
     mitigationActions.map((action) => action.id),
     ["action-1", "action-2"],
