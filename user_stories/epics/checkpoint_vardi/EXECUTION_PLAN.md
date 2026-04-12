@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-04`
-- Most recently completed step: `S1-03`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-03-start-assessment-from-seeded-template.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-04-assessment-walkthrough-form-slice.md`
+- Next queued step: `S1-05`
+- Most recently completed step: `S1-04`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-04-assessment-walkthrough-form-slice.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-05-transfer-noncompliant-findings-into-risk-register.md`
 
 ## S0 - Foundations
 
@@ -109,10 +109,24 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 
 ### Step S1-04: Assessment walkthrough form slice
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-04-assessment-walkthrough-form-slice.md`
-**Start gate:** Open after `S1-03` is complete.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-04-assessment-walkthrough-form-slice.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-05` by capturing persisted walkthrough answers and findings.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-04-assessment-walkthrough-form-slice`:
+> expanded `/assessments/[assessmentId]` from readiness-only into the seeded
+> walkthrough form slice, added the narrow owner-scoped finding update seam in
+> `packages/db`, added the narrow server-action walkthrough save boundary plus
+> a deterministic app mutation helper, extracted the client save-state
+> controller into a targeted tested module, and now persist criterion answers
+> and notes against stable seeded `criterionId` values so refresh resumes the
+> current walkthrough state.
+> Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing workspace
+> dependencies in this worktree. This session used `node v25.6.1`; Node 22
+> remains the declared repo contract, but was not directly re-verified here.
+> PR: `#6`.
 
 ### Step S1-05: Transfer non-compliant findings into risk register
 
