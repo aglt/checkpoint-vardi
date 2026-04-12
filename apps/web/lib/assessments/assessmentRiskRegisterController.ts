@@ -14,11 +14,7 @@ export interface RiskEntryDraft {
   readonly likelihood: number | null;
   readonly consequence: number | null;
   readonly currentControls: string;
-  readonly proposedAction: string;
   readonly costEstimate: string;
-  readonly responsibleOwner: string;
-  readonly dueDate: string;
-  readonly completedAt: string;
 }
 
 export interface RiskEntryClientState {
@@ -188,11 +184,7 @@ function areRiskEntryDraftsEqual(
     left.likelihood === right.likelihood &&
     left.consequence === right.consequence &&
     left.currentControls === right.currentControls &&
-    left.proposedAction === right.proposedAction &&
-    left.costEstimate === right.costEstimate &&
-    left.responsibleOwner === right.responsibleOwner &&
-    left.dueDate === right.dueDate &&
-    left.completedAt === right.completedAt
+    left.costEstimate === right.costEstimate
   );
 }
 
@@ -208,11 +200,7 @@ function toRiskEntryDraft(
     likelihood: riskEntry.likelihood ?? null,
     consequence: riskEntry.consequence ?? null,
     currentControls: riskEntry.currentControls ?? "",
-    proposedAction: riskEntry.proposedAction ?? "",
     costEstimate:
       riskEntry.costEstimate == null ? "" : String(riskEntry.costEstimate),
-    responsibleOwner: riskEntry.responsibleOwner ?? "",
-    dueDate: riskEntry.dueDate ?? "",
-    completedAt: riskEntry.completedAt ?? "",
   };
 }

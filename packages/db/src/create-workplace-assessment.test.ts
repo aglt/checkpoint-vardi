@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { closeDatabase, createMigratedDatabase } from "./database.js";
+import { closeDatabase, createBootstrappedDatabase } from "./database.js";
 import {
   createWorkplaceAssessment,
   EmptyAssessmentCriteriaError,
@@ -14,7 +14,7 @@ function buildCreateParams(criterionIds: readonly string[] = [
   "checklist.section-01.criterion-02",
   "checklist.section-02.criterion-01",
 ]) {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   return {
     connection,

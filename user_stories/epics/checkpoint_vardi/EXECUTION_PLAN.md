@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-11`
+- Next queued step: `S1-12`
 - Most recently completed step: `S1-17`
 - Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-17-language-consistent-web-content.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-11-risk-mitigation-planning-on-risk-entries.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-12-guided-assessment-progression-and-completion-guards.md`
 
 ## S0 - Foundations
 
@@ -46,6 +46,7 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 S1-08 -> S1-10 -> S1-16
 S1-08 -> S1-11 -> S1-12 -> S1-13 -> S1-14 -> S1-15 -> S1-16
 S1-08 -> S1-17
+S1-08 -> S1-18
 S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 ```
 
@@ -247,16 +248,31 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-11: Risk mitigation planning on risk entries
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-11-risk-mitigation-planning-on-risk-entries.md`
-**Start gate:** Open. `S1-08` is complete and the current flow can now widen from classification into persisted action planning.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-11-risk-mitigation-planning-on-risk-entries.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-12`, richer export/register truth, and any later runtime rule that needs mitigation state.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-11-risk-mitigation-planning`:
+> replaced the old row-level action planning fields with persisted
+> `risk_mitigation_action` child rows owned by `risk_entry`, added
+> owner-scoped DB helpers plus app-owned create/update/delete seams,
+> extended the existing risk-register projection to render saved actions
+> deterministically, updated the in-flow editor to manage inline
+> mitigation actions separately from parent risk-entry saves, and mapped
+> only saved mitigation actions into the app-owned export document
+> shaping path consumed by `@vardi/export`.
+> Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing
+> workspace dependencies in this worktree. This session used
+> `node v25.6.1`; Node 22 remains the declared repo contract, but was
+> not directly re-verified here. PR: `#13`.
 
 ### Step S1-12: Guided assessment progression and completion guards
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-12-guided-assessment-progression-and-completion-guards.md`
-**Start gate:** Closed until `S1-11` lands or an equivalent action-planning truth owner is intentionally documented.
+**Start gate:** Open. `S1-11` is complete and mitigation truth now lives on saved `risk_entry` child actions.
 **Unblocks:** `S1-13`, later runtime-driven completion rules, and clearer server-owned gating across the assessment flow.
 
 ### Step S1-13: Explicit risk reasoning capture
@@ -296,22 +312,26 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 **Completion note:**
 > Verified locally on branch `codex/s1-17-language-consistent-web-content`:
-> added a shared app-language seam plus a server-only request helper, moved
-> app-owned start-page and assessment-flow copy into `apps/web/lib/i18n/`,
-> kept lower assessment projections state-oriented by removing localized
-> message ownership from those boundaries, localized presentation-only risk
-> severity labels, added request-language and render coverage for Icelandic
-> default plus explicit English rendering, and tightened Playwright specs so
-> the Icelandic request path proves there are no app-owned English leaks on
-> the start page or current assessment flow.
-> Ran `pnpm test`, `pnpm typecheck`, `pnpm lint`, and targeted browser specs
-> via `pnpm --filter @vardi/web test:e2e -- e2e/specs/start-page.smoke.spec.ts e2e/specs/assessment-workflow.spec.ts`.
-> This session used `node v25.6.1`; Node 22 remains the declared repo
-> contract, but was not directly re-verified here. PR: `#14`.
+> added a request-derived app-language seam with an explicit
+> `requestAppLanguage.server.ts` boundary, moved app-owned start-page and
+> assessment-flow copy into `apps/web/lib/i18n/`, kept lower assessment
+> projections state-oriented by removing localized message ownership from those
+> boundaries, localized presentation-only risk severity labels, and added both
+> boundary regression coverage and Icelandic leakage checks for the current
+> start page and assessment flow including the merged mitigation-action surface.
+> Ran `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, and
+> `pnpm build` under `node v22.22.2`. PR: `#14`.
+
+### Step S1-18: Risk severity choice alignment with the reference workflow
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-18-risk-severity-choice-alignment.md`
+**Start gate:** Open. `S1-08` is complete and the screenshot-backed severity mismatch is already observable on the current MVP flow. Reuse any language seam from `S1-17` if available, but do not duplicate that broader story accidentally.
+**Unblocks:** A more truthful risk-severity UX on the current flow and later stable browser assertions in `S1-16`.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-16` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-18` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.

@@ -1,4 +1,4 @@
-import { closeDatabase, createMigratedDatabase } from "@vardi/db/testing";
+import { closeDatabase, createBootstrappedDatabase } from "@vardi/db/testing";
 
 import {
   resetE2eStateDirectory,
@@ -7,5 +7,5 @@ import {
 
 resetE2eStateDirectory();
 
-const connection = createMigratedDatabase(resolveE2eDatabasePath());
+const connection = createBootstrappedDatabase(resolveE2eDatabasePath());
 closeDatabase(connection);

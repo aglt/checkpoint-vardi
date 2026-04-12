@@ -60,11 +60,14 @@ export function buildAssessmentExportDocuments(
         consequence: formatOptionalNumber(entry.consequence),
         riskLevel: formatRiskLevel(entry.savedRiskLevel),
         currentControls: entry.currentControls ?? "",
-        proposedAction: entry.proposedAction ?? "",
         costEstimate: formatOptionalNumber(entry.costEstimate),
-        responsibleOwner: entry.responsibleOwner ?? "",
-        dueDate: entry.dueDate ?? "",
-        completedAt: entry.completedAt ?? "",
+        mitigationActions: entry.mitigationActions.map((action) => ({
+          id: action.id,
+          description: action.description,
+          assigneeName: action.assigneeName ?? "",
+          dueDate: action.dueDate ?? "",
+          statusLabel: formatRiskMitigationActionStatus(action.status),
+        })),
       })),
     },
     summary: {
@@ -126,6 +129,16 @@ function formatOptionalNumber(value: number | null): string {
 function formatRiskLevel(value: "low" | "medium" | "high" | null): string {
   if (value == null) {
     return "";
+  }
+
+  return `${value[0]?.toUpperCase() ?? ""}${value.slice(1)}`;
+}
+
+function formatRiskMitigationActionStatus(
+  value: "open" | "inProgress" | "done",
+): string {
+  if (value === "inProgress") {
+    return "In progress";
   }
 
   return `${value[0]?.toUpperCase() ?? ""}${value.slice(1)}`;

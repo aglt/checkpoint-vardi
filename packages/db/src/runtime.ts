@@ -2,10 +2,10 @@
 // real server runtime. Keep this separate from the root package seam so the
 // default @vardi/db API stays focused on schema and query ownership.
 export {
-  applyMigrations,
+  applyBootstrapSchema,
   closeDatabase,
   createDatabaseConnection,
-  createMigratedDatabaseConnection,
+  createBootstrappedDatabaseConnection,
   type DatabaseConnection,
   type VardiDatabase,
 } from "./connection.js";

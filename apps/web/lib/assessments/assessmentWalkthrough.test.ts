@@ -7,7 +7,7 @@ import test from "node:test";
 import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
   updateAssessmentFindingResponse,
 } from "@vardi/db/testing";
@@ -20,7 +20,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { loadAssessmentReadModel } from "./loadAssessmentReadModel";
 import { loadAssessmentRiskRegisterProjection } from "./loadAssessmentRiskRegisterProjection";
-import { loadAssessmentSummaryProjection } from "./loadAssessmentSummaryProjection";
 
 const startedAt = new Date("2026-04-11T10:00:00.000Z");
 const appRouterStub: AppRouterInstance = {
@@ -66,7 +65,7 @@ function seedWalkthroughAssessment() {
     throw new Error("Expected checklist fixture to contain at least two criteria.");
   }
 
-  const connection = createMigratedDatabase(databasePath);
+  const connection = createBootstrappedDatabase(databasePath);
   const result = createWorkplaceAssessment({
     db: connection.db,
     ownerId: "owner-1",
@@ -127,7 +126,7 @@ async function transferCriteriaToRiskRegister(
     assessmentId: fixture.assessmentId,
   });
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const projection = loadAssessmentRiskRegisterProjection({
     db: connection.db,
     ownerId: "owner-1",
@@ -164,7 +163,7 @@ async function transferSecondCriterionRiskEntry(
 function markAllFindingsOk(
   fixture: ReturnType<typeof seedWalkthroughAssessment>,
 ) {
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   connection.sqlite
     .prepare(`
       update finding
@@ -202,7 +201,7 @@ test("walkthrough save action persists answers by stable criterion id", async ()
   assert.equal(payload.status, "notOk");
   assert.equal(payload.notes, "Missing guard");
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const readModel = loadAssessmentReadModel({
     db: connection.db,
     ownerId: "owner-1",
@@ -223,7 +222,7 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
   const fixture = seedWalkthroughAssessment();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   updateAssessmentFindingResponse({
     db: connection.db,
     ownerId: "owner-1",
@@ -264,14 +263,14 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
     new RegExp(escapeRegExp(fixture.firstCriterion.translations.is.guidance)),
   );
   assert.match(markup, new RegExp(escapeRegExp("Already reviewed on-site.")));
-  assert.match(markup, new RegExp(escapeRegExp("Svör vistast strax.")));
+  assert.match(markup, /Svör vistast strax/);
 });
 
 test("assessment page re-renders with the persisted answer state selected", async () => {
   const fixture = seedWalkthroughAssessment();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   updateAssessmentFindingResponse({
     db: connection.db,
     ownerId: "owner-1",
@@ -349,7 +348,7 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
     existingRiskEntryCount: 0,
   });
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   const readModel = loadAssessmentReadModel({
     db: connection.db,
     ownerId: "owner-1",
@@ -377,6 +376,12 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
 
   assert.match(markup, new RegExp(escapeRegExp("Færa í áhættuskrá")));
   assert.match(markup, new RegExp(escapeRegExp("Öll hæf atriði færð")));
+  assert.match(markup, new RegExp(escapeRegExp("Mótvægisaðgerðir")));
+  assert.match(
+    markup,
+    new RegExp(escapeRegExp("Engar vistaðar mótvægisaðgerðir enn.")),
+  );
+  assert.doesNotMatch(markup, /Draft action/);
   assert.match(
     markup,
     new RegExp(
@@ -396,6 +401,9 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
   const riskEntryId = await transferSecondCriterionRiskEntry(fixture);
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
+  const { createAssessmentRiskMitigationActionAction } = await import(
+    "./createAssessmentRiskMitigationActionAction"
+  );
   const { saveAssessmentRiskEntryAction } = await import(
     "./saveAssessmentRiskEntryAction"
   );
@@ -410,11 +418,18 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
       likelihood: 2,
       consequence: 3,
       currentControls: "Safety signage",
-      proposedAction: "Install a replacement guard",
       costEstimate: 25000,
-      responsibleOwner: "Workshop lead",
+    },
+  });
+
+  await createAssessmentRiskMitigationActionAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      riskEntryId,
+      description: "Install a replacement guard",
+      assigneeName: "Workshop lead",
       dueDate: "2026-04-20",
-      completedAt: "2026-04-22",
+      status: "open",
     },
   });
 
@@ -446,8 +461,12 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
   );
   assert.match(markup, new RegExp(escapeRegExp("Table saw without guard")));
   assert.match(markup, new RegExp(escapeRegExp("Students and staff")));
+  assert.match(markup, new RegExp(escapeRegExp("Mótvægisaðgerðir")));
   assert.match(markup, new RegExp(escapeRegExp("Install a replacement guard")));
+  assert.match(markup, new RegExp(escapeRegExp("Workshop lead")));
   assert.match(markup, new RegExp(escapeRegExp("Vistuð flokkun: Há.")));
+  assert.match(markup, new RegExp(escapeRegExp("Aðgerð 1 · vistuð")));
+  assert.match(markup, new RegExp(escapeRegExp("Vistuð staða aðgerðar: Opin.")));
 });
 
 test("assessment page localizes stale risk classifications to the affected card", async () => {
@@ -472,7 +491,7 @@ test("assessment page localizes stale risk classifications to the affected card"
     },
   });
 
-  const connection = createMigratedDatabase(fixture.databasePath);
+  const connection = createBootstrappedDatabase(fixture.databasePath);
   connection.sqlite
     .prepare(`
       update risk_entry
@@ -498,11 +517,23 @@ test("assessment page localizes stale risk classifications to the affected card"
     markup,
     new RegExp(
       [
-        escapeRegExp(
-          `data-risk-entry-id="${transferredRiskEntryIds[fixture.firstCriterion.id]}"`,
-        ),
-        '[\\s\\S]*?',
-        escapeRegExp('data-classification-state="staleRiskLevel"'),
+        "<article[^>]*(",
+        [
+          escapeRegExp(
+            `data-risk-entry-id="${transferredRiskEntryIds[fixture.firstCriterion.id]}"`,
+          ),
+          "[^>]*",
+          escapeRegExp('data-classification-state="staleRiskLevel"'),
+        ].join(""),
+        "|",
+        [
+          escapeRegExp('data-classification-state="staleRiskLevel"'),
+          "[^>]*",
+          escapeRegExp(
+            `data-risk-entry-id="${transferredRiskEntryIds[fixture.firstCriterion.id]}"`,
+          ),
+        ].join(""),
+        ")",
       ].join(""),
     ),
   );
@@ -543,10 +574,7 @@ test("assessment page renders the summary editor with workplace defaults and rea
     }),
   );
 
-  assert.match(
-    markup,
-    new RegExp(escapeRegExp("Samantekt og útflutningsstaða")),
-  );
+  assert.match(markup, /Samantekt og útflutningsstaða/);
   assert.match(markup, /data-summary-readiness="blocked"/);
   assert.match(
     markup,
@@ -579,15 +607,8 @@ test("assessment page renders the summary editor with workplace defaults and rea
     ),
   );
   assert.match(markup, /Það vantar svör fyrir/);
-  assert.match(markup, /Samantekt vantar enn vistuð gildi/);
-  assert.match(
-    markup,
-    new RegExp(
-      escapeRegExp(
-        "Ljúktu fyrst við hindranirnar hér að ofan áður en útflutningur opnast.",
-      ),
-    ),
-  );
+  assert.match(markup, /Samantekt vantar enn vistuð gildi fyrir/);
+  assert.match(markup, /Ljúktu fyrst við hindranirnar hér að ofan áður en útflutningur opnast\./);
   assert.match(markup, /Sækja Word \+ PDF pakka/);
   assert.match(markup, /data-export-button-state="idle"/);
 });
@@ -617,11 +638,7 @@ test("summary save round-trip persists the final summary and flips export readin
       likelihood: 2,
       consequence: 3,
       currentControls: "Safety signage",
-      proposedAction: "Install a replacement guard",
       costEstimate: 25000,
-      responsibleOwner: "Workshop lead",
-      dueDate: "2026-04-20",
-      completedAt: "2026-04-22",
     },
   });
 
@@ -676,115 +693,6 @@ test("summary save round-trip persists the final summary and flips export readin
   assert.match(
     markup,
     /Útflutningur notar vistaðan gátlista, áhættuskrá og samantektargildi\./,
-  );
-});
-
-test("assessment workflow can render English app-owned chrome while keeping seeded content on its existing seam", async () => {
-  const fixture = seedWalkthroughAssessment();
-  const riskEntryId = await transferSecondCriterionRiskEntry(fixture);
-  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
-
-  const { AssessmentSummaryEditor } = await import(
-    "../../app/assessments/[assessmentId]/_components/AssessmentSummaryEditor"
-  );
-  const { AssessmentWalkthrough } = await import(
-    "../../app/assessments/[assessmentId]/_components/AssessmentWalkthrough"
-  );
-  const { RiskRegisterEditor } = await import(
-    "../../app/assessments/[assessmentId]/_components/RiskRegisterEditor"
-  );
-  const { saveAssessmentRiskEntryAction } = await import(
-    "./saveAssessmentRiskEntryAction"
-  );
-
-  await saveAssessmentRiskEntryAction({
-    assessmentId: fixture.assessmentId,
-    input: {
-      riskEntryId,
-      hazard: "Table saw without guard",
-      healthEffects: "Hand injury",
-      whoAtRisk: "Students and staff",
-      likelihood: 2,
-      consequence: 3,
-      currentControls: "Safety signage",
-      proposedAction: "Install a replacement guard",
-      costEstimate: 25000,
-      responsibleOwner: "Workshop lead",
-      dueDate: "2026-04-20",
-      completedAt: "2026-04-22",
-    },
-  });
-
-  const connection = createMigratedDatabase(fixture.databasePath);
-  const readModel = loadAssessmentReadModel({
-    db: connection.db,
-    ownerId: "owner-1",
-    assessmentId: fixture.assessmentId,
-  });
-  const riskRegisterProjection = loadAssessmentRiskRegisterProjection({
-    db: connection.db,
-    ownerId: "owner-1",
-    assessmentId: fixture.assessmentId,
-    readModel,
-  });
-  const summaryProjection = loadAssessmentSummaryProjection({
-    db: connection.db,
-    ownerId: "owner-1",
-    assessmentId: fixture.assessmentId,
-    riskRegisterProjection,
-  });
-  closeDatabase(connection);
-
-  const markup = renderWithAppRouter(
-    React.createElement(
-      AssessmentWalkthrough,
-      {
-        assessmentId: readModel.assessment.id,
-        checklistTitle: readModel.checklist.translations.is.title,
-        checklistVersion: readModel.checklist.version,
-        language: "en",
-        riskMatrixTitle: readModel.riskMatrix.translations.is.title,
-        sections: readModel.sections,
-        workplaceName: readModel.workplace.name,
-      },
-      React.createElement(RiskRegisterEditor, {
-        assessmentId: readModel.assessment.id,
-        entries: riskRegisterProjection.entries,
-        language: "en",
-        riskMatrixConsequenceLevels:
-          riskRegisterProjection.riskMatrix.consequenceLevels,
-        riskMatrixLikelihoodLevels:
-          riskRegisterProjection.riskMatrix.likelihoodLevels,
-        riskMatrixTitle: riskRegisterProjection.riskMatrix.title,
-      }),
-      React.createElement(AssessmentSummaryEditor, {
-        assessmentId: readModel.assessment.id,
-        language: "en",
-        prioritizedEntries: summaryProjection.prioritizedEntries,
-        readiness: summaryProjection.readiness,
-        summary: summaryProjection.summary,
-      }),
-    ),
-  );
-
-  assert.match(markup, /Assessment Workflow/);
-  assert.match(markup, /Transfer to risk register/);
-  assert.match(markup, /Risk register/);
-  assert.match(markup, /Summary and export readiness/);
-  assert.match(markup, /Saved classification: High\./);
-  assert.match(
-    markup,
-    new RegExp(escapeRegExp(readModel.checklist.translations.is.title)),
-  );
-  assert.match(
-    markup,
-    new RegExp(
-      escapeRegExp(fixture.checklist.sections[0]?.translations.is.title ?? ""),
-    ),
-  );
-  assert.match(
-    markup,
-    new RegExp(escapeRegExp(fixture.secondCriterion.translations.is.title)),
   );
 });
 

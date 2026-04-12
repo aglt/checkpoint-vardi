@@ -18,9 +18,10 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-07` is complete and now lives under `done/`
 - `S1-08` is complete and now lives under `done/`
 - `S1-10` is complete and now lives under `done/`
+- `S1-11` is complete and now lives under `done/`
 - `S1-17` is complete and now lives under `done/`
-- `S1-09` and `S1-11` through `S1-16` are staged under `not_started/`
-- the next implementation story is `S1-11`
+- `S1-09` and `S1-12` through `S1-18` are staged under `not_started/`
+- the next implementation story is `S1-12`
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -30,7 +31,7 @@ The active stage is currently:
 - **S1 - MVP assessment workflow**
 - Most recently completed story: `S1-17 - Language-consistent web content for the current MVP flow`
 - Story file: `user_stories/epics/checkpoint_vardi/done/S1-17-language-consistent-web-content.md`
-- Next story: `S1-11 - Risk mitigation planning on risk entries`
+- Next story: `S1-12 - Guided assessment progression and completion guards`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -39,7 +40,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 ### S1 - MVP assessment workflow
 
-The completed delivery slice now runs from `S1-02` through `S1-10`, with
+The completed delivery slice now runs from `S1-02` through `S1-11`, with
 `S1-17` tightening the same MVP flow by making app-owned web copy render
 consistently through a single request-derived app-language seam. Together
 these stories moved the repo from "runnable scaffold" to a
@@ -71,17 +72,19 @@ persisted assessment state into deterministic checklist, register, and summary
 exports plus a downloadable Word/PDF bundle on the summary step. `S1-10` now
 adds the first Playwright-based browser-level proof layer together with a
 deterministic isolated SQLite bootstrap for local runs, explicit runtime/testing
-DB entrypoints, and a truthful blocked-readiness workflow spec. `S1-11` then
+DB entrypoints, and a truthful blocked-readiness workflow spec. `S1-11` now
 introduces persisted mitigation planning on `risk_entry` rows, `S1-12`
-hardens truthful progression and completion guards, `S1-13` captures
+then hardens truthful progression and completion guards, `S1-13` captures
 explicit saved reasoning for risk classifications, `S1-14` strengthens export
 framing and metadata without overclaiming compliance status, `S1-15` lets a
 small supported rule set flow from seed/runtime truth into the app, and
 `S1-16` closes the current browser-proof queue with a later stable regression
 once those flow-shaping slices settle, while `S1-17` now completes the focused
 language-consistency follow-up that removes mixed app-language copy from the
-current MVP web flow. `S1-09` still exists only as a narrow bridge story if a
-concrete post-MVP need surfaces for broader platform groundwork.
+current MVP web flow and `S1-18` is the separate severity-alignment repair for
+the screenshot-backed named risk choice. `S1-09` still exists only as a narrow
+bridge story if a concrete post-MVP need surfaces for broader platform
+groundwork.
 
 ### S0 - Foundations
 
@@ -90,10 +93,10 @@ concrete post-MVP need surfaces for broader platform groundwork.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. Stage One now has its first browser-proof baseline through
-`S1-10` plus the current app-language consistency follow-up through `S1-17`;
-the next staged story is `S1-11`, `S1-16` remains the later browser-export
-regression proof once the flow settles, and `S1-09` stays conditional and
-non-blocking.
+`S1-11` plus the current app-language consistency follow-up through `S1-17`;
+the next staged story is `S1-12`, `S1-16` remains the later browser-export
+regression proof once the flow settles, `S1-18` tracks the named
+severity-choice alignment gap, and `S1-09` stays conditional and non-blocking.
 
 ## Guardrails
 

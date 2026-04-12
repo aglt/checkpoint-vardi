@@ -4,7 +4,7 @@ import test from "node:test";
 import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   riskAssessment,
   workplace,
 } from "@vardi/db/testing";
@@ -36,7 +36,7 @@ function getRequiredRiskMatrix() {
 }
 
 test("loadAssessmentReadiness narrows the assessment page to readiness metadata only", () => {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values({
     id: "workplace-1",

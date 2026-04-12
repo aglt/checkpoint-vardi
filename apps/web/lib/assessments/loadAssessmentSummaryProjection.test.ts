@@ -5,7 +5,7 @@ import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   assessmentSummary,
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   createWorkplaceAssessment,
   finding,
   riskEntry,
@@ -38,7 +38,7 @@ function getRequiredRiskMatrix() {
 }
 
 function seedAssessmentFixture() {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
   const checklist = getRequiredChecklist();
   const riskMatrix = getRequiredRiskMatrix();
   const criteria = checklist.sections.flatMap((section) => section.criteria);
@@ -189,12 +189,8 @@ test("loadAssessmentSummaryProjection localizes stale, invalid, and unclassified
       consequence: 1,
       riskLevel: "high",
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
     {
       id: "risk-entry-invalid",
@@ -207,12 +203,8 @@ test("loadAssessmentSummaryProjection localizes stale, invalid, and unclassified
       consequence: 1,
       riskLevel: "low",
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
     {
       id: "risk-entry-unclassified",
@@ -225,12 +217,8 @@ test("loadAssessmentSummaryProjection localizes stale, invalid, and unclassified
       consequence: null,
       riskLevel: null,
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
   ]).run();
 
@@ -293,12 +281,8 @@ test("loadAssessmentSummaryProjection orders prioritized entries by verified sev
       consequence: 1,
       riskLevel: "low",
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
     {
       id: "risk-entry-high",
@@ -311,12 +295,8 @@ test("loadAssessmentSummaryProjection orders prioritized entries by verified sev
       consequence: 3,
       riskLevel: "high",
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
   ]).run();
 

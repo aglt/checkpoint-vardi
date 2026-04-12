@@ -1,7 +1,9 @@
 import { getRiskMatrixById, type RiskMatrix } from "@vardi/checklists";
 import {
   loadAssessmentAggregate,
+  loadAssessmentRiskMitigationActions,
   type RiskEntryRow,
+  type RiskMitigationActionRow,
   type VardiDatabase,
 } from "@vardi/db";
 import { classifyRisk, type RiskLevel } from "@vardi/risk";
@@ -41,11 +43,16 @@ export interface AssessmentRiskRegisterEntryProjection {
   readonly savedRiskLevel: RiskLevel | null;
   readonly classificationState: RiskEntryClassificationState;
   readonly currentControls: string | null;
-  readonly proposedAction: string | null;
   readonly costEstimate: number | null;
-  readonly responsibleOwner: string | null;
+  readonly mitigationActions: readonly AssessmentRiskMitigationActionProjection[];
+}
+
+export interface AssessmentRiskMitigationActionProjection {
+  readonly id: string;
+  readonly description: string;
+  readonly assigneeName: string | null;
   readonly dueDate: string | null;
-  readonly completedAt: string | null;
+  readonly status: "open" | "inProgress" | "done";
 }
 
 export interface AssessmentRiskRegisterProjection {
@@ -65,6 +72,11 @@ export function loadAssessmentRiskRegisterProjection(
 ): AssessmentRiskRegisterProjection {
   const readModel = params.readModel ?? loadAssessmentReadModel(params);
   const aggregate = loadAssessmentAggregate(params);
+  const mitigationActions = loadAssessmentRiskMitigationActions({
+    db: params.db,
+    ownerId: params.ownerId,
+    assessmentId: params.assessmentId,
+  });
   const riskMatrix = getRiskMatrixById(readModel.riskMatrix.id);
 
   if (!riskMatrix) {
@@ -76,6 +88,13 @@ export function loadAssessmentRiskRegisterProjection(
   const riskEntryByFindingId = new Map(
     aggregate.riskEntries.map((entry) => [entry.findingId, entry] as const),
   );
+  const mitigationActionsByRiskEntryId = new Map<string, RiskMitigationActionRow[]>();
+
+  for (const action of mitigationActions) {
+    const existingActions = mitigationActionsByRiskEntryId.get(action.riskEntryId) ?? [];
+    existingActions.push(action);
+    mitigationActionsByRiskEntryId.set(action.riskEntryId, existingActions);
+  }
 
   return {
     assessmentId: readModel.assessment.id,
@@ -100,7 +119,13 @@ export function loadAssessmentRiskRegisterProjection(
         }
 
         return [
-          buildRiskRegisterEntryProjection(section, criterion, riskEntry, riskMatrix),
+          buildRiskRegisterEntryProjection(
+            section,
+            criterion,
+            riskEntry,
+            riskMatrix,
+            mitigationActionsByRiskEntryId.get(riskEntry.id) ?? [],
+          ),
         ];
       }),
     ),
@@ -112,6 +137,7 @@ function buildRiskRegisterEntryProjection(
   criterion: AssessmentCriterionReadModel,
   riskEntry: RiskEntryRow,
   riskMatrix: RiskMatrix,
+  mitigationActions: readonly RiskMitigationActionRow[],
 ): AssessmentRiskRegisterEntryProjection {
   try {
     const derivedRiskLevel = classifyRisk({
@@ -141,11 +167,8 @@ function buildRiskRegisterEntryProjection(
       savedRiskLevel: isStale ? null : riskEntry.riskLevel,
       classificationState: isStale ? "staleRiskLevel" : "ready",
       currentControls: riskEntry.currentControls,
-      proposedAction: riskEntry.proposedAction,
       costEstimate: riskEntry.costEstimate,
-      responsibleOwner: riskEntry.responsibleOwner,
-      dueDate: formatDateOnly(riskEntry.dueDate),
-      completedAt: formatDateOnly(riskEntry.completedAt),
+      mitigationActions: mitigationActions.map(buildRiskMitigationActionProjection),
     };
   } catch {
     return {
@@ -164,13 +187,22 @@ function buildRiskRegisterEntryProjection(
       savedRiskLevel: null,
       classificationState: "invalidClassification",
       currentControls: riskEntry.currentControls,
-      proposedAction: riskEntry.proposedAction,
       costEstimate: riskEntry.costEstimate,
-      responsibleOwner: riskEntry.responsibleOwner,
-      dueDate: formatDateOnly(riskEntry.dueDate),
-      completedAt: formatDateOnly(riskEntry.completedAt),
+      mitigationActions: mitigationActions.map(buildRiskMitigationActionProjection),
     };
   }
+}
+
+function buildRiskMitigationActionProjection(
+  action: RiskMitigationActionRow,
+): AssessmentRiskMitigationActionProjection {
+  return {
+    id: action.id,
+    description: action.description,
+    assigneeName: action.assigneeName,
+    dueDate: formatDateOnly(action.dueDate),
+    status: action.status,
+  };
 }
 
 function formatDateOnly(value: Date | null): string | null {

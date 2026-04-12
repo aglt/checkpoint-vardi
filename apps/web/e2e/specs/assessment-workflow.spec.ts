@@ -44,6 +44,11 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
 
   const riskEntry = page.locator("[data-risk-entry-id]").first();
   await expect(riskEntry).toBeVisible();
+  await expect(page.locator("body")).toContainText("Mótvægisaðgerðir");
+  await expect(page.locator("body")).toContainText(
+    "Engar vistaðar mótvægisaðgerðir enn.",
+  );
+  await expect(page.locator("body")).toContainText("Bæta við aðgerð");
 
   await riskEntry
     .locator('[data-field="hazard"]')
@@ -110,4 +115,9 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
   await expect(page.locator("body")).not.toContainText("Save summary");
   await expect(page.locator("body")).not.toContainText("Summary and export readiness");
   await expect(page.locator("body")).not.toContainText("Download Word + PDF bundle");
+  await expect(page.locator("body")).not.toContainText("Mitigation actions");
+  await expect(page.locator("body")).not.toContainText("Add action");
+  await expect(page.locator("body")).not.toContainText(
+    "No saved mitigation actions yet",
+  );
 });

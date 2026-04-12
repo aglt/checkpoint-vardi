@@ -5,7 +5,7 @@ import { getRiskMatrixBySlug, getSeedChecklistBySlug } from "@vardi/checklists";
 import {
   assessmentSummary,
   closeDatabase,
-  createMigratedDatabase,
+  createBootstrappedDatabase,
   finding,
   riskAssessment,
   riskEntry,
@@ -28,7 +28,7 @@ function seedBaseAssessment(options?: {
   readonly checklistVersion?: string;
   readonly riskMatrixId?: string;
 }) {
-  const connection = createMigratedDatabase();
+  const connection = createBootstrappedDatabase();
 
   connection.db.insert(workplace).values({
     id: "workplace-1",
@@ -150,12 +150,8 @@ test("response overlay is keyed by criterion id rather than insertion order", ()
     consequence: null,
     riskLevel: null,
     currentControls: null,
-    proposedAction: null,
     controlHierarchy: null,
     costEstimate: null,
-    responsibleOwner: null,
-    dueDate: null,
-    completedAt: null,
   }).run();
 
   connection.db.insert(assessmentSummary).values({

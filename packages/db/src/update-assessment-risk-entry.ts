@@ -15,11 +15,7 @@ export interface UpdateAssessmentRiskEntryParams {
   readonly consequence?: number | null;
   readonly derivedRiskLevel: RiskEntryRow["riskLevel"];
   readonly currentControls?: string | null;
-  readonly proposedAction?: string | null;
   readonly costEstimate?: number | null;
-  readonly responsibleOwner?: string | null;
-  readonly dueDate?: Date | null;
-  readonly completedAt?: Date | null;
 }
 
 export class AssessmentRiskEntryNotFoundError extends Error {
@@ -69,11 +65,7 @@ export function updateAssessmentRiskEntry(
       consequence: params.consequence ?? null,
       riskLevel: params.derivedRiskLevel,
       currentControls: normalizeOptionalText(params.currentControls),
-      proposedAction: normalizeOptionalText(params.proposedAction),
       costEstimate: params.costEstimate ?? null,
-      responsibleOwner: normalizeOptionalText(params.responsibleOwner),
-      dueDate: params.dueDate ?? null,
-      completedAt: params.completedAt ?? null,
     })
     .where(
       and(

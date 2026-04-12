@@ -3,6 +3,23 @@
 import React, { startTransition, useEffect, useRef, useState } from "react";
 
 import {
+  addRiskMitigationActionDraft,
+  beginRiskMitigationActionDelete,
+  beginRiskMitigationActionSave,
+  buildInitialRiskMitigationActionState,
+  canPersistRiskMitigationActionDraft,
+  isRiskMitigationActionDirty,
+  reconcileRiskMitigationActionDeleteFailure,
+  reconcileRiskMitigationActionDeleteSuccess,
+  reconcileRiskMitigationActionSaveFailure,
+  reconcileRiskMitigationActionSaveSuccess,
+  removeUnsavedRiskMitigationActionDraft,
+  updateRiskMitigationActionDraftField,
+  type RiskMitigationActionClientState,
+  type RiskMitigationActionDraft,
+  type RiskMitigationActionStateMap,
+} from "@/lib/assessments/assessmentRiskMitigationController";
+import {
   beginRiskEntrySave,
   buildInitialRiskEntryState,
   canPersistRiskEntryDraft,
@@ -18,12 +35,21 @@ import type { AppLanguage } from "@/lib/i18n/appLanguage";
 import {
   getRiskEntrySaveMessage,
   getRiskLevelLabel,
+  getRiskMitigationActionCardEyebrow,
+  getRiskMitigationActionDeleteButtonLabel,
+  getRiskMitigationActionMessage,
+  getRiskMitigationActionSaveButtonLabel,
+  getRiskMitigationActionStatePillLabel,
+  getRiskMitigationActionStatusLabel,
   getRiskRegisterClassificationMessage,
   getRiskRegisterStaticCopy,
   getTransferredEntryCountLabel,
 } from "@/lib/i18n/mvpCopy";
+import { createAssessmentRiskMitigationActionAction } from "@/lib/assessments/createAssessmentRiskMitigationActionAction";
+import { deleteAssessmentRiskMitigationActionAction } from "@/lib/assessments/deleteAssessmentRiskMitigationActionAction";
 import type { AssessmentRiskRegisterEntryProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
 import { saveAssessmentRiskEntryAction } from "@/lib/assessments/saveAssessmentRiskEntryAction";
+import { updateAssessmentRiskMitigationActionAction } from "@/lib/assessments/updateAssessmentRiskMitigationActionAction";
 
 interface RiskRegisterEditorProps {
   readonly assessmentId: string;
@@ -36,8 +62,8 @@ interface RiskRegisterEditorProps {
 
 export function RiskRegisterEditor({
   assessmentId,
-  riskMatrixTitle,
   language,
+  riskMatrixTitle,
   riskMatrixLikelihoodLevels,
   riskMatrixConsequenceLevels,
   entries,
@@ -46,12 +72,20 @@ export function RiskRegisterEditor({
   const [riskEntryStates, setRiskEntryStates] = useState<RiskEntryStateMap>(() =>
     buildInitialRiskEntryState(entries),
   );
+  const [mitigationActionStates, setMitigationActionStates] =
+    useState<RiskMitigationActionStateMap>(() =>
+      buildInitialRiskMitigationActionState(entries),
+    );
   const riskEntryStatesRef = useRef<RiskEntryStateMap>(riskEntryStates);
+  const mitigationActionStatesRef =
+    useRef<RiskMitigationActionStateMap>(mitigationActionStates);
 
   riskEntryStatesRef.current = riskEntryStates;
+  mitigationActionStatesRef.current = mitigationActionStates;
 
   useEffect(() => {
     setRiskEntryStates(buildInitialRiskEntryState(entries));
+    setMitigationActionStates(buildInitialRiskMitigationActionState(entries));
   }, [entries]);
 
   return (
@@ -81,6 +115,7 @@ export function RiskRegisterEditor({
         <div className="mt-4 space-y-4">
           {entries.map((entry) => {
             const riskEntryState = riskEntryStates[entry.id];
+            const riskMitigationStates = mitigationActionStates[entry.id] ?? [];
 
             if (!riskEntryState) {
               return null;
@@ -89,8 +124,8 @@ export function RiskRegisterEditor({
             return (
               <article
                 className={getRiskEntryCardClassName(riskEntryState)}
-                data-risk-entry-id={entry.id}
                 data-classification-state={riskEntryState.savedClassificationState}
+                data-risk-entry-id={entry.id}
                 data-risk-level={riskEntryState.savedRiskLevel ?? "incomplete"}
                 key={entry.id}
               >
@@ -116,10 +151,7 @@ export function RiskRegisterEditor({
                     </div>
                     <div className="flex flex-col items-start gap-2 lg:items-end">
                       <RiskLevelBadge language={language} state={riskEntryState} />
-                      <RiskEntrySaveStatePill
-                        language={language}
-                        state={riskEntryState}
-                      />
+                      <RiskEntrySaveStatePill language={language} state={riskEntryState} />
                     </div>
                   </div>
 
@@ -202,49 +234,26 @@ export function RiskRegisterEditor({
                         </div>
                       </div>
 
-                      <div className="grid gap-4 lg:grid-cols-2">
-                        <div className="space-y-2">
-                          <label
-                            className="text-sm font-medium text-slate-900"
-                            htmlFor={`current-controls-${entry.id}`}
-                          >
-                            {copy.labels.currentControls}
-                          </label>
-                          <textarea
-                            className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
-                            id={`current-controls-${entry.id}`}
-                            onChange={(event) =>
-                              handleRiskEntryFieldChange(
-                                entry.id,
-                                "currentControls",
-                                event.target.value,
-                              )
-                            }
-                            placeholder={copy.placeholders.currentControls}
-                            value={riskEntryState.draft.currentControls}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label
-                            className="text-sm font-medium text-slate-900"
-                            htmlFor={`proposed-action-${entry.id}`}
-                          >
-                            {copy.labels.proposedAction}
-                          </label>
-                          <textarea
-                            className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
-                            id={`proposed-action-${entry.id}`}
-                            onChange={(event) =>
-                              handleRiskEntryFieldChange(
-                                entry.id,
-                                "proposedAction",
-                                event.target.value,
-                              )
-                            }
-                            placeholder={copy.placeholders.proposedAction}
-                            value={riskEntryState.draft.proposedAction}
-                          />
-                        </div>
+                      <div className="space-y-2">
+                        <label
+                          className="text-sm font-medium text-slate-900"
+                          htmlFor={`current-controls-${entry.id}`}
+                        >
+                          {copy.labels.currentControls}
+                        </label>
+                        <textarea
+                          className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
+                          id={`current-controls-${entry.id}`}
+                          onChange={(event) =>
+                            handleRiskEntryFieldChange(
+                              entry.id,
+                              "currentControls",
+                              event.target.value,
+                            )
+                          }
+                          placeholder={copy.placeholders.currentControls}
+                          value={riskEntryState.draft.currentControls}
+                        />
                       </div>
                     </div>
 
@@ -293,83 +302,26 @@ export function RiskRegisterEditor({
                         </div>
                       </div>
 
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <FieldGroup
+                      <FieldGroup
+                        id={`cost-estimate-${entry.id}`}
+                        label={copy.labels.costEstimate}
+                      >
+                        <input
+                          className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
                           id={`cost-estimate-${entry.id}`}
-                          label={copy.labels.costEstimate}
-                        >
-                          <input
-                            className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
-                            id={`cost-estimate-${entry.id}`}
-                            min={0}
-                            onChange={(event) =>
-                              handleRiskEntryFieldChange(
-                                entry.id,
-                                "costEstimate",
-                                event.target.value,
-                              )
-                            }
-                            placeholder={copy.placeholders.costEstimate}
-                            type="number"
-                            value={riskEntryState.draft.costEstimate}
-                          />
-                        </FieldGroup>
-                        <FieldGroup
-                          id={`responsible-owner-${entry.id}`}
-                          label={copy.labels.responsibleOwner}
-                        >
-                          <input
-                            className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
-                            id={`responsible-owner-${entry.id}`}
-                            onChange={(event) =>
-                              handleRiskEntryFieldChange(
-                                entry.id,
-                                "responsibleOwner",
-                                event.target.value,
-                              )
-                            }
-                            placeholder={copy.placeholders.responsibleOwner}
-                            type="text"
-                            value={riskEntryState.draft.responsibleOwner}
-                          />
-                        </FieldGroup>
-                        <FieldGroup
-                          id={`due-date-${entry.id}`}
-                          label={copy.labels.dueDate}
-                        >
-                          <input
-                            className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
-                            id={`due-date-${entry.id}`}
-                            onChange={(event) =>
-                              handleRiskEntryFieldChange(
-                                entry.id,
-                                "dueDate",
-                                event.target.value,
-                              )
-                            }
-                            type="date"
-                            value={riskEntryState.draft.dueDate}
-                          />
-                        </FieldGroup>
-                        <FieldGroup
-                          id={`completed-at-${entry.id}`}
-                          label={copy.labels.completedAt}
-                        >
-                          <input
-                            className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
-                            id={`completed-at-${entry.id}`}
-                            onChange={(event) =>
-                              handleRiskEntryFieldChange(
-                                entry.id,
-                                "completedAt",
-                                event.target.value,
-                              )
-                            }
-                            type="date"
-                            value={riskEntryState.draft.completedAt}
-                          />
-                        </FieldGroup>
-                      </div>
+                          min={0}
+                          onChange={(event) =>
+                            handleRiskEntryFieldChange(
+                              entry.id,
+                              "costEstimate",
+                              event.target.value,
+                            )
+                          }
+                          placeholder={copy.placeholders.costEstimate}
+                          type="number"
+                          value={riskEntryState.draft.costEstimate}
+                        />
+                      </FieldGroup>
                     </div>
                   </div>
 
@@ -389,7 +341,7 @@ export function RiskRegisterEditor({
                       })}
                     </p>
                     <button
-                      className={getRiskEntrySaveButtonClassName(
+                      className={getPrimaryButtonClassName(
                         riskEntryState.saveState === "saving" ||
                           !isRiskEntryDirty(riskEntryState),
                       )}
@@ -406,6 +358,247 @@ export function RiskRegisterEditor({
                         : copy.saveButton}
                     </button>
                   </div>
+
+                  <section className="rounded-[1.75rem] border border-black/10 bg-[#f8f5ee] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:p-5">
+                    <div className="flex flex-col gap-3 border-b border-black/8 pb-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="space-y-1">
+                        <h4 className="text-base font-semibold text-slate-950">
+                          {copy.mitigation.heading}
+                        </h4>
+                        <p className="max-w-2xl text-sm leading-6 text-slate-600">
+                          {copy.mitigation.description}
+                        </p>
+                      </div>
+                      <button
+                        className={getSecondaryButtonClassName(false)}
+                        onClick={() => handleAddMitigationActionDraft(entry.id)}
+                        type="button"
+                      >
+                        {copy.mitigation.addAction}
+                      </button>
+                    </div>
+
+                    {riskMitigationStates.length === 0 ? (
+                      <div className="mt-4 rounded-[1.4rem] border border-dashed border-black/12 bg-white/70 px-4 py-4 text-sm leading-6 text-slate-600">
+                        {copy.mitigation.emptyState}
+                      </div>
+                    ) : (
+                      <div className="mt-4 space-y-3">
+                        {riskMitigationStates.map((actionState, index) => (
+                          <article
+                            className={getRiskMitigationActionCardClassName(actionState)}
+                            data-mitigation-action-id={
+                              actionState.persistedId ?? actionState.clientId
+                            }
+                            data-mitigation-action-origin={
+                              actionState.persistedId ? "saved" : "draft"
+                            }
+                            data-mitigation-action-status={actionState.draft.status}
+                            key={actionState.clientId}
+                          >
+                            <div className="flex flex-col gap-4">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                <div className="space-y-1">
+                                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                                    {getRiskMitigationActionCardEyebrow({
+                                      language,
+                                      persisted: actionState.persistedId != null,
+                                      index,
+                                    })}
+                                  </p>
+                                  <p className="text-sm leading-6 text-slate-600">
+                                    {copy.mitigation.cardHelper}
+                                  </p>
+                                </div>
+                                <RiskMitigationActionStatePill
+                                  language={language}
+                                  state={actionState}
+                                />
+                              </div>
+
+                              <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                                <FieldGroup
+                                  id={`mitigation-description-${actionState.clientId}`}
+                                  label={copy.labels.mitigationDescription}
+                                >
+                                  <textarea
+                                    className="min-h-24 w-full rounded-[1.2rem] border border-black/10 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
+                                    id={`mitigation-description-${actionState.clientId}`}
+                                    onChange={(event) =>
+                                      handleRiskMitigationActionFieldChange(
+                                        entry.id,
+                                        actionState.clientId,
+                                        "description",
+                                        event.target.value,
+                                      )
+                                    }
+                                    placeholder={copy.placeholders.mitigationDescription}
+                                    value={actionState.draft.description}
+                                  />
+                                </FieldGroup>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                  <FieldGroup
+                                    id={`mitigation-assignee-${actionState.clientId}`}
+                                    label={copy.labels.mitigationAssignee}
+                                  >
+                                    <input
+                                      className="w-full rounded-[1.1rem] border border-black/10 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
+                                      id={`mitigation-assignee-${actionState.clientId}`}
+                                      onChange={(event) =>
+                                        handleRiskMitigationActionFieldChange(
+                                          entry.id,
+                                          actionState.clientId,
+                                          "assigneeName",
+                                          event.target.value,
+                                        )
+                                      }
+                                      placeholder={copy.placeholders.mitigationAssignee}
+                                      type="text"
+                                      value={actionState.draft.assigneeName}
+                                    />
+                                  </FieldGroup>
+
+                                  <FieldGroup
+                                    id={`mitigation-due-date-${actionState.clientId}`}
+                                    label={copy.labels.mitigationDueDate}
+                                  >
+                                    <input
+                                      className="w-full rounded-[1.1rem] border border-black/10 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
+                                      id={`mitigation-due-date-${actionState.clientId}`}
+                                      onChange={(event) =>
+                                        handleRiskMitigationActionFieldChange(
+                                          entry.id,
+                                          actionState.clientId,
+                                          "dueDate",
+                                          event.target.value,
+                                        )
+                                      }
+                                      type="date"
+                                      value={actionState.draft.dueDate}
+                                    />
+                                  </FieldGroup>
+
+                                  <FieldGroup
+                                    id={`mitigation-status-${actionState.clientId}`}
+                                    label={copy.labels.mitigationStatus}
+                                  >
+                                    <select
+                                      className="w-full rounded-[1.1rem] border border-black/10 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
+                                      id={`mitigation-status-${actionState.clientId}`}
+                                      onChange={(event) =>
+                                        handleRiskMitigationActionFieldChange(
+                                          entry.id,
+                                          actionState.clientId,
+                                          "status",
+                                          event.target.value as RiskMitigationActionDraft["status"],
+                                        )
+                                      }
+                                      value={actionState.draft.status}
+                                    >
+                                      <option value="open">
+                                        {getRiskMitigationActionStatusLabel(
+                                          language,
+                                          "open",
+                                        )}
+                                      </option>
+                                      <option value="inProgress">
+                                        {getRiskMitigationActionStatusLabel(
+                                          language,
+                                          "inProgress",
+                                        )}
+                                      </option>
+                                      <option value="done">
+                                        {getRiskMitigationActionStatusLabel(
+                                          language,
+                                          "done",
+                                        )}
+                                      </option>
+                                    </select>
+                                  </FieldGroup>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-col gap-3 border-t border-black/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                                <p
+                                  aria-live="polite"
+                                  className={getRiskMitigationActionMessageClassName(actionState)}
+                                >
+                                  {getRiskMitigationActionMessage({
+                                    language,
+                                    persisted: actionState.persistedId != null,
+                                    dirty: isRiskMitigationActionDirty(actionState),
+                                    canPersist: canPersistRiskMitigationActionDraft(
+                                      actionState.draft,
+                                    ),
+                                    saveState: actionState.saveState,
+                                    status: actionState.draft.status,
+                                    errorMessage: actionState.errorMessage,
+                                  })}
+                                </p>
+                                <div className="flex flex-col gap-3 sm:flex-row">
+                                  <button
+                                    className={getSecondaryButtonClassName(
+                                      actionState.saveState === "saving" ||
+                                        actionState.saveState === "deleting",
+                                    )}
+                                    disabled={
+                                      actionState.saveState === "saving" ||
+                                      actionState.saveState === "deleting"
+                                    }
+                                    onClick={() =>
+                                      handleRiskMitigationActionDelete(
+                                        entry.id,
+                                        actionState.clientId,
+                                      )
+                                    }
+                                    type="button"
+                                  >
+                                    {getRiskMitigationActionDeleteButtonLabel({
+                                      language,
+                                      persisted: actionState.persistedId != null,
+                                      saveState: actionState.saveState,
+                                    })}
+                                  </button>
+                                  <button
+                                    className={getPrimaryButtonClassName(
+                                      actionState.saveState === "saving" ||
+                                        actionState.saveState === "deleting" ||
+                                        !isRiskMitigationActionDirty(actionState) ||
+                                        !canPersistRiskMitigationActionDraft(
+                                          actionState.draft,
+                                        ),
+                                    )}
+                                    disabled={
+                                      actionState.saveState === "saving" ||
+                                      actionState.saveState === "deleting" ||
+                                      !isRiskMitigationActionDirty(actionState) ||
+                                      !canPersistRiskMitigationActionDraft(
+                                        actionState.draft,
+                                      )
+                                    }
+                                    onClick={() =>
+                                      handleRiskMitigationActionSave(
+                                        entry.id,
+                                        actionState.clientId,
+                                      )
+                                    }
+                                    type="button"
+                                  >
+                                    {getRiskMitigationActionSaveButtonLabel({
+                                      language,
+                                      persisted: actionState.persistedId != null,
+                                      saveState: actionState.saveState,
+                                    })}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    )}
+                  </section>
                 </div>
               </article>
             );
@@ -422,6 +615,31 @@ export function RiskRegisterEditor({
   ) {
     setRiskEntryStates((current) =>
       updateRiskEntryDraftField(current, riskEntryId, field, value),
+    );
+  }
+
+  function handleRiskMitigationActionFieldChange<
+    Field extends keyof RiskMitigationActionDraft,
+  >(
+    riskEntryId: string,
+    clientId: string,
+    field: Field,
+    value: RiskMitigationActionDraft[Field],
+  ) {
+    setMitigationActionStates((current) =>
+      updateRiskMitigationActionDraftField(
+        current,
+        riskEntryId,
+        clientId,
+        field,
+        value,
+      ),
+    );
+  }
+
+  function handleAddMitigationActionDraft(riskEntryId: string) {
+    setMitigationActionStates((current) =>
+      addRiskMitigationActionDraft(current, riskEntryId),
     );
   }
 
@@ -470,6 +688,113 @@ export function RiskRegisterEditor({
     persistRiskEntry(riskEntryId, riskEntryState.draft);
   }
 
+  function handleRiskMitigationActionSave(
+    riskEntryId: string,
+    clientId: string,
+  ) {
+    const actionState = (mitigationActionStatesRef.current[riskEntryId] ?? []).find(
+      (state) => state.clientId === clientId,
+    );
+
+    if (!actionState) {
+      return;
+    }
+
+    if (!canPersistRiskMitigationActionDraft(actionState.draft)) {
+      setMitigationActionStates((current) => {
+        const startedSave = beginRiskMitigationActionSave(
+          current,
+          riskEntryId,
+          clientId,
+        );
+
+        return reconcileRiskMitigationActionSaveFailure(
+          startedSave.actionStates,
+          riskEntryId,
+          clientId,
+          startedSave.requestId,
+          copy.mitigation.descriptionRequired,
+        );
+      });
+      return;
+    }
+
+    persistRiskMitigationAction(riskEntryId, clientId, actionState);
+  }
+
+  function handleRiskMitigationActionDelete(
+    riskEntryId: string,
+    clientId: string,
+  ) {
+    const actionState = (mitigationActionStatesRef.current[riskEntryId] ?? []).find(
+      (state) => state.clientId === clientId,
+    );
+
+    if (!actionState) {
+      return;
+    }
+
+    if (!actionState.persistedId) {
+      setMitigationActionStates((current) =>
+        removeUnsavedRiskMitigationActionDraft(current, riskEntryId, clientId),
+      );
+      return;
+    }
+
+    const startedDelete = beginRiskMitigationActionDelete(
+      mitigationActionStatesRef.current,
+      riskEntryId,
+      clientId,
+    );
+    const nextRequestId = startedDelete.requestId;
+
+    if (nextRequestId === 0) {
+      return;
+    }
+
+    mitigationActionStatesRef.current = startedDelete.actionStates;
+    setMitigationActionStates(startedDelete.actionStates);
+
+    startTransition(async () => {
+      try {
+        await deleteAssessmentRiskMitigationActionAction({
+          assessmentId,
+          input: {
+            mitigationActionId: actionState.persistedId!,
+          },
+        });
+
+        startTransition(() => {
+          setMitigationActionStates((current) =>
+            reconcileRiskMitigationActionDeleteSuccess(
+              current,
+              riskEntryId,
+              clientId,
+              nextRequestId,
+            ),
+          );
+        });
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : copy.mitigation.fallbacks.delete;
+
+        startTransition(() => {
+          setMitigationActionStates((current) =>
+            reconcileRiskMitigationActionDeleteFailure(
+              current,
+              riskEntryId,
+              clientId,
+              nextRequestId,
+              errorMessage,
+            ),
+          );
+        });
+      }
+    });
+  }
+
   function persistRiskEntry(riskEntryId: string, nextDraft: RiskEntryDraft) {
     const startedSave = beginRiskEntrySave(
       riskEntryStatesRef.current,
@@ -496,11 +821,7 @@ export function RiskRegisterEditor({
             likelihood: nextDraft.likelihood ?? undefined,
             consequence: nextDraft.consequence ?? undefined,
             currentControls: toOptionalString(nextDraft.currentControls),
-            proposedAction: toOptionalString(nextDraft.proposedAction),
             costEstimate: toOptionalInteger(nextDraft.costEstimate),
-            responsibleOwner: toOptionalString(nextDraft.responsibleOwner),
-            dueDate: toOptionalString(nextDraft.dueDate),
-            completedAt: toOptionalString(nextDraft.completedAt),
           },
         });
 
@@ -516,13 +837,94 @@ export function RiskRegisterEditor({
           );
         });
       } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : copy.fallbacks.save;
+
         startTransition(() => {
           setRiskEntryStates((current) =>
             reconcileRiskEntrySaveFailure(
               current,
               riskEntryId,
               nextRequestId,
-              copy.fallbacks.save,
+              errorMessage,
+            ),
+          );
+        });
+      }
+    });
+  }
+
+  function persistRiskMitigationAction(
+    riskEntryId: string,
+    clientId: string,
+    actionState: RiskMitigationActionClientState,
+  ) {
+    const startedSave = beginRiskMitigationActionSave(
+      mitigationActionStatesRef.current,
+      riskEntryId,
+      clientId,
+    );
+    const nextRequestId = startedSave.requestId;
+
+    if (nextRequestId === 0) {
+      return;
+    }
+
+    mitigationActionStatesRef.current = startedSave.actionStates;
+    setMitigationActionStates(startedSave.actionStates);
+
+    startTransition(async () => {
+      try {
+        const response = actionState.persistedId
+          ? await updateAssessmentRiskMitigationActionAction({
+              assessmentId,
+              input: {
+                mitigationActionId: actionState.persistedId,
+                description: actionState.draft.description,
+                assigneeName: toOptionalString(actionState.draft.assigneeName),
+                dueDate: toOptionalString(actionState.draft.dueDate),
+                status: actionState.draft.status,
+              },
+            })
+          : await createAssessmentRiskMitigationActionAction({
+              assessmentId,
+              input: {
+                riskEntryId,
+                description: actionState.draft.description,
+                assigneeName: toOptionalString(actionState.draft.assigneeName),
+                dueDate: toOptionalString(actionState.draft.dueDate),
+                status: actionState.draft.status,
+              },
+            });
+
+        startTransition(() => {
+          setMitigationActionStates((current) =>
+            reconcileRiskMitigationActionSaveSuccess(
+              current,
+              riskEntryId,
+              clientId,
+              nextRequestId,
+              response,
+              actionState.draft,
+            ),
+          );
+        });
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : copy.mitigation.fallbacks.save;
+
+        startTransition(() => {
+          setMitigationActionStates((current) =>
+            reconcileRiskMitigationActionSaveFailure(
+              current,
+              riskEntryId,
+              clientId,
+              nextRequestId,
+              errorMessage,
             ),
           );
         });
@@ -538,17 +940,34 @@ function RiskEntrySaveStatePill({
   readonly language: AppLanguage;
   readonly state: RiskEntryClientState;
 }) {
-  const copy = getRiskRegisterStaticCopy(language);
-
   return (
     <div className={getRiskEntrySavePillClassName(state)}>
       {state.saveState === "saving"
-        ? copy.savePills.saving
+        ? getRiskRegisterStaticCopy(language).savePills.saving
         : state.saveState === "error"
-          ? copy.savePills.error
+          ? getRiskRegisterStaticCopy(language).savePills.error
           : isRiskEntryDirty(state)
-            ? copy.savePills.unsaved
-            : copy.savePills.saved}
+            ? getRiskRegisterStaticCopy(language).savePills.unsaved
+            : getRiskRegisterStaticCopy(language).savePills.saved}
+    </div>
+  );
+}
+
+function RiskMitigationActionStatePill({
+  language,
+  state,
+}: {
+  readonly language: AppLanguage;
+  readonly state: RiskMitigationActionClientState;
+}) {
+  return (
+    <div className={getRiskMitigationActionStatePillClassName(state)}>
+      {getRiskMitigationActionStatePillLabel({
+        language,
+        persisted: state.persistedId != null,
+        dirty: isRiskMitigationActionDirty(state),
+        saveState: state.saveState,
+      })}
     </div>
   );
 }
@@ -560,14 +979,13 @@ function RiskLevelBadge({
   readonly language: AppLanguage;
   readonly state: RiskEntryClientState;
 }) {
-  const copy = getRiskRegisterStaticCopy(language);
   const dirty = isRiskEntryDirty(state);
   const label =
     state.savedClassificationState !== "ready" && !dirty
-      ? copy.riskLevel.needsRepair
+      ? getRiskRegisterStaticCopy(language).riskLevel.needsRepair
       : state.savedRiskLevel
         ? getRiskLevelLabel(language, state.savedRiskLevel)
-        : copy.riskLevel.incomplete;
+        : getRiskRegisterStaticCopy(language).riskLevel.incomplete;
 
   return (
     <div
@@ -575,12 +993,12 @@ function RiskLevelBadge({
       data-risk-level-state={dirty ? "pending" : state.savedClassificationState}
     >
       <div className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] opacity-75">
-        {copy.labels.savedLevel}
+        {getRiskRegisterStaticCopy(language).labels.savedLevel}
       </div>
       <div className="text-sm font-semibold">{label}</div>
       {dirty ? (
         <div className="text-[0.7rem] leading-5 opacity-75">
-          {copy.riskLevel.saveToRefresh}
+          {getRiskRegisterStaticCopy(language).riskLevel.saveToRefresh}
         </div>
       ) : null}
     </div>
@@ -668,6 +1086,21 @@ function getRiskEntryCardClassName(state: RiskEntryClientState): string {
   );
 }
 
+function getRiskMitigationActionCardClassName(
+  state: RiskMitigationActionClientState,
+): string {
+  return joinClasses(
+    "rounded-[1.4rem] border bg-white/85 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] transition-colors",
+    state.saveState === "error"
+      ? "border-[#bb6b4b] bg-[#fff4ed]"
+      : state.saveState === "deleting"
+        ? "border-[#bfa98a] bg-[#f7f0e4]"
+        : isRiskMitigationActionDirty(state)
+          ? "border-[#8a7d6a] bg-[#fbf7ef]"
+          : "border-black/8",
+  );
+}
+
 function getRiskEntrySavePillClassName(state: RiskEntryClientState): string {
   return joinClasses(
     "inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]",
@@ -680,6 +1113,23 @@ function getRiskEntrySavePillClassName(state: RiskEntryClientState): string {
           : state.savedClassificationState === "ready"
             ? "border-black/10 bg-[#f7f2e8] text-slate-600"
             : "border-[#d8b46c] bg-[#fff6de] text-[#6a4a05]",
+  );
+}
+
+function getRiskMitigationActionStatePillClassName(
+  state: RiskMitigationActionClientState,
+): string {
+  return joinClasses(
+    "inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]",
+    state.saveState === "saving"
+      ? "border-[#7a8f67] bg-[#edf4ea] text-[#335126]"
+      : state.saveState === "deleting"
+        ? "border-[#8a7d6a] bg-[#f3eee5] text-[#564938]"
+        : state.saveState === "error"
+          ? "border-[#bb6b4b] bg-[#fff1e8] text-[#7d3211]"
+          : isRiskMitigationActionDirty(state)
+            ? "border-[#8a7d6a] bg-[#f3eee5] text-[#564938]"
+            : "border-black/10 bg-[#f7f2e8] text-slate-600",
   );
 }
 
@@ -713,12 +1163,32 @@ function getRiskEntrySaveMessageClassName(state: RiskEntryClientState): string {
   );
 }
 
-function getRiskEntrySaveButtonClassName(disabled: boolean): string {
+function getRiskMitigationActionMessageClassName(
+  state: RiskMitigationActionClientState,
+): string {
+  return joinClasses(
+    "text-sm leading-6",
+    state.saveState === "error"
+      ? "text-[#8a2f0d]"
+      : "text-slate-600",
+  );
+}
+
+function getPrimaryButtonClassName(disabled: boolean): string {
   return joinClasses(
     "w-full rounded-full px-4 py-3 text-sm font-semibold transition sm:w-auto",
     disabled
       ? "cursor-not-allowed border border-black/10 bg-[#ebe4d7] text-slate-500"
       : "border border-[#243026] bg-[#243026] text-white shadow-[0_12px_28px_rgba(25,31,24,0.16)] hover:bg-[#314035]",
+  );
+}
+
+function getSecondaryButtonClassName(disabled: boolean): string {
+  return joinClasses(
+    "w-full rounded-full border px-4 py-3 text-sm font-semibold transition sm:w-auto",
+    disabled
+      ? "cursor-not-allowed border-black/10 bg-[#ebe4d7] text-slate-500"
+      : "border-black/10 bg-white text-slate-800 hover:border-slate-400 hover:text-slate-950",
   );
 }
 
@@ -746,6 +1216,7 @@ function toOptionalInteger(value: string): number | undefined {
   const parsedValue = Number(trimmedValue);
   return Number.isInteger(parsedValue) ? parsedValue : undefined;
 }
+
 function joinClasses(
   ...classNames: ReadonlyArray<string | false | null | undefined>
 ): string {

@@ -1,4 +1,7 @@
-import type { AssessmentSummaryRequiredField } from "@vardi/schemas";
+import type {
+  AssessmentSummaryRequiredField,
+  RiskMitigationActionStatus,
+} from "@vardi/schemas";
 import type { RiskLevel } from "@vardi/risk";
 
 import { getRequestLocale, type AppLanguage } from "./appLanguage";
@@ -264,11 +267,11 @@ const RISK_REGISTER_COPY = {
     eyebrow: "Skref 2-5",
     heading: "Áhættuskrá",
     description:
-      "Færðar raðir haldast breytanlegar inni í þessu mati. Hver vistun endurreiknar vistaða flokkun út frá fasta fylkinu, en samantekt og útflutningsskref halda sér aðskild fyrir neðan.",
+      "Færðar raðir haldast breytanlegar inni í þessu mati. Vistun á áhættufærslu heldur vistaðri flokkun í samræmi við fasta fylkið, en mótvægisaðgerðir vistast sem aðskildur undirliggjandi sannleikur sem útflutningur getur síðar notað.",
     emptyState:
       "Merktu atriði í yfirferð sem 'Ekki í lagi' og færðu það í áhættuskrána til að opna breytanlegar raðir hér.",
     transferredFromWalkthrough:
-      "Fært úr yfirferðinni. Vistaðu þessa röð til að halda drögum og fasta fylkinu í samræmi.",
+      "Fært úr yfirferðinni. Vistaðu þessa röð til að laga eða uppfæra vistaða flokkun. Vistaðar mótvægisaðgerðir hér fyrir neðan haldast aðskilinn sannleikur.",
     staleClassification:
       "Vistað flokkunarstig er úrelt. Vistaðu færsluna til að laga það.",
     invalidClassification:
@@ -288,6 +291,10 @@ const RISK_REGISTER_COPY = {
       dueDate: "Áætluð dagsetning",
       completedAt: "Lokið",
       savedLevel: "Vistað stig",
+      mitigationDescription: "Lýsing",
+      mitigationAssignee: "Ábyrgðaraðili",
+      mitigationDueDate: "Lokadagsetning",
+      mitigationStatus: "Staða",
     },
     placeholders: {
       hazard: "Lýstu hættunni...",
@@ -297,6 +304,8 @@ const RISK_REGISTER_COPY = {
       proposedAction: "Hvað á að gera næst?",
       costEstimate: "0",
       responsibleOwner: "Hver ber ábyrgð á næsta skrefi?",
+      mitigationDescription: "Lýstu mótvægisaðgerðinni...",
+      mitigationAssignee: "Hver ber ábyrgð á þessari aðgerð?",
     },
     classificationDescription:
       "Veldu almennar líkur og afleiðingar. Vistað stig kemur eingöngu úr fasta fylkinu á þjóninum.",
@@ -314,6 +323,39 @@ const RISK_REGISTER_COPY = {
       incomplete: "Ólokið",
       saveToRefresh: "Vista til að uppfæra",
     },
+    mitigation: {
+      heading: "Mótvægisaðgerðir",
+      description:
+        "Vistaðar aðgerðir tilheyra þessari áhættufærslu. Staðbundin drög haldast í vafranum þar til þú vistar þau og aðeins vistaðar aðgerðir birtast í útflutningi.",
+      addAction: "Bæta við aðgerð",
+      emptyState:
+        "Engar vistaðar mótvægisaðgerðir enn. Bættu við drögum hér þegar þessi áhættufærsla þarf skýrt næsta skref.",
+      cardHelper:
+        "Hafðu hverja aðgerð skýra svo hún geti birst sannlega í síðari útflutningi.",
+      removeDraft: "Fjarlægja drög",
+      deleteAction: "Eyða aðgerð",
+      deletingAction: "Eyði aðgerð...",
+      createAction: "Búa til aðgerð",
+      creatingAction: "Bý til aðgerð...",
+      saveAction: "Vista aðgerð",
+      savingAction: "Vista aðgerð...",
+      savingExisting: "Vistar...",
+      creating: "Býr til...",
+      deleting: "Eyðir...",
+      issue: "Vandamál",
+      draft: "Drög",
+      descriptionRequired:
+        "Lýsing er nauðsynleg áður en hægt er að vista þessa mótvægisaðgerð.",
+      fallbacks: {
+        save: "Ekki tókst að vista þessa mótvægisaðgerð.",
+        delete: "Ekki tókst að eyða þessari mótvægisaðgerð.",
+      },
+      statuses: {
+        open: "Opin",
+        inProgress: "Í vinnslu",
+        done: "Lokið",
+      },
+    },
     fallbacks: {
       save: "Ekki tókst að vista þessa áhættufærslu.",
     },
@@ -322,11 +364,11 @@ const RISK_REGISTER_COPY = {
     eyebrow: "Steps 2-5",
     heading: "Risk register",
     description:
-      "Transferred rows stay editable inside this assessment flow. Each save recalculates the stored classification from the pinned matrix, while the summary step and later export shaping stay as separate owners below.",
+      "Transferred rows stay editable inside this assessment flow. Saving a risk entry keeps the stored classification aligned with the pinned matrix, while mitigation actions save as separate child truth that exports can use later.",
     emptyState:
       "Mark a walkthrough item as 'Not ok' and transfer it to the risk register to unlock editable rows here.",
     transferredFromWalkthrough:
-      "Transferred from the walkthrough. Save this row to keep the persisted draft fields aligned with the pinned matrix classification.",
+      "Transferred from the walkthrough. Save this row to repair or refresh the stored classification. Saved mitigation actions below remain separate child truth.",
     staleClassification:
       "Saved classification is stale. Save this entry to repair it.",
     invalidClassification:
@@ -346,6 +388,10 @@ const RISK_REGISTER_COPY = {
       dueDate: "Planned date",
       completedAt: "Completed on",
       savedLevel: "Saved level",
+      mitigationDescription: "Description",
+      mitigationAssignee: "Assignee",
+      mitigationDueDate: "Due date",
+      mitigationStatus: "Status",
     },
     placeholders: {
       hazard: "Describe the hazard...",
@@ -355,6 +401,8 @@ const RISK_REGISTER_COPY = {
       proposedAction: "What should change next?",
       costEstimate: "0",
       responsibleOwner: "Who owns this next step?",
+      mitigationDescription: "Describe the mitigation action...",
+      mitigationAssignee: "Who owns this action?",
     },
     classificationDescription:
       "Choose generic likelihood and consequence scores. The saved level comes only from the pinned matrix on the server.",
@@ -371,6 +419,39 @@ const RISK_REGISTER_COPY = {
       needsRepair: "Needs repair",
       incomplete: "Incomplete",
       saveToRefresh: "Save to refresh",
+    },
+    mitigation: {
+      heading: "Mitigation actions",
+      description:
+        "Saved actions belong to this risk entry. Local drafts stay client-side until you save them, and only saved actions appear in exports.",
+      addAction: "Add action",
+      emptyState:
+        "No saved mitigation actions yet. Add a draft here when this risk entry needs a concrete next step.",
+      cardHelper:
+        "Keep each action concrete so it can render truthfully in later exports.",
+      removeDraft: "Remove draft",
+      deleteAction: "Delete action",
+      deletingAction: "Deleting action...",
+      createAction: "Create action",
+      creatingAction: "Creating action...",
+      saveAction: "Save action",
+      savingAction: "Saving action...",
+      savingExisting: "Saving...",
+      creating: "Creating...",
+      deleting: "Deleting...",
+      issue: "Issue",
+      draft: "Draft",
+      descriptionRequired:
+        "Description is required before this mitigation action can be saved.",
+      fallbacks: {
+        save: "We could not save this mitigation action.",
+        delete: "We could not delete this mitigation action.",
+      },
+      statuses: {
+        open: "Open",
+        inProgress: "In progress",
+        done: "Done",
+      },
     },
     fallbacks: {
       save: "We could not save this risk entry.",
@@ -834,6 +915,144 @@ export function getRiskEntrySaveMessage(params: {
   return params.language === "is"
     ? "Drög vistuð. Bættu við báðum stigum til að fá flokkun."
     : "Saved draft. Add both scores to derive the classification.";
+}
+
+export function getRiskMitigationActionStatusLabel(
+  language: AppLanguage,
+  status: RiskMitigationActionStatus,
+): string {
+  return getRiskRegisterStaticCopy(language).mitigation.statuses[status];
+}
+
+export function getRiskMitigationActionCardEyebrow(params: {
+  readonly language: AppLanguage;
+  readonly persisted: boolean;
+  readonly index: number;
+}): string {
+  const ordinal = params.index + 1;
+
+  if (params.language === "is") {
+    return params.persisted
+      ? `Aðgerð ${ordinal} · vistuð`
+      : `Aðgerð ${ordinal} · drög`;
+  }
+
+  return params.persisted
+    ? `Saved action ${ordinal}`
+    : `Draft action ${ordinal}`;
+}
+
+export function getRiskMitigationActionStatePillLabel(params: {
+  readonly language: AppLanguage;
+  readonly persisted: boolean;
+  readonly dirty: boolean;
+  readonly saveState: "idle" | "saving" | "deleting" | "error";
+}): string {
+  const copy = getRiskRegisterStaticCopy(params.language).mitigation;
+
+  if (params.saveState === "saving") {
+    return params.persisted ? copy.savingExisting : copy.creating;
+  }
+
+  if (params.saveState === "deleting") {
+    return copy.deleting;
+  }
+
+  if (params.saveState === "error") {
+    return copy.issue;
+  }
+
+  if (params.dirty) {
+    return params.persisted ? getRiskRegisterStaticCopy(params.language).savePills.unsaved : copy.draft;
+  }
+
+  return params.persisted
+    ? getRiskRegisterStaticCopy(params.language).savePills.saved
+    : copy.draft;
+}
+
+export function getRiskMitigationActionMessage(params: {
+  readonly language: AppLanguage;
+  readonly persisted: boolean;
+  readonly dirty: boolean;
+  readonly canPersist: boolean;
+  readonly saveState: "idle" | "saving" | "deleting" | "error";
+  readonly status: RiskMitigationActionStatus;
+  readonly errorMessage: string | null;
+}): string {
+  const copy = getRiskRegisterStaticCopy(params.language).mitigation;
+
+  if (params.saveState === "saving") {
+    return params.persisted
+      ? params.language === "is"
+        ? "Vista þessa mótvægisaðgerð..."
+        : "Saving this mitigation action..."
+      : params.language === "is"
+        ? "Bý til þessa mótvægisaðgerð..."
+        : "Creating this mitigation action...";
+  }
+
+  if (params.saveState === "deleting") {
+    return params.language === "is"
+      ? "Eyði þessari mótvægisaðgerð..."
+      : "Deleting this mitigation action...";
+  }
+
+  if (params.saveState === "error") {
+    return params.errorMessage ?? copy.fallbacks.save;
+  }
+
+  if (!params.canPersist) {
+    return copy.descriptionRequired;
+  }
+
+  if (params.dirty) {
+    return params.persisted
+      ? params.language === "is"
+        ? "Breytingar bíða vistunar. Útflutningur notar aðeins síðast vistað gildi aðgerðarinnar."
+        : "Changes pending save. Export uses the last saved action values only."
+      : params.language === "is"
+        ? "Þessi drög haldast staðbundin þar til þú býrð til aðgerðina."
+        : "This draft stays local until you create the mitigation action.";
+  }
+
+  return params.persisted
+    ? params.language === "is"
+      ? `Vistuð staða aðgerðar: ${getRiskMitigationActionStatusLabel(params.language, params.status)}.`
+      : `Saved action status: ${getRiskMitigationActionStatusLabel(params.language, params.status)}.`
+    : params.language === "is"
+      ? "Drög tilbúin. Búðu til aðgerðina til að vista hana."
+      : "Draft ready. Create the mitigation action to persist it.";
+}
+
+export function getRiskMitigationActionDeleteButtonLabel(params: {
+  readonly language: AppLanguage;
+  readonly persisted: boolean;
+  readonly saveState: "idle" | "saving" | "deleting" | "error";
+}): string {
+  const copy = getRiskRegisterStaticCopy(params.language).mitigation;
+
+  if (!params.persisted) {
+    return copy.removeDraft;
+  }
+
+  return params.saveState === "deleting"
+    ? copy.deletingAction
+    : copy.deleteAction;
+}
+
+export function getRiskMitigationActionSaveButtonLabel(params: {
+  readonly language: AppLanguage;
+  readonly persisted: boolean;
+  readonly saveState: "idle" | "saving" | "deleting" | "error";
+}): string {
+  const copy = getRiskRegisterStaticCopy(params.language).mitigation;
+
+  if (params.saveState === "saving") {
+    return params.persisted ? copy.savingAction : copy.creatingAction;
+  }
+
+  return params.persisted ? copy.saveAction : copy.createAction;
 }
 
 export function getReadinessCountLabel(

@@ -12,7 +12,7 @@ Depends on: S1-08
 
 ## Context
 
-This story is complete and is tracked in PR `#14`. The current MVP web flow
+This story is complete and merged via PR `#14`. The current MVP web flow
 now resolves a temporary request-derived app display language at the
 page/layout boundary, normalizes to `is` or `en`, and falls back to `is`
 without treating request language as durable product truth.
@@ -26,11 +26,12 @@ from stable persisted values.
 
 Seeded checklist content continues to use the existing `@vardi/checklists`
 translation/runtime seam, and export document wording remains out of scope for
-this story. Verification ran locally with `pnpm test`, `pnpm typecheck`,
-`pnpm lint`, and targeted browser coverage via
-`pnpm --filter @vardi/web test:e2e -- e2e/specs/start-page.smoke.spec.ts e2e/specs/assessment-workflow.spec.ts`.
-This session used `node v25.6.1`; Node 22 remains the declared repo contract,
-but was not directly re-verified in this shell.
+this story. Verification ran locally under `node v22.22.2` with `pnpm lint`,
+`pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, and `pnpm build`. The final
+merged implementation also hardens the request-language boundary by keeping
+request parsing in `requestAppLanguage.server.ts`, keeping shared i18n modules
+framework-free, and asserting that `use client` files do not import the
+server-only request seam.
 
 ## Goal
 
