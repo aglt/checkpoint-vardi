@@ -31,6 +31,20 @@ import {
   type RiskEntryDraft,
   type RiskEntryStateMap,
 } from "@/lib/assessments/assessmentRiskRegisterController";
+import type { AppLanguage } from "@/lib/i18n/appLanguage";
+import {
+  getRiskEntrySaveMessage,
+  getRiskLevelLabel,
+  getRiskMitigationActionCardEyebrow,
+  getRiskMitigationActionDeleteButtonLabel,
+  getRiskMitigationActionMessage,
+  getRiskMitigationActionSaveButtonLabel,
+  getRiskMitigationActionStatePillLabel,
+  getRiskMitigationActionStatusLabel,
+  getRiskRegisterClassificationMessage,
+  getRiskRegisterStaticCopy,
+  getTransferredEntryCountLabel,
+} from "@/lib/i18n/mvpCopy";
 import { createAssessmentRiskMitigationActionAction } from "@/lib/assessments/createAssessmentRiskMitigationActionAction";
 import { deleteAssessmentRiskMitigationActionAction } from "@/lib/assessments/deleteAssessmentRiskMitigationActionAction";
 import type { AssessmentRiskRegisterEntryProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
@@ -39,6 +53,7 @@ import { updateAssessmentRiskMitigationActionAction } from "@/lib/assessments/up
 
 interface RiskRegisterEditorProps {
   readonly assessmentId: string;
+  readonly language: AppLanguage;
   readonly riskMatrixTitle: string;
   readonly riskMatrixLikelihoodLevels: number;
   readonly riskMatrixConsequenceLevels: number;
@@ -47,11 +62,13 @@ interface RiskRegisterEditorProps {
 
 export function RiskRegisterEditor({
   assessmentId,
+  language,
   riskMatrixTitle,
   riskMatrixLikelihoodLevels,
   riskMatrixConsequenceLevels,
   entries,
 }: RiskRegisterEditorProps) {
+  const copy = getRiskRegisterStaticCopy(language);
   const [riskEntryStates, setRiskEntryStates] = useState<RiskEntryStateMap>(() =>
     buildInitialRiskEntryState(entries),
   );
@@ -76,27 +93,23 @@ export function RiskRegisterEditor({
       <div className="flex flex-col gap-3 border-b border-black/8 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
-            Steps 2-5
+            {copy.eyebrow}
           </p>
           <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-            Risk register
+            {copy.heading}
           </h2>
           <p className="max-w-3xl text-sm leading-6 text-slate-700">
-            Transferred rows stay editable inside this assessment flow. Parent
-            risk-entry saves keep the stored classification aligned with the
-            pinned {riskMatrixTitle} matrix, while mitigation actions save as
-            separate child records that later exports can render truthfully.
+            {copy.description} {riskMatrixTitle}.
           </p>
         </div>
         <div className="rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1.5 text-sm font-medium text-slate-700">
-          {entries.length} transferred {pluralize(entries.length, "entry", "entries")}
+          {getTransferredEntryCountLabel(language, entries.length)}
         </div>
       </div>
 
       {entries.length === 0 ? (
         <div className="mt-4 rounded-[1.75rem] border border-dashed border-black/12 bg-[#fbf7ef] px-5 py-6 text-sm leading-6 text-slate-600">
-          Mark a walkthrough item as <span className="font-semibold">Not ok</span>{" "}
-          and transfer it to the risk register to unlock editable rows here.
+          {copy.emptyState}
         </div>
       ) : (
         <div className="mt-4 space-y-4">
@@ -121,7 +134,7 @@ export function RiskRegisterEditor({
                     <div className="space-y-3">
                       <div className="flex flex-wrap gap-2">
                         <span className="inline-flex w-fit items-center rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
-                          Criterion {entry.criterionNumber}
+                          {copy.labels.criterion} {entry.criterionNumber}
                         </span>
                         <span className="inline-flex w-fit items-center rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                           {entry.sectionTitle}
@@ -132,22 +145,22 @@ export function RiskRegisterEditor({
                           {entry.criterionTitle}
                         </h3>
                         <p className="max-w-3xl text-sm leading-6 text-slate-700">
-                          Transferred from the walkthrough. Save the parent row
-                          to repair or refresh the stored classification. Saved
-                          mitigation actions below remain separate child truth.
+                          {copy.transferredFromWalkthrough}
                         </p>
                       </div>
                     </div>
                     <div className="flex flex-col items-start gap-2 lg:items-end">
-                      <RiskLevelBadge state={riskEntryState} />
-                      <RiskEntrySaveStatePill state={riskEntryState} />
+                      <RiskLevelBadge language={language} state={riskEntryState} />
+                      <RiskEntrySaveStatePill language={language} state={riskEntryState} />
                     </div>
                   </div>
 
                   {riskEntryState.savedClassificationState !== "ready" ? (
                     <div className="rounded-[1.4rem] border border-[#d8b46c] bg-[#fff6de] px-4 py-3 text-sm leading-6 text-[#6a4a05]">
-                      {riskEntryState.savedClassificationMessage ??
-                        "Save this entry to repair the stored classification."}
+                      {getRiskRegisterClassificationMessage({
+                        language,
+                        state: riskEntryState.savedClassificationState,
+                      })}
                     </div>
                   ) : null}
 
@@ -158,7 +171,7 @@ export function RiskRegisterEditor({
                           className="text-sm font-medium text-slate-900"
                           htmlFor={`hazard-${entry.id}`}
                         >
-                          Hazard
+                          {copy.labels.hazard}
                         </label>
                         <textarea
                           className="min-h-24 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -171,7 +184,7 @@ export function RiskRegisterEditor({
                               event.target.value,
                             )
                           }
-                          placeholder="Describe the hazard..."
+                          placeholder={copy.placeholders.hazard}
                           value={riskEntryState.draft.hazard}
                         />
                       </div>
@@ -182,7 +195,7 @@ export function RiskRegisterEditor({
                             className="text-sm font-medium text-slate-900"
                             htmlFor={`health-effects-${entry.id}`}
                           >
-                            Possible health effects
+                            {copy.labels.healthEffects}
                           </label>
                           <textarea
                             className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -194,7 +207,7 @@ export function RiskRegisterEditor({
                                 event.target.value,
                               )
                             }
-                            placeholder="Possible injury or health outcome..."
+                            placeholder={copy.placeholders.healthEffects}
                             value={riskEntryState.draft.healthEffects}
                           />
                         </div>
@@ -203,7 +216,7 @@ export function RiskRegisterEditor({
                             className="text-sm font-medium text-slate-900"
                             htmlFor={`who-at-risk-${entry.id}`}
                           >
-                            Who is at risk
+                            {copy.labels.whoAtRisk}
                           </label>
                           <textarea
                             className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -215,7 +228,7 @@ export function RiskRegisterEditor({
                                 event.target.value,
                               )
                             }
-                            placeholder="People or roles affected..."
+                            placeholder={copy.placeholders.whoAtRisk}
                             value={riskEntryState.draft.whoAtRisk}
                           />
                         </div>
@@ -226,7 +239,7 @@ export function RiskRegisterEditor({
                           className="text-sm font-medium text-slate-900"
                           htmlFor={`current-controls-${entry.id}`}
                         >
-                          Current controls
+                          {copy.labels.currentControls}
                         </label>
                         <textarea
                           className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -238,7 +251,7 @@ export function RiskRegisterEditor({
                               event.target.value,
                             )
                           }
-                          placeholder="What is already in place?"
+                          placeholder={copy.placeholders.currentControls}
                           value={riskEntryState.draft.currentControls}
                         />
                       </div>
@@ -249,19 +262,20 @@ export function RiskRegisterEditor({
                         <div className="space-y-4">
                           <div className="space-y-1">
                             <h4 className="text-base font-semibold text-slate-950">
-                              Classification
+                              {copy.labels.classification}
                             </h4>
                             <p className="text-sm leading-6 text-slate-600">
-                              Choose generic 1-{riskMatrixLikelihoodLevels} likelihood
-                              and 1-{riskMatrixConsequenceLevels} consequence scores.
-                              The saved level comes only from the pinned matrix on
-                              the server.
+                              {copy.classificationDescription} 1-
+                              {riskMatrixLikelihoodLevels} / 1-
+                              {riskMatrixConsequenceLevels}.
                             </p>
                           </div>
 
                           <div className="space-y-3">
                             <ScoreSelector
-                              label="Likelihood"
+                              clearLabel={copy.clear}
+                              dataKey="likelihood"
+                              label={copy.labels.likelihood}
                               maxValue={riskMatrixLikelihoodLevels}
                               onClear={() =>
                                 handleRiskScoreSelect(entry.id, "likelihood", null)
@@ -272,7 +286,9 @@ export function RiskRegisterEditor({
                               selectedValue={riskEntryState.draft.likelihood}
                             />
                             <ScoreSelector
-                              label="Consequence"
+                              clearLabel={copy.clear}
+                              dataKey="consequence"
+                              label={copy.labels.consequence}
                               maxValue={riskMatrixConsequenceLevels}
                               onClear={() =>
                                 handleRiskScoreSelect(entry.id, "consequence", null)
@@ -288,7 +304,7 @@ export function RiskRegisterEditor({
 
                       <FieldGroup
                         id={`cost-estimate-${entry.id}`}
-                        label="Cost estimate"
+                        label={copy.labels.costEstimate}
                       >
                         <input
                           className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -301,7 +317,7 @@ export function RiskRegisterEditor({
                               event.target.value,
                             )
                           }
-                          placeholder="0"
+                          placeholder={copy.placeholders.costEstimate}
                           type="number"
                           value={riskEntryState.draft.costEstimate}
                         />
@@ -314,13 +330,22 @@ export function RiskRegisterEditor({
                       aria-live="polite"
                       className={getRiskEntrySaveMessageClassName(riskEntryState)}
                     >
-                      {getRiskEntrySaveMessage(riskEntryState)}
+                      {getRiskEntrySaveMessage({
+                        language,
+                        saveState: riskEntryState.saveState,
+                        dirty: isRiskEntryDirty(riskEntryState),
+                        canPersist: canPersistRiskEntryDraft(riskEntryState.draft),
+                        savedRiskLevel: riskEntryState.savedRiskLevel,
+                        classificationState: riskEntryState.savedClassificationState,
+                        errorMessage: riskEntryState.errorMessage,
+                      })}
                     </p>
                     <button
                       className={getPrimaryButtonClassName(
                         riskEntryState.saveState === "saving" ||
                           !isRiskEntryDirty(riskEntryState),
                       )}
+                      data-risk-entry-save-button="true"
                       disabled={
                         riskEntryState.saveState === "saving" ||
                         !isRiskEntryDirty(riskEntryState)
@@ -329,8 +354,8 @@ export function RiskRegisterEditor({
                       type="button"
                     >
                       {riskEntryState.saveState === "saving"
-                        ? "Saving risk entry..."
-                        : "Save risk entry"}
+                        ? copy.saveButtonSaving
+                        : copy.saveButton}
                     </button>
                   </div>
 
@@ -338,12 +363,10 @@ export function RiskRegisterEditor({
                     <div className="flex flex-col gap-3 border-b border-black/8 pb-4 sm:flex-row sm:items-start sm:justify-between">
                       <div className="space-y-1">
                         <h4 className="text-base font-semibold text-slate-950">
-                          Mitigation actions
+                          {copy.mitigation.heading}
                         </h4>
                         <p className="max-w-2xl text-sm leading-6 text-slate-600">
-                          Saved actions belong to this risk entry. Local drafts stay
-                          client-side until you save them, and only saved actions
-                          appear in exports.
+                          {copy.mitigation.description}
                         </p>
                       </div>
                       <button
@@ -351,14 +374,13 @@ export function RiskRegisterEditor({
                         onClick={() => handleAddMitigationActionDraft(entry.id)}
                         type="button"
                       >
-                        Add action
+                        {copy.mitigation.addAction}
                       </button>
                     </div>
 
                     {riskMitigationStates.length === 0 ? (
                       <div className="mt-4 rounded-[1.4rem] border border-dashed border-black/12 bg-white/70 px-4 py-4 text-sm leading-6 text-slate-600">
-                        No saved mitigation actions yet. Add a draft here when this
-                        risk entry needs a concrete next step.
+                        {copy.mitigation.emptyState}
                       </div>
                     ) : (
                       <div className="mt-4 space-y-3">
@@ -378,22 +400,26 @@ export function RiskRegisterEditor({
                               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                 <div className="space-y-1">
                                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                                    {actionState.persistedId
-                                      ? `Saved action ${index + 1}`
-                                      : `Draft action ${index + 1}`}
+                                    {getRiskMitigationActionCardEyebrow({
+                                      language,
+                                      persisted: actionState.persistedId != null,
+                                      index,
+                                    })}
                                   </p>
                                   <p className="text-sm leading-6 text-slate-600">
-                                    Keep each action concrete so it can render
-                                    truthfully in later exports.
+                                    {copy.mitigation.cardHelper}
                                   </p>
                                 </div>
-                                <RiskMitigationActionStatePill state={actionState} />
+                                <RiskMitigationActionStatePill
+                                  language={language}
+                                  state={actionState}
+                                />
                               </div>
 
                               <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
                                 <FieldGroup
                                   id={`mitigation-description-${actionState.clientId}`}
-                                  label="Description"
+                                  label={copy.labels.mitigationDescription}
                                 >
                                   <textarea
                                     className="min-h-24 w-full rounded-[1.2rem] border border-black/10 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -406,7 +432,7 @@ export function RiskRegisterEditor({
                                         event.target.value,
                                       )
                                     }
-                                    placeholder="Describe the mitigation action..."
+                                    placeholder={copy.placeholders.mitigationDescription}
                                     value={actionState.draft.description}
                                   />
                                 </FieldGroup>
@@ -414,7 +440,7 @@ export function RiskRegisterEditor({
                                 <div className="grid gap-4 sm:grid-cols-2">
                                   <FieldGroup
                                     id={`mitigation-assignee-${actionState.clientId}`}
-                                    label="Assignee"
+                                    label={copy.labels.mitigationAssignee}
                                   >
                                     <input
                                       className="w-full rounded-[1.1rem] border border-black/10 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -427,7 +453,7 @@ export function RiskRegisterEditor({
                                           event.target.value,
                                         )
                                       }
-                                      placeholder="Who owns this action?"
+                                      placeholder={copy.placeholders.mitigationAssignee}
                                       type="text"
                                       value={actionState.draft.assigneeName}
                                     />
@@ -435,7 +461,7 @@ export function RiskRegisterEditor({
 
                                   <FieldGroup
                                     id={`mitigation-due-date-${actionState.clientId}`}
-                                    label="Due date"
+                                    label={copy.labels.mitigationDueDate}
                                   >
                                     <input
                                       className="w-full rounded-[1.1rem] border border-black/10 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -455,7 +481,7 @@ export function RiskRegisterEditor({
 
                                   <FieldGroup
                                     id={`mitigation-status-${actionState.clientId}`}
-                                    label="Status"
+                                    label={copy.labels.mitigationStatus}
                                   >
                                     <select
                                       className="w-full rounded-[1.1rem] border border-black/10 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -470,9 +496,24 @@ export function RiskRegisterEditor({
                                       }
                                       value={actionState.draft.status}
                                     >
-                                      <option value="open">Open</option>
-                                      <option value="inProgress">In progress</option>
-                                      <option value="done">Done</option>
+                                      <option value="open">
+                                        {getRiskMitigationActionStatusLabel(
+                                          language,
+                                          "open",
+                                        )}
+                                      </option>
+                                      <option value="inProgress">
+                                        {getRiskMitigationActionStatusLabel(
+                                          language,
+                                          "inProgress",
+                                        )}
+                                      </option>
+                                      <option value="done">
+                                        {getRiskMitigationActionStatusLabel(
+                                          language,
+                                          "done",
+                                        )}
+                                      </option>
                                     </select>
                                   </FieldGroup>
                                 </div>
@@ -483,7 +524,17 @@ export function RiskRegisterEditor({
                                   aria-live="polite"
                                   className={getRiskMitigationActionMessageClassName(actionState)}
                                 >
-                                  {getRiskMitigationActionMessage(actionState)}
+                                  {getRiskMitigationActionMessage({
+                                    language,
+                                    persisted: actionState.persistedId != null,
+                                    dirty: isRiskMitigationActionDirty(actionState),
+                                    canPersist: canPersistRiskMitigationActionDraft(
+                                      actionState.draft,
+                                    ),
+                                    saveState: actionState.saveState,
+                                    status: actionState.draft.status,
+                                    errorMessage: actionState.errorMessage,
+                                  })}
                                 </p>
                                 <div className="flex flex-col gap-3 sm:flex-row">
                                   <button
@@ -503,11 +554,11 @@ export function RiskRegisterEditor({
                                     }
                                     type="button"
                                   >
-                                    {actionState.persistedId
-                                      ? actionState.saveState === "deleting"
-                                        ? "Deleting action..."
-                                        : "Delete action"
-                                      : "Remove draft"}
+                                    {getRiskMitigationActionDeleteButtonLabel({
+                                      language,
+                                      persisted: actionState.persistedId != null,
+                                      saveState: actionState.saveState,
+                                    })}
                                   </button>
                                   <button
                                     className={getPrimaryButtonClassName(
@@ -534,13 +585,11 @@ export function RiskRegisterEditor({
                                     }
                                     type="button"
                                   >
-                                    {actionState.saveState === "saving"
-                                      ? actionState.persistedId
-                                        ? "Saving action..."
-                                        : "Creating action..."
-                                      : actionState.persistedId
-                                        ? "Save action"
-                                        : "Create action"}
+                                    {getRiskMitigationActionSaveButtonLabel({
+                                      language,
+                                      persisted: actionState.persistedId != null,
+                                      saveState: actionState.saveState,
+                                    })}
                                   </button>
                                 </div>
                               </div>
@@ -612,6 +661,11 @@ export function RiskRegisterEditor({
     }
 
     if (!canPersistRiskEntryDraft(riskEntryState.draft)) {
+      const errorMessage =
+        language === "is"
+          ? "Hætta er nauðsynleg áður en hægt er að vista þessa færslu."
+          : "Hazard is required before saving this risk entry.";
+
       setRiskEntryStates((current) => {
         const currentRiskEntryState = current[riskEntryId];
 
@@ -624,7 +678,7 @@ export function RiskRegisterEditor({
           [riskEntryId]: {
             ...currentRiskEntryState,
             saveState: "error",
-            errorMessage: "Hazard is required before saving this risk entry.",
+            errorMessage,
           },
         };
       });
@@ -659,7 +713,7 @@ export function RiskRegisterEditor({
           riskEntryId,
           clientId,
           startedSave.requestId,
-          "Description is required before saving this mitigation action.",
+          copy.mitigation.descriptionRequired,
         );
       });
       return;
@@ -724,7 +778,7 @@ export function RiskRegisterEditor({
         const errorMessage =
           error instanceof Error
             ? error.message
-            : "We could not delete this mitigation action.";
+            : copy.mitigation.fallbacks.delete;
 
         startTransition(() => {
           setMitigationActionStates((current) =>
@@ -786,7 +840,7 @@ export function RiskRegisterEditor({
         const errorMessage =
           error instanceof Error
             ? error.message
-            : "We could not save this risk entry.";
+            : copy.fallbacks.save;
 
         startTransition(() => {
           setRiskEntryStates((current) =>
@@ -861,7 +915,7 @@ export function RiskRegisterEditor({
         const errorMessage =
           error instanceof Error
             ? error.message
-            : "We could not save this mitigation action.";
+            : copy.mitigation.fallbacks.save;
 
         startTransition(() => {
           setMitigationActionStates((current) =>
@@ -880,57 +934,58 @@ export function RiskRegisterEditor({
 }
 
 function RiskEntrySaveStatePill({
+  language,
   state,
 }: {
+  readonly language: AppLanguage;
   readonly state: RiskEntryClientState;
 }) {
   return (
     <div className={getRiskEntrySavePillClassName(state)}>
       {state.saveState === "saving"
-        ? "Saving..."
+        ? getRiskRegisterStaticCopy(language).savePills.saving
         : state.saveState === "error"
-          ? "Save issue"
+          ? getRiskRegisterStaticCopy(language).savePills.error
           : isRiskEntryDirty(state)
-            ? "Unsaved"
-            : "Saved"}
+            ? getRiskRegisterStaticCopy(language).savePills.unsaved
+            : getRiskRegisterStaticCopy(language).savePills.saved}
     </div>
   );
 }
 
 function RiskMitigationActionStatePill({
+  language,
   state,
 }: {
+  readonly language: AppLanguage;
   readonly state: RiskMitigationActionClientState;
 }) {
   return (
     <div className={getRiskMitigationActionStatePillClassName(state)}>
-      {state.saveState === "saving"
-        ? state.persistedId
-          ? "Saving..."
-          : "Creating..."
-        : state.saveState === "deleting"
-          ? "Deleting..."
-          : state.saveState === "error"
-            ? "Issue"
-            : isRiskMitigationActionDirty(state)
-              ? state.persistedId
-                ? "Unsaved"
-                : "Draft"
-              : state.persistedId
-                ? "Saved"
-                : "Draft"}
+      {getRiskMitigationActionStatePillLabel({
+        language,
+        persisted: state.persistedId != null,
+        dirty: isRiskMitigationActionDirty(state),
+        saveState: state.saveState,
+      })}
     </div>
   );
 }
 
-function RiskLevelBadge({ state }: { readonly state: RiskEntryClientState }) {
+function RiskLevelBadge({
+  language,
+  state,
+}: {
+  readonly language: AppLanguage;
+  readonly state: RiskEntryClientState;
+}) {
   const dirty = isRiskEntryDirty(state);
   const label =
     state.savedClassificationState !== "ready" && !dirty
-      ? "Needs repair"
+      ? getRiskRegisterStaticCopy(language).riskLevel.needsRepair
       : state.savedRiskLevel
-        ? capitalize(state.savedRiskLevel)
-        : "Incomplete";
+        ? getRiskLevelLabel(language, state.savedRiskLevel)
+        : getRiskRegisterStaticCopy(language).riskLevel.incomplete;
 
   return (
     <div
@@ -938,11 +993,13 @@ function RiskLevelBadge({ state }: { readonly state: RiskEntryClientState }) {
       data-risk-level-state={dirty ? "pending" : state.savedClassificationState}
     >
       <div className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] opacity-75">
-        Saved level
+        {getRiskRegisterStaticCopy(language).labels.savedLevel}
       </div>
       <div className="text-sm font-semibold">{label}</div>
       {dirty ? (
-        <div className="text-[0.7rem] leading-5 opacity-75">Save to refresh</div>
+        <div className="text-[0.7rem] leading-5 opacity-75">
+          {getRiskRegisterStaticCopy(language).riskLevel.saveToRefresh}
+        </div>
       ) : null}
     </div>
   );
@@ -968,12 +1025,16 @@ function FieldGroup({
 }
 
 function ScoreSelector({
+  clearLabel,
+  dataKey,
   label,
   maxValue,
   selectedValue,
   onSelect,
   onClear,
 }: {
+  readonly clearLabel: string;
+  readonly dataKey: "likelihood" | "consequence";
   readonly label: string;
   readonly maxValue: number;
   readonly selectedValue: number | null;
@@ -990,7 +1051,7 @@ function ScoreSelector({
             onClick={onClear}
             type="button"
           >
-            Clear
+            {clearLabel}
           </button>
         ) : null}
       </div>
@@ -998,7 +1059,7 @@ function ScoreSelector({
         {Array.from({ length: maxValue }, (_, index) => index + 1).map((value) => (
           <button
             className={getScoreOptionClassName(selectedValue === value)}
-            data-score-label={label}
+            data-score-kind={dataKey}
             data-score-value={String(value)}
             key={value}
             onClick={() => onSelect(value)}
@@ -1091,67 +1152,6 @@ function getRiskLevelBadgeClassName(
   );
 }
 
-function getRiskEntrySaveMessage(state: RiskEntryClientState): string {
-  if (state.saveState === "saving") {
-    return "Saving this risk entry...";
-  }
-
-  if (state.saveState === "error") {
-    return state.errorMessage ?? "We could not save this risk entry.";
-  }
-
-  if (!canPersistRiskEntryDraft(state.draft)) {
-    return "Hazard is required before this row can be saved.";
-  }
-
-  if (isRiskEntryDirty(state)) {
-    return "Changes pending save. The stored classification updates after save.";
-  }
-
-  if (state.savedClassificationState !== "ready") {
-    return (
-      state.savedClassificationMessage ??
-      "Save this row to repair the stored classification."
-    );
-  }
-
-  return state.savedRiskLevel
-    ? `Saved classification: ${capitalize(state.savedRiskLevel)}.`
-    : "Saved draft. Add both scores to derive the classification.";
-}
-
-function getRiskMitigationActionMessage(
-  state: RiskMitigationActionClientState,
-): string {
-  if (state.saveState === "saving") {
-    return state.persistedId
-      ? "Saving this mitigation action..."
-      : "Creating this mitigation action...";
-  }
-
-  if (state.saveState === "deleting") {
-    return "Deleting this mitigation action...";
-  }
-
-  if (state.saveState === "error") {
-    return state.errorMessage ?? "We could not save this mitigation action.";
-  }
-
-  if (!canPersistRiskMitigationActionDraft(state.draft)) {
-    return "Description is required before this mitigation action can be saved.";
-  }
-
-  if (isRiskMitigationActionDirty(state)) {
-    return state.persistedId
-      ? "Changes pending save. Export uses the last saved action values only."
-      : "This draft stays local until you create the mitigation action.";
-  }
-
-  return state.persistedId
-    ? `Saved action status: ${formatRiskMitigationActionStatusLabel(state.draft.status)}.`
-    : "Draft ready. Create the mitigation action to persist it.";
-}
-
 function getRiskEntrySaveMessageClassName(state: RiskEntryClientState): string {
   return joinClasses(
     "text-sm leading-6",
@@ -1217,30 +1217,8 @@ function toOptionalInteger(value: string): number | undefined {
   return Number.isInteger(parsedValue) ? parsedValue : undefined;
 }
 
-function formatRiskMitigationActionStatusLabel(
-  value: RiskMitigationActionDraft["status"],
-): string {
-  if (value === "inProgress") {
-    return "In progress";
-  }
-
-  return capitalize(value);
-}
-
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
 function joinClasses(
   ...classNames: ReadonlyArray<string | false | null | undefined>
 ): string {
   return classNames.filter(Boolean).join(" ");
-}
-
-function pluralize(
-  count: number,
-  singular: string,
-  plural: string,
-): string {
-  return count === 1 ? singular : plural;
 }

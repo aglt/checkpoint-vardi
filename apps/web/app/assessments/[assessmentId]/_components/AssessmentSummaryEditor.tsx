@@ -1,11 +1,7 @@
 "use client";
 
 import React, { startTransition, useEffect, useState } from "react";
-import type {
-  AssessmentExportReadiness,
-  AssessmentSummaryRequiredField,
-  GenerateAssessmentExportBundleOutput,
-} from "@vardi/schemas";
+import type { GenerateAssessmentExportBundleOutput } from "@vardi/schemas";
 
 import {
   beginAssessmentSummarySave,
@@ -17,12 +13,23 @@ import {
   type AssessmentSummaryClientState,
   type AssessmentSummaryDraft,
 } from "@/lib/assessments/assessmentSummaryController";
+import type { AppLanguage } from "@/lib/i18n/appLanguage";
+import {
+  buildLocalizedDownloadMessage,
+  getAssessmentSummaryStaticCopy,
+  getExportMessage,
+  getPriorityBadgeLabel,
+  getReadinessBlockers,
+  getReadinessCountLabel,
+  getSummarySaveMessage,
+} from "@/lib/i18n/mvpCopy";
 import { generateAssessmentExportBundleAction } from "@/lib/assessments/generateAssessmentExportBundleAction";
 import type { AssessmentSummaryProjection } from "@/lib/assessments/loadAssessmentSummaryProjection";
 import { saveAssessmentSummaryAction } from "@/lib/assessments/saveAssessmentSummaryAction";
 
 interface AssessmentSummaryEditorProps {
   readonly assessmentId: string;
+  readonly language: AppLanguage;
   readonly summary: AssessmentSummaryProjection["summary"];
   readonly prioritizedEntries: AssessmentSummaryProjection["prioritizedEntries"];
   readonly readiness: AssessmentSummaryProjection["readiness"];
@@ -30,10 +37,12 @@ interface AssessmentSummaryEditorProps {
 
 export function AssessmentSummaryEditor({
   assessmentId,
+  language,
   summary,
   prioritizedEntries,
   readiness,
 }: AssessmentSummaryEditorProps) {
+  const copy = getAssessmentSummaryStaticCopy(language);
   const [summaryState, setSummaryState] = useState<AssessmentSummaryClientState>(
     () => buildInitialAssessmentSummaryState(summary, readiness),
   );
@@ -56,7 +65,7 @@ export function AssessmentSummaryEditor({
     });
   }, [assessmentId, readiness, summary]);
 
-  const readinessBlockers = getReadinessBlockers(summaryState.readiness);
+  const readinessBlockers = getReadinessBlockers(language, summaryState.readiness);
   const classificationPendingCount =
     summaryState.readiness.classification.unclassifiedRiskEntryCount +
     summaryState.readiness.classification.staleRiskEntryCount +
@@ -76,15 +85,13 @@ export function AssessmentSummaryEditor({
       <div className="flex flex-col gap-3 border-b border-black/8 pb-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
-            Step 6
+            {copy.eyebrow}
           </p>
           <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-            Summary and export readiness
+            {copy.heading}
           </h2>
           <p className="max-w-3xl text-sm leading-6 text-slate-700">
-            Capture the final assessment context here, then use the readiness
-            panel to confirm the walkthrough, transfer, classification, and
-            summary prerequisites are fully persisted for `S1-08`.
+            {copy.description}
           </p>
         </div>
         <div
@@ -93,8 +100,8 @@ export function AssessmentSummaryEditor({
           )}
         >
           {summaryState.readiness.exportReady
-            ? "Export-ready state reached"
-            : "Export readiness blocked"}
+            ? copy.readinessBadge.ready
+            : copy.readinessBadge.blocked}
         </div>
       </div>
 
@@ -102,9 +109,9 @@ export function AssessmentSummaryEditor({
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <FieldGroup
-              description="Prefilled from the current workplace until you save it."
+              description={copy.descriptions.companyName}
               id={`summary-company-name-${assessmentId}`}
-              label="Company name"
+              label={copy.fieldLabels.companyName}
             >
               <input
                 className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -114,16 +121,16 @@ export function AssessmentSummaryEditor({
                 onChange={(event) =>
                   handleSummaryFieldChange("companyName", event.target.value)
                 }
-                placeholder="Company or workplace name"
+                placeholder={copy.placeholders.companyName}
                 type="text"
                 value={summaryState.draft.companyName}
               />
             </FieldGroup>
 
             <FieldGroup
-              description="Defaults from the workplace address when available."
+              description={copy.descriptions.location}
               id={`summary-location-${assessmentId}`}
-              label="Location"
+              label={copy.fieldLabels.location}
             >
               <input
                 className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -133,16 +140,16 @@ export function AssessmentSummaryEditor({
                 onChange={(event) =>
                   handleSummaryFieldChange("location", event.target.value)
                 }
-                placeholder="Workplace location"
+                placeholder={copy.placeholders.location}
                 type="text"
                 value={summaryState.draft.location}
               />
             </FieldGroup>
 
             <FieldGroup
-              description="Started date is suggested until you persist the final summary."
+              description={copy.descriptions.assessmentDate}
               id={`summary-assessment-date-${assessmentId}`}
-              label="Assessment date"
+              label={copy.fieldLabels.assessmentDate}
             >
               <input
                 className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -157,9 +164,9 @@ export function AssessmentSummaryEditor({
             </FieldGroup>
 
             <FieldGroup
-              description="List who took part in the assessment."
+              description={copy.descriptions.participants}
               id={`summary-participants-${assessmentId}`}
-              label="Participants"
+              label={copy.fieldLabels.participants}
             >
               <input
                 className="w-full rounded-[1.1rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -169,7 +176,7 @@ export function AssessmentSummaryEditor({
                 onChange={(event) =>
                   handleSummaryFieldChange("participants", event.target.value)
                 }
-                placeholder="Assessors, staff, students, or visitors"
+                placeholder={copy.placeholders.participants}
                 type="text"
                 value={summaryState.draft.participants}
               />
@@ -177,9 +184,9 @@ export function AssessmentSummaryEditor({
           </div>
 
           <FieldGroup
-            description="Describe the method used to complete the assessment."
+            description={copy.descriptions.method}
             id={`summary-method-${assessmentId}`}
-            label="Method"
+            label={copy.fieldLabels.method}
           >
             <textarea
               className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -189,15 +196,15 @@ export function AssessmentSummaryEditor({
               onChange={(event) =>
                 handleSummaryFieldChange("method", event.target.value)
               }
-              placeholder="Walkthrough, observation method, or scope..."
+              placeholder={copy.placeholders.method}
               value={summaryState.draft.method}
             />
           </FieldGroup>
 
           <FieldGroup
-            description="Write the prioritised step-6 synthesis for the final deliverable."
+            description={copy.descriptions.notes}
             id={`summary-notes-${assessmentId}`}
-            label="Summary notes"
+            label={copy.fieldLabels.notes}
           >
             <textarea
               className="min-h-44 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
@@ -207,7 +214,7 @@ export function AssessmentSummaryEditor({
               onChange={(event) =>
                 handleSummaryFieldChange("notes", event.target.value)
               }
-              placeholder="Summarize the highest-priority risks, the overall picture, and the most important next actions..."
+              placeholder={copy.placeholders.notes}
               value={summaryState.draft.notes}
             />
           </FieldGroup>
@@ -218,14 +225,13 @@ export function AssessmentSummaryEditor({
             <div className="space-y-4">
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/60">
-                  Readiness
+                  {copy.readiness.eyebrow}
                 </p>
                 <h3 className="text-lg font-semibold tracking-tight">
-                  Export gate
+                  {copy.readiness.heading}
                 </h3>
                 <p className="text-sm leading-6 text-white/75">
-                  Prefilled workplace details help you start fast, but they only
-                  count toward export readiness after you save them on this step.
+                  {copy.readiness.description}
                 </p>
               </div>
 
@@ -234,31 +240,37 @@ export function AssessmentSummaryEditor({
                   count={
                     summaryState.readiness.walkthrough.unansweredCriterionCount
                   }
-                  label="Walkthrough"
+                  dataKey="walkthrough"
+                  label={copy.readiness.labels.walkthrough}
+                  language={language}
                   ready={summaryState.readiness.walkthrough.ready}
                 />
                 <ReadinessRow
                   count={summaryState.readiness.transfer.missingRiskEntryCount}
-                  label="Transfer"
+                  dataKey="transfer"
+                  label={copy.readiness.labels.transfer}
+                  language={language}
                   ready={summaryState.readiness.transfer.ready}
                 />
                 <ReadinessRow
                   count={classificationPendingCount}
-                  label="Classification"
+                  dataKey="classification"
+                  label={copy.readiness.labels.classification}
+                  language={language}
                   ready={summaryState.readiness.classification.ready}
                 />
                 <ReadinessRow
                   count={summaryState.readiness.summary.missingFields.length}
-                  label="Summary"
+                  dataKey="summary"
+                  label={copy.readiness.labels.summary}
+                  language={language}
                   ready={summaryState.readiness.summary.ready}
                 />
               </div>
 
               {readinessBlockers.length === 0 ? (
                 <div className="rounded-[1.4rem] border border-emerald-300/20 bg-emerald-500/10 px-4 py-3 text-sm leading-6 text-emerald-100">
-                  All persisted prerequisites are ready. `S1-08` can consume
-                  this assessment without reworking the summary or readiness
-                  shape.
+                  {copy.readiness.allReady}
                 </div>
               ) : (
                 <div className="space-y-2 rounded-[1.4rem] border border-white/10 bg-white/8 px-4 py-3 text-sm leading-6 text-white/80">
@@ -274,22 +286,19 @@ export function AssessmentSummaryEditor({
             <div className="space-y-3">
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                  Priority reference
+                  {copy.priority.eyebrow}
                 </p>
                 <h3 className="text-lg font-semibold tracking-tight text-slate-950">
-                  Risk entries by severity
+                  {copy.priority.heading}
                 </h3>
                 <p className="text-sm leading-6 text-slate-600">
-                  Use the sorted risk register as a reference while writing the
-                  final summary.
+                  {copy.priority.description}
                 </p>
               </div>
 
               {prioritizedEntries.length === 0 ? (
                 <div className="rounded-[1.4rem] border border-dashed border-black/12 bg-[#fbf7ef] px-4 py-4 text-sm leading-6 text-slate-600">
-                  No transferred risk entries are available yet. Any persisted{" "}
-                  <span className="font-semibold">Not ok</span> findings still
-                  need transfer before export readiness can pass.
+                  {copy.priority.empty}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -303,7 +312,9 @@ export function AssessmentSummaryEditor({
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1">
                           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                            {entry.sectionTitle} · Criterion {entry.criterionNumber}
+                            {entry.sectionTitle} ·{" "}
+                            {copy.priority.criterionLabel}{" "}
+                            {entry.criterionNumber}
                           </div>
                           <div className="text-sm font-semibold leading-6 text-slate-950">
                             {entry.hazard}
@@ -318,7 +329,11 @@ export function AssessmentSummaryEditor({
                             entry.classificationState,
                           )}
                         >
-                          {getPriorityBadgeLabel(entry)}
+                          {getPriorityBadgeLabel({
+                            language,
+                            classificationState: entry.classificationState,
+                            savedRiskLevel: entry.savedRiskLevel,
+                          })}
                         </span>
                       </div>
                     </article>
@@ -336,7 +351,13 @@ export function AssessmentSummaryEditor({
             aria-live="polite"
             className={getSummarySaveMessageClassName(summaryState)}
           >
-            {getSummarySaveMessage(summaryState)}
+            {getSummarySaveMessage({
+              language,
+              saveState: summaryState.saveState,
+              dirty: summaryDirty,
+              exportReady: summaryState.readiness.exportReady,
+              errorMessage: summaryState.errorMessage,
+            })}
           </p>
           <p
             aria-live="polite"
@@ -344,6 +365,7 @@ export function AssessmentSummaryEditor({
             data-export-state={exportState.status}
           >
             {getExportMessage({
+              language,
               exportReady: summaryState.readiness.exportReady,
               exportState,
               summaryDirty,
@@ -361,8 +383,8 @@ export function AssessmentSummaryEditor({
             type="button"
           >
             {summaryState.saveState === "saving"
-              ? "Saving summary..."
-              : "Save summary"}
+              ? copy.saveButtonSaving
+              : copy.saveButton}
           </button>
           <button
             className={getExportButtonClassName(exportDisabled)}
@@ -372,8 +394,8 @@ export function AssessmentSummaryEditor({
             type="button"
           >
             {exportState.status === "exporting"
-              ? "Building export bundle..."
-              : "Download Word + PDF bundle"}
+              ? copy.exportButtonSaving
+              : copy.exportButton}
           </button>
         </div>
       </div>
@@ -428,17 +450,12 @@ export function AssessmentSummaryEditor({
           );
         });
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "We could not save this summary.";
-
         startTransition(() => {
           setSummaryState((current) =>
             reconcileAssessmentSummarySaveFailure(
               current,
               nextRequestId,
-              errorMessage,
+              copy.fallbacks.save,
             ),
           );
         });
@@ -469,19 +486,14 @@ export function AssessmentSummaryEditor({
         startTransition(() => {
           setExportState({
             status: "success",
-            message: `Downloaded ${response.fileName}.`,
+            message: buildLocalizedDownloadMessage(language, response.fileName),
           });
         });
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "We could not generate the export bundle.";
-
         startTransition(() => {
           setExportState({
             status: "error",
-            message: errorMessage,
+            message: copy.fallbacks.export,
           });
         });
       }
@@ -513,88 +525,30 @@ function FieldGroup({
 
 function ReadinessRow({
   count,
+  dataKey,
   label,
+  language,
   ready,
 }: {
   readonly count: number;
+  readonly dataKey: "walkthrough" | "transfer" | "classification" | "summary";
   readonly label: string;
+  readonly language: AppLanguage;
   readonly ready: boolean;
 }) {
   return (
     <div
       className="flex items-center justify-between rounded-[1.1rem] border border-white/10 bg-white/6 px-3 py-2 text-sm"
       data-readiness-count={String(count)}
-      data-readiness-label={label}
+      data-readiness-key={dataKey}
       data-readiness-state={ready ? "ready" : "blocked"}
     >
       <span className="font-medium text-white">{label}</span>
       <span className={ready ? "text-emerald-200" : "text-amber-100"}>
-        {ready ? "Ready" : `${count} open`}
+        {getReadinessCountLabel(language, { ready, count })}
       </span>
     </div>
   );
-}
-
-function getReadinessBlockers(readiness: AssessmentExportReadiness): string[] {
-  const blockers: string[] = [];
-
-  if (!readiness.walkthrough.ready) {
-    blockers.push(
-      `${readiness.walkthrough.unansweredCriterionCount} ${pluralize(readiness.walkthrough.unansweredCriterionCount, "walkthrough item still needs an answer", "walkthrough items still need answers")}.`,
-    );
-  }
-
-  if (!readiness.transfer.ready) {
-    blockers.push(
-      `${readiness.transfer.missingRiskEntryCount} ${pluralize(readiness.transfer.missingRiskEntryCount, "eligible finding still needs transfer", "eligible findings still need transfer")} into the risk register.`,
-    );
-  }
-
-  if (readiness.classification.unclassifiedRiskEntryCount > 0) {
-    blockers.push(
-      `${readiness.classification.unclassifiedRiskEntryCount} ${pluralize(readiness.classification.unclassifiedRiskEntryCount, "transferred entry still needs a saved classification", "transferred entries still need saved classifications")}.`,
-    );
-  }
-
-  if (readiness.classification.staleRiskEntryCount > 0) {
-    blockers.push(
-      `${readiness.classification.staleRiskEntryCount} ${pluralize(readiness.classification.staleRiskEntryCount, "risk entry has a stale saved level", "risk entries have stale saved levels")} and need re-saving.`,
-    );
-  }
-
-  if (readiness.classification.invalidRiskEntryCount > 0) {
-    blockers.push(
-      `${readiness.classification.invalidRiskEntryCount} ${pluralize(readiness.classification.invalidRiskEntryCount, "risk entry could not verify its saved classification", "risk entries could not verify their saved classifications")}.`,
-    );
-  }
-
-  if (!readiness.summary.ready) {
-    blockers.push(
-      `Summary is still missing saved values for ${formatSummaryFieldList(
-        readiness.summary.missingFields,
-      )}.`,
-    );
-  }
-
-  return blockers;
-}
-
-function getPriorityBadgeLabel(
-  entry: AssessmentSummaryEditorProps["prioritizedEntries"][number],
-): string {
-  if (entry.classificationState === "staleRiskLevel") {
-    return "Stale";
-  }
-
-  if (entry.classificationState === "invalidClassification") {
-    return "Repair";
-  }
-
-  if (entry.savedRiskLevel == null) {
-    return "Needs scoring";
-  }
-
-  return capitalize(entry.savedRiskLevel);
 }
 
 function getPriorityBadgeClassName(
@@ -626,24 +580,6 @@ function getExportReadinessBadgeClassName(ready: boolean): string {
     : "inline-flex w-fit items-center rounded-full border border-[#d7b778] bg-[#fff2d4] px-3 py-1.5 text-sm font-semibold text-[#805312]";
 }
 
-function getSummarySaveMessage(state: AssessmentSummaryClientState): string {
-  if (state.saveState === "saving") {
-    return "Saving the persisted summary and recomputing export readiness...";
-  }
-
-  if (state.saveState === "error") {
-    return state.errorMessage ?? "We could not save this summary.";
-  }
-
-  if (isAssessmentSummaryDirty(state)) {
-    return "Changes pending save. Export readiness updates after the server confirms this summary.";
-  }
-
-  return state.readiness.exportReady
-    ? "Summary saved. This assessment is ready for the later export story."
-    : "Summary saved. Remaining blockers are listed in the readiness panel.";
-}
-
 function getSummarySaveMessageClassName(
   state: AssessmentSummaryClientState,
 ): string {
@@ -671,37 +607,6 @@ function getExportButtonClassName(disabled: boolean): string {
   );
 }
 
-function getExportMessage(params: {
-  readonly exportReady: boolean;
-  readonly exportState: {
-    readonly status: "idle" | "exporting" | "error" | "success";
-    readonly message: string | null;
-  };
-  readonly summaryDirty: boolean;
-}): string {
-  if (params.exportState.status === "exporting") {
-    return "Generating Word and PDF files from the persisted assessment state...";
-  }
-
-  if (params.exportState.status === "error") {
-    return params.exportState.message ?? "We could not generate the export bundle.";
-  }
-
-  if (params.exportState.status === "success") {
-    return params.exportState.message ?? "Export bundle downloaded.";
-  }
-
-  if (!params.exportReady) {
-    return "Finish the readiness blockers above before export unlocks.";
-  }
-
-  if (params.summaryDirty) {
-    return "Save summary changes before exporting the persisted bundle.";
-  }
-
-  return "Export uses the persisted checklist, risk register, and summary values.";
-}
-
 function getExportMessageClassName(
   status: "idle" | "exporting" | "error" | "success",
 ): string {
@@ -715,51 +620,8 @@ function getExportMessageClassName(
   );
 }
 
-function formatSummaryFieldList(
-  fields: readonly AssessmentSummaryRequiredField[],
-): string {
-  const labels = fields.map((field) => {
-    switch (field) {
-      case "companyName":
-        return "company name";
-      case "location":
-        return "location";
-      case "assessmentDate":
-        return "assessment date";
-      case "participants":
-        return "participants";
-      case "method":
-        return "method";
-      case "notes":
-        return "summary notes";
-    }
-  });
-
-  if (labels.length === 1) {
-    return labels[0]!;
-  }
-
-  if (labels.length === 2) {
-    return `${labels[0]} and ${labels[1]}`;
-  }
-
-  return `${labels.slice(0, -1).join(", ")}, and ${labels.at(-1)}`;
-}
-
-function capitalize(value: string): string {
-  return `${value[0]?.toUpperCase() ?? ""}${value.slice(1)}`;
-}
-
 function joinClasses(...values: Array<string | false | null | undefined>): string {
   return values.filter(Boolean).join(" ");
-}
-
-function pluralize(
-  count: number,
-  singular: string,
-  plural: string,
-): string {
-  return count === 1 ? singular : plural;
 }
 
 function downloadAssessmentExportBundle(

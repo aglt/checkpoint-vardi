@@ -9,16 +9,9 @@ import {
   SeedRiskMatrixNotFoundError,
   startAssessmentFromSeededTemplate,
 } from "@/lib/assessments/startAssessmentFromSeededTemplate";
+import type { StartAssessmentFormErrorCode } from "@/lib/i18n/mvpCopy";
 import { getDatabase } from "@/lib/server/db";
 import { getCurrentUser } from "@/lib/server/getCurrentUser";
-
-const FORM_ERROR_MESSAGES = {
-  "invalid-start-request": "The assessment start form was incomplete.",
-  "unknown-template": "The selected seeded template is not available.",
-  "start-unavailable": "Assessment start is temporarily unavailable.",
-} as const;
-
-type FormErrorCode = keyof typeof FORM_ERROR_MESSAGES;
 
 export async function POST(request: Request): Promise<Response> {
   const payload = await readFormPayload(request);
@@ -71,7 +64,10 @@ function getFormValue(formData: FormData, key: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-function redirectWithError(request: Request, errorCode: FormErrorCode): Response {
+function redirectWithError(
+  request: Request,
+  errorCode: StartAssessmentFormErrorCode,
+): Response {
   const redirectUrl = new URL("/", request.url);
   redirectUrl.searchParams.set("error", errorCode);
   return NextResponse.redirect(redirectUrl, { status: 303 });

@@ -33,7 +33,6 @@ const riskEntries: readonly AssessmentRiskRegisterEntryProjection[] = [
     consequence: null,
     savedRiskLevel: null,
     classificationState: "staleRiskLevel",
-    classificationMessage: "Saved classification is stale. Save this entry to repair it.",
     currentControls: null,
     costEstimate: null,
     mitigationActions: [

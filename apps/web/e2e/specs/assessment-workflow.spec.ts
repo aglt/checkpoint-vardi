@@ -2,85 +2,122 @@ import { expect, test } from "@playwright/test";
 
 const WOODWORKING_TEMPLATE_TITLE = "Vinnuumhverfisvísir fyrir Trésmíðaverkstæði";
 
+test.use({ locale: "is-IS" });
+
 test("partial MVP workflow stays truthfully blocked at export readiness", async ({
   page,
 }) => {
   await page.goto("/");
 
-  await page.getByLabel("Workplace name").fill("FB workshop E2E");
-  await page.getByLabel("Address").fill("Austurberg 5");
+  await expect(page.locator("html")).toHaveAttribute("lang", "is");
+  await page.locator("#workplaceName").fill("FB workshop E2E");
+  await page.locator("#workplaceAddress").fill("Austurberg 5");
   await page.getByLabel(WOODWORKING_TEMPLATE_TITLE).check();
-  await page.getByRole("button", { name: "Create assessment" }).click();
+  await page.locator('[data-start-assessment-submit="true"]').click();
 
   await page.waitForURL(/\/assessments\/[0-9a-f-]+$/);
   await expect(
     page.getByRole("heading", { name: "FB workshop E2E" }),
   ).toBeVisible();
+  for (const expectedLabel of [
+    "Framvinda",
+    "Athugasemdir yfirferðar",
+    "Færa í áhættuskrá",
+    "Áhættuskrá",
+    "Samantekt og útflutningsstaða",
+  ]) {
+    await expect(page.locator("body")).toContainText(expectedLabel);
+  }
 
   const firstCriterion = page.locator("[data-criterion-id]").first();
-  await firstCriterion.getByRole("radio", { name: "Not ok" }).click();
+  await firstCriterion.locator('[data-answer-value="notOk"]').click();
 
   await expect(firstCriterion).toHaveAttribute("data-selected-answer", "notOk");
 
-  const transferButton = page.getByRole("button", { name: "Transfer 1 finding" });
+  const transferButton = page.locator('[data-transfer-action="risk-register"]');
   await expect(transferButton).toBeEnabled({ timeout: 15_000 });
   await transferButton.click();
 
   await expect(
-    page.getByText("Transferred 1 finding into the risk register."),
+    page.getByText("Færði 1 niðurstöðu í áhættuskrána."),
   ).toBeVisible();
 
   const riskEntry = page.locator("[data-risk-entry-id]").first();
   await expect(riskEntry).toBeVisible();
+  await expect(page.locator("body")).toContainText("Mótvægisaðgerðir");
+  await expect(page.locator("body")).toContainText(
+    "Engar vistaðar mótvægisaðgerðir enn.",
+  );
+  await expect(page.locator("body")).toContainText("Bæta við aðgerð");
 
-  await riskEntry.getByLabel("Hazard").fill("Missing guard on table saw");
   await riskEntry
-    .locator('[data-score-label="Likelihood"][data-score-value="3"]')
+    .locator('[data-field="hazard"]')
+    .fill("Missing guard on table saw");
+  await riskEntry
+    .locator('[data-score-kind="likelihood"][data-score-value="3"]')
     .click();
   await riskEntry
-    .locator('[data-score-label="Consequence"][data-score-value="3"]')
+    .locator('[data-score-kind="consequence"][data-score-value="3"]')
     .click();
-  await riskEntry.getByRole("button", { name: "Save risk entry" }).click();
+  await riskEntry.locator('[data-risk-entry-save-button="true"]').click();
 
   await expect(riskEntry).toHaveAttribute("data-classification-state", "ready");
   await expect(riskEntry).toHaveAttribute("data-risk-level", "high");
-  await expect(riskEntry.getByText("Saved classification: High.")).toBeVisible();
+  await expect(riskEntry.getByText("Vistuð flokkun: Há.")).toBeVisible();
+  await expect(page.locator("body")).toContainText("Vista áhættufærslu");
 
   const summarySection = page.locator("[data-summary-readiness]").first();
-  await summarySection.getByLabel("Participants").fill("Student assessor");
   await summarySection
-    .getByLabel("Method")
+    .locator('[data-summary-field="participants"]')
+    .fill("Student assessor");
+  await summarySection
+    .locator('[data-summary-field="method"]')
     .fill("Walkthrough with seeded checklist and one transferred finding.");
   await summarySection
-    .getByLabel("Summary notes")
+    .locator('[data-summary-field="notes"]')
     .fill("The table saw needs a guard before the workshop flow can be considered ready.");
-  await summarySection.getByRole("button", { name: "Save summary" }).click();
+  await summarySection.locator("[data-summary-save-state]").click();
 
   await expect(summarySection).toHaveAttribute("data-summary-readiness", "blocked");
   await expect(
     summarySection.getByText(
-      "Summary saved. Remaining blockers are listed in the readiness panel.",
+      "Samantekt vistuð. Eftirstöðvar hindranir eru taldar upp í stöðupanelnum.",
     ),
   ).toBeVisible();
   await expect(
     summarySection.getByText(
-      "Finish the readiness blockers above before export unlocks.",
+      "Ljúktu fyrst við hindranirnar hér að ofan áður en útflutningur opnast.",
     ),
   ).toBeVisible();
   await expect(
-    summarySection.getByRole("button", { name: "Download Word + PDF bundle" }),
+    summarySection.locator("[data-export-button-state]"),
   ).toBeDisabled();
 
   await expect(
-    summarySection.locator('[data-readiness-label="Walkthrough"]'),
+    summarySection.locator('[data-readiness-key="walkthrough"]'),
   ).toHaveAttribute("data-readiness-state", "blocked");
   await expect(
-    summarySection.locator('[data-readiness-label="Transfer"]'),
+    summarySection.locator('[data-readiness-key="transfer"]'),
   ).toHaveAttribute("data-readiness-state", "ready");
   await expect(
-    summarySection.locator('[data-readiness-label="Classification"]'),
+    summarySection.locator('[data-readiness-key="classification"]'),
   ).toHaveAttribute("data-readiness-state", "ready");
   await expect(
-    summarySection.locator('[data-readiness-label="Summary"]'),
+    summarySection.locator('[data-readiness-key="summary"]'),
   ).toHaveAttribute("data-readiness-state", "ready");
+  await expect(page.locator("body")).toContainText("Vista samantekt");
+  await expect(page.locator("body")).toContainText("Sækja Word + PDF pakka");
+
+  await expect(page.locator("body")).not.toContainText("Assessment Workflow");
+  await expect(page.locator("body")).not.toContainText("Transfer to risk register");
+  await expect(page.locator("body")).not.toContainText("Risk register");
+  await expect(page.locator("body")).not.toContainText("Save risk entry");
+  await expect(page.locator("body")).not.toContainText("Save summary");
+  await expect(page.locator("body")).not.toContainText("Summary and export readiness");
+  await expect(page.locator("body")).not.toContainText("Download Word + PDF bundle");
+  await expect(page.locator("body")).not.toContainText("Mitigation actions");
+  await expect(page.locator("body")).not.toContainText("Add action");
+  await expect(page.locator("body")).not.toContainText(
+    "No saved mitigation actions yet",
+  );
 });

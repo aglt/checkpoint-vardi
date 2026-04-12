@@ -28,19 +28,24 @@ const riskEntries: readonly AssessmentRiskRegisterEntryProjection[] = [
     consequence: null,
     savedRiskLevel: null,
     classificationState: "staleRiskLevel",
-    classificationMessage: "Saved classification is stale. Save this entry to repair it.",
     currentControls: null,
     costEstimate: null,
     mitigationActions: [],
   },
 ] as const;
 
-test("buildInitialRiskEntryState preserves localized classification warnings", () => {
+test("buildInitialRiskEntryState preserves classification state without owned display copy", () => {
   const states = buildInitialRiskEntryState(riskEntries);
 
   assert.equal(states["risk-entry-1"]?.saved.hazard, "Initial hazard");
   assert.equal(states["risk-entry-1"]?.savedClassificationState, "staleRiskLevel");
-  assert.match(states["risk-entry-1"]?.savedClassificationMessage ?? "", /stale/i);
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(
+      states["risk-entry-1"] ?? {},
+      "savedClassificationMessage",
+    ),
+    false,
+  );
   assert.equal(canPersistRiskEntryDraft(states["risk-entry-1"]!.draft), true);
 });
 
@@ -78,7 +83,13 @@ test("risk-entry controller updates drafts and clears stale warnings after a suc
   assert.equal(completed["risk-entry-1"]?.saved.hazard, "Updated hazard");
   assert.equal(completed["risk-entry-1"]?.savedRiskLevel, "high");
   assert.equal(completed["risk-entry-1"]?.savedClassificationState, "ready");
-  assert.equal(completed["risk-entry-1"]?.savedClassificationMessage, null);
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(
+      completed["risk-entry-1"] ?? {},
+      "savedClassificationMessage",
+    ),
+    false,
+  );
 
   const failed = reconcileRiskEntrySaveFailure(
     completed,

@@ -7,7 +7,7 @@ import test from "node:test";
 import { listSeedChecklists } from "@vardi/checklists";
 import { renderToStaticMarkup } from "react-dom/server";
 
-test("the start entry page shows both seeded templates", async () => {
+test("the start entry page defaults app-owned chrome to Icelandic while showing both seeded templates", async () => {
   const { default: StartAssessmentPage } = await import("../../app/page");
   const markup = renderToStaticMarkup(
     await StartAssessmentPage({
@@ -15,7 +15,43 @@ test("the start entry page shows both seeded templates", async () => {
     }),
   );
 
+  assert.match(
+    markup,
+    new RegExp(
+      escapeRegExp("Hefja staðlað áhættumat og taka yfirferðina í næsta skrefi."),
+    ),
+  );
+  assert.match(markup, new RegExp(escapeRegExp("Nafn vinnustaðar")));
+  assert.match(markup, new RegExp(escapeRegExp("Búa til áhættumat")));
+
   for (const template of listSeedChecklists()) {
+    assert.match(markup, new RegExp(escapeRegExp(template.translations.is.title)));
+  }
+});
+
+test("the start entry page can render English app-owned copy without changing seeded template titles", async () => {
+  const { StartAssessmentPageContent } = await import("../../app/page");
+  const templates = listSeedChecklists();
+  const markup = renderToStaticMarkup(
+    StartAssessmentPageContent({
+      errorCode: null,
+      language: "en",
+      templates,
+    }),
+  );
+
+  assert.match(markup, new RegExp(escapeRegExp("Current MVP Start Entry")));
+  assert.match(
+    markup,
+    new RegExp(
+      escapeRegExp(
+        "Start a seeded assessment and leave the walkthrough for the next step.",
+      ),
+    ),
+  );
+  assert.match(markup, new RegExp(escapeRegExp("Create assessment")));
+
+  for (const template of templates) {
     assert.match(markup, new RegExp(escapeRegExp(template.translations.is.title)));
   }
 });

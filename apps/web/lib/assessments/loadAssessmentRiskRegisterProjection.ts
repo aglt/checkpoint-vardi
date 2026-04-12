@@ -42,7 +42,6 @@ export interface AssessmentRiskRegisterEntryProjection {
   readonly consequence: number | null;
   readonly savedRiskLevel: RiskLevel | null;
   readonly classificationState: RiskEntryClassificationState;
-  readonly classificationMessage: string | null;
   readonly currentControls: string | null;
   readonly costEstimate: number | null;
   readonly mitigationActions: readonly AssessmentRiskMitigationActionProjection[];
@@ -167,9 +166,6 @@ function buildRiskRegisterEntryProjection(
       consequence: riskEntry.consequence,
       savedRiskLevel: isStale ? null : riskEntry.riskLevel,
       classificationState: isStale ? "staleRiskLevel" : "ready",
-      classificationMessage: isStale
-        ? "Saved classification is stale. Save this entry to repair it."
-        : null,
       currentControls: riskEntry.currentControls,
       costEstimate: riskEntry.costEstimate,
       mitigationActions: mitigationActions.map(buildRiskMitigationActionProjection),
@@ -190,8 +186,6 @@ function buildRiskRegisterEntryProjection(
       consequence: riskEntry.consequence,
       savedRiskLevel: null,
       classificationState: "invalidClassification",
-      classificationMessage:
-        "Saved classification could not be verified. Save this entry to repair it.",
       currentControls: riskEntry.currentControls,
       costEstimate: riskEntry.costEstimate,
       mitigationActions: mitigationActions.map(buildRiskMitigationActionProjection),

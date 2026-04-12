@@ -9,8 +9,8 @@
 
 - Active step: none in progress
 - Next queued step: `S1-12`
-- Most recently completed step: `S1-11`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-11-risk-mitigation-planning-on-risk-entries.md`
+- Most recently completed step: `S1-17`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-17-language-consistent-web-content.md`
 - Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-12-guided-assessment-progression-and-completion-guards.md`
 
 ## S0 - Foundations
@@ -305,10 +305,22 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-17: Language-consistent web content for the current MVP flow
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-17-language-consistent-web-content.md`
-**Start gate:** Open. The current MVP web surfaces already exist and the mixed-language copy gap is observable now.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-17-language-consistent-web-content.md`
+**Start gate:** Closed.
 **Unblocks:** Cleaner product trust on the current web flow and future assertions that should depend on stabilized app-language copy.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-17-language-consistent-web-content`:
+> added a request-derived app-language seam with an explicit
+> `requestAppLanguage.server.ts` boundary, moved app-owned start-page and
+> assessment-flow copy into `apps/web/lib/i18n/`, kept lower assessment
+> projections state-oriented by removing localized message ownership from those
+> boundaries, localized presentation-only risk severity labels, and added both
+> boundary regression coverage and Icelandic leakage checks for the current
+> start page and assessment flow including the merged mitigation-action surface.
+> Ran `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, and
+> `pnpm build` under `node v22.22.2`. PR: `#14`.
 
 ### Step S1-18: Risk severity choice alignment with the reference workflow
 

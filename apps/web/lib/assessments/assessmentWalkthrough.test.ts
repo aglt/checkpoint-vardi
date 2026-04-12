@@ -263,7 +263,7 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
     new RegExp(escapeRegExp(fixture.firstCriterion.translations.is.guidance)),
   );
   assert.match(markup, new RegExp(escapeRegExp("Already reviewed on-site.")));
-  assert.match(markup, /Answers save immediately/);
+  assert.match(markup, /Svör vistast strax/);
 });
 
 test("assessment page re-renders with the persisted answer state selected", async () => {
@@ -374,10 +374,13 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
     }),
   );
 
-  assert.match(markup, /Transfer to risk register/);
-  assert.match(markup, /All eligible findings transferred/);
-  assert.match(markup, /Mitigation actions/);
-  assert.match(markup, /No saved mitigation actions yet\./);
+  assert.match(markup, new RegExp(escapeRegExp("Færa í áhættuskrá")));
+  assert.match(markup, new RegExp(escapeRegExp("Öll hæf atriði færð")));
+  assert.match(markup, new RegExp(escapeRegExp("Mótvægisaðgerðir")));
+  assert.match(
+    markup,
+    new RegExp(escapeRegExp("Engar vistaðar mótvægisaðgerðir enn.")),
+  );
   assert.doesNotMatch(markup, /Draft action/);
   assert.match(
     markup,
@@ -387,7 +390,7 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
         '[\\s\\S]*?',
         escapeRegExp('data-transfer-state="present"'),
         '[\\s\\S]*?',
-        escapeRegExp("Transferred"),
+        escapeRegExp("Fært"),
       ].join(""),
     ),
   );
@@ -441,7 +444,7 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
     }),
   );
 
-  assert.match(markup, /Risk register/);
+  assert.match(markup, new RegExp(escapeRegExp("Áhættuskrá")));
   assert.match(
     markup,
     new RegExp(escapeRegExp(`data-risk-entry-id="${riskEntryId}"`)),
@@ -458,10 +461,12 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
   );
   assert.match(markup, new RegExp(escapeRegExp("Table saw without guard")));
   assert.match(markup, new RegExp(escapeRegExp("Students and staff")));
-  assert.match(markup, /Mitigation actions/);
+  assert.match(markup, new RegExp(escapeRegExp("Mótvægisaðgerðir")));
   assert.match(markup, new RegExp(escapeRegExp("Install a replacement guard")));
   assert.match(markup, new RegExp(escapeRegExp("Workshop lead")));
-  assert.match(markup, /Saved classification: High\./);
+  assert.match(markup, new RegExp(escapeRegExp("Vistuð flokkun: Há.")));
+  assert.match(markup, new RegExp(escapeRegExp("Aðgerð 1 · vistuð")));
+  assert.match(markup, new RegExp(escapeRegExp("Vistuð staða aðgerðar: Opin.")));
 });
 
 test("assessment page localizes stale risk classifications to the affected card", async () => {
@@ -507,7 +512,7 @@ test("assessment page localizes stale risk classifications to the affected card"
     }),
   );
 
-  assert.match(markup, /Risk register/);
+  assert.match(markup, new RegExp(escapeRegExp("Áhættuskrá")));
   assert.match(
     markup,
     new RegExp(
@@ -532,7 +537,14 @@ test("assessment page localizes stale risk classifications to the affected card"
       ].join(""),
     ),
   );
-  assert.match(markup, /Save this entry to repair it\./);
+  assert.match(
+    markup,
+    new RegExp(
+      escapeRegExp(
+        "Vistað flokkunarstig er úrelt. Vistaðu færsluna til að laga það.",
+      ),
+    ),
+  );
   assert.match(
     markup,
     new RegExp(
@@ -562,7 +574,7 @@ test("assessment page renders the summary editor with workplace defaults and rea
     }),
   );
 
-  assert.match(markup, /Summary and export readiness/);
+  assert.match(markup, /Samantekt og útflutningsstaða/);
   assert.match(markup, /data-summary-readiness="blocked"/);
   assert.match(
     markup,
@@ -594,10 +606,10 @@ test("assessment page renders the summary editor with workplace defaults and rea
       ].join(""),
     ),
   );
-  assert.match(markup, /walkthrough items still need answers/);
-  assert.match(markup, /Summary is still missing saved values/);
-  assert.match(markup, /Finish the readiness blockers above before export unlocks\./);
-  assert.match(markup, /Download Word \+ PDF bundle/);
+  assert.match(markup, /Það vantar svör fyrir/);
+  assert.match(markup, /Samantekt vantar enn vistuð gildi fyrir/);
+  assert.match(markup, /Ljúktu fyrst við hindranirnar hér að ofan áður en útflutningur opnast\./);
+  assert.match(markup, /Sækja Word \+ PDF pakka/);
   assert.match(markup, /data-export-button-state="idle"/);
 });
 
@@ -654,8 +666,8 @@ test("summary save round-trip persists the final summary and flips export readin
   );
 
   assert.match(markup, /data-summary-readiness="ready"/);
-  assert.match(markup, /Export-ready state reached/);
-  assert.match(markup, /All persisted prerequisites are ready/);
+  assert.match(markup, /Útflutningsstaða tilbúin/);
+  assert.match(markup, /Allar vistaðar forsendur eru tilbúnar/);
   assert.match(
     markup,
     new RegExp(
@@ -677,10 +689,10 @@ test("summary save round-trip persists the final summary and flips export readin
       ].join(""),
     ),
   );
-  assert.match(markup, /Download Word \+ PDF bundle/);
+  assert.match(markup, /Sækja Word \+ PDF pakka/);
   assert.match(
     markup,
-    /Export uses the persisted checklist, risk register, and summary values\./,
+    /Útflutningur notar vistaðan gátlista, áhættuskrá og samantektargildi\./,
   );
 });
 

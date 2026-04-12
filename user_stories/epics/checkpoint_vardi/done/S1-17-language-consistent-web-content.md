@@ -1,6 +1,6 @@
 # S1-17 - Language-consistent web content for the current MVP flow
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P1
@@ -12,22 +12,26 @@ Depends on: S1-08
 
 ## Context
 
-The current MVP assessment flow is functional, but the web UI still mixes
-English and Icelandic on the same rendered surfaces. This breaks product trust.
-If the active app language is Icelandic (`is`), the user should not see
-English save-state pills, section labels, action prompts, validation copy, or
-risk-level labels mixed into the same page.
+This story is complete and merged via PR `#14`. The current MVP web flow
+now resolves a temporary request-derived app display language at the
+page/layout boundary, normalizes to `is` or `en`, and falls back to `is`
+without treating request language as durable product truth.
 
-Seeded checklist content already carries language-aware translations through
-`@vardi/checklists`. The remaining problem is app-owned copy: labels, helper
-text, button text, empty states, save messages, validation messages, readiness
-messaging, and any app-owned display labels for risk severity or status. Those
-strings currently live inline across the MVP pages instead of flowing through a
-single app-language decision.
+App-owned copy for the start page, walkthrough, risk register, and
+summary/readiness surfaces now lives in `apps/web/lib/i18n/`. Lower
+assessment projections remain state-oriented and no longer own localized
+display copy; page/view-owned presentation helpers now shape save-state text,
+validation/runtime messaging, readiness text, and presentation-only risk labels
+from stable persisted values.
 
-This story does not redesign the domain model or broaden into full platform
-i18n. It fixes the current MVP web experience so one resolved app language owns
-each rendered page.
+Seeded checklist content continues to use the existing `@vardi/checklists`
+translation/runtime seam, and export document wording remains out of scope for
+this story. Verification ran locally under `node v22.22.2` with `pnpm lint`,
+`pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, and `pnpm build`. The final
+merged implementation also hardens the request-language boundary by keeping
+request parsing in `requestAppLanguage.server.ts`, keeping shared i18n modules
+framework-free, and asserting that `use client` files do not import the
+server-only request seam.
 
 ## Goal
 

@@ -24,6 +24,16 @@ const noDeepImports = {
     "Do not use deep imports into package internals. Use public exports instead.",
 };
 
+const noServerBoundaryImports = {
+  group: [
+    "server-only",
+    "@/lib/i18n/requestAppLanguage.server",
+    "./requestAppLanguage.server",
+  ],
+  message:
+    "Pure shared i18n modules must stay framework-free. Keep request resolution in requestAppLanguage.server.ts.",
+};
+
 export default [
   ...sharedConfig,
 
@@ -98,6 +108,20 @@ export default [
           message:
             "Do not call fetch() directly in apps/web. Use typed route or client helpers instead.",
         },
+      ],
+    },
+  },
+
+  // Shared app-owned i18n modules must stay pure so client components can consume them.
+  {
+    files: [
+      "apps/web/lib/i18n/appLanguage.ts",
+      "apps/web/lib/i18n/mvpCopy.ts",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { patterns: [noDeepImports, noNextImports, noServerBoundaryImports] },
       ],
     },
   },

@@ -1,11 +1,13 @@
 import React from "react";
 import { listSeedChecklists } from "@vardi/checklists";
 
-const FORM_ERROR_MESSAGES = {
-  "invalid-start-request": "The start request was incomplete. Please check the form and try again.",
-  "unknown-template": "The selected seeded template is not available anymore.",
-  "start-unavailable": "Assessment start is temporarily unavailable.",
-} as const;
+import type { AppLanguage } from "@/lib/i18n/appLanguage";
+import {
+  getStartAssessmentPageCopy,
+  getTemplateMetaLabel,
+  type StartAssessmentFormErrorCode,
+} from "@/lib/i18n/mvpCopy";
+import { getRequestAppLanguage } from "@/lib/i18n/requestAppLanguage.server";
 
 interface StartAssessmentPageProps {
   readonly searchParams?: Promise<{
@@ -18,7 +20,28 @@ export default async function StartAssessmentPage({
 }: StartAssessmentPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const errorCode = resolveErrorCode(resolvedSearchParams?.error);
+  const language = await getRequestAppLanguage();
   const templates = listSeedChecklists();
+
+  return (
+    <StartAssessmentPageContent
+      errorCode={errorCode}
+      language={language}
+      templates={templates}
+    />
+  );
+}
+
+export function StartAssessmentPageContent({
+  errorCode,
+  language,
+  templates,
+}: {
+  readonly errorCode: StartAssessmentFormErrorCode | null;
+  readonly language: AppLanguage;
+  readonly templates: ReturnType<typeof listSeedChecklists>;
+}) {
+  const copy = getStartAssessmentPageCopy(language);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(145,171,127,0.24),transparent_38%),linear-gradient(180deg,#f6f1e5_0%,#efe6d4_52%,#e5dcc9_100%)] px-6 py-10 text-slate-950">
@@ -27,40 +50,45 @@ export default async function StartAssessmentPage({
           <div className="grid gap-8 p-6 md:grid-cols-[1.05fr_0.95fr] md:p-10">
             <div className="space-y-5">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-600">
-                Current MVP Start Entry
+                {copy.eyebrow}
               </p>
               <div className="space-y-3">
                 <h1 className="max-w-xl text-4xl font-semibold tracking-tight text-slate-950 md:text-5xl">
-                  Start a seeded assessment and leave the walkthrough for the next step.
+                  {copy.title}
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-slate-700">
-                  This screen is the narrow MVP entry route for S1-03. It creates
-                  a workplace context, pins a seeded checklist and the course 3x3
-                  matrix, and prepares the assessment for the walkthrough flow.
+                  {copy.description}
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
-                <SummaryCard label="Templates" value={`${templates.length}`} />
-                <SummaryCard label="Pinned matrix" value="Course 3x3" />
-                <SummaryCard label="Scope" value="Start only" />
+                <SummaryCard
+                  label={copy.summaryLabels.templates}
+                  value={`${templates.length}`}
+                />
+                <SummaryCard
+                  label={copy.summaryLabels.pinnedMatrix}
+                  value={copy.summaryValues.pinnedMatrix}
+                />
+                <SummaryCard
+                  label={copy.summaryLabels.scope}
+                  value={copy.summaryValues.scope}
+                />
               </div>
             </div>
 
             <section className="rounded-[1.75rem] border border-black/10 bg-[#f8f4ea] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] md:p-6">
               <div className="mb-5 space-y-1">
                 <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-                  Start assessment
+                  {copy.sectionHeading}
                 </h2>
                 <p className="text-sm leading-6 text-slate-700">
-                  Choose a workplace context and one of the seeded templates below.
-                  This form intentionally skips matrix choice, compatibility rules,
-                  and walkthrough content.
+                  {copy.sectionDescription}
                 </p>
               </div>
 
               {errorCode ? (
                 <div className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-                  {FORM_ERROR_MESSAGES[errorCode]}
+                  {copy.formErrorMessages[errorCode]}
                 </div>
               ) : null}
 
@@ -68,13 +96,13 @@ export default async function StartAssessmentPage({
               <form action="/api/assessments" className="space-y-5" method="post">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-900" htmlFor="workplaceName">
-                    Workplace name
+                    {copy.labels.workplaceName}
                   </label>
                   <input
                     className="w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-slate-950 outline-none ring-0 transition focus:border-slate-500"
                     id="workplaceName"
                     name="workplaceName"
-                    placeholder="FB workshop"
+                    placeholder={copy.placeholders.workplaceName}
                     required
                     type="text"
                   />
@@ -82,36 +110,36 @@ export default async function StartAssessmentPage({
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-900" htmlFor="workplaceAddress">
-                    Address
+                    {copy.labels.workplaceAddress}
                   </label>
                   <input
                     className="w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-slate-950 outline-none ring-0 transition focus:border-slate-500"
                     id="workplaceAddress"
                     name="workplaceAddress"
-                    placeholder="Austurberg 5"
+                    placeholder={copy.placeholders.workplaceAddress}
                     type="text"
                   />
                 </div>
 
                 <fieldset className="space-y-3">
                   <legend className="text-sm font-medium text-slate-900">
-                    Workplace archetype
+                    {copy.labels.workplaceArchetype}
                   </legend>
                   <div className="grid gap-3 sm:grid-cols-3">
                     <ArchetypeOption
                       defaultChecked
-                      description="Steady site with slower operational change."
-                      label="Fixed"
+                      description={copy.archetypes.fixed.description}
+                      label={copy.archetypes.fixed.label}
                       value="fixed"
                     />
                     <ArchetypeOption
-                      description="Crew or equipment moves between work locations."
-                      label="Mobile"
+                      description={copy.archetypes.mobile.description}
+                      label={copy.archetypes.mobile.label}
                       value="mobile"
                     />
                     <ArchetypeOption
-                      description="Construction-focused environment with changing conditions."
-                      label="Construction"
+                      description={copy.archetypes.construction.description}
+                      label={copy.archetypes.construction.label}
                       value="construction"
                     />
                   </div>
@@ -119,7 +147,7 @@ export default async function StartAssessmentPage({
 
                 <fieldset className="space-y-3">
                   <legend className="text-sm font-medium text-slate-900">
-                    Seeded template
+                    {copy.labels.seededTemplate}
                   </legend>
                   <div className="grid gap-3">
                     {templates.map((template, index) => (
@@ -132,7 +160,10 @@ export default async function StartAssessmentPage({
                             {template.translations.is.title}
                           </div>
                           <div className="text-sm text-slate-700">
-                            {template.sections} sections · {template.criteria} criteria
+                            {getTemplateMetaLabel(language, {
+                              sections: template.sections,
+                              criteria: template.criteria,
+                            })}
                           </div>
                           <div className="text-xs uppercase tracking-[0.22em] text-slate-500">
                             {template.slug} · v{template.version}
@@ -153,9 +184,10 @@ export default async function StartAssessmentPage({
 
                 <button
                   className="w-full rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  data-start-assessment-submit="true"
                   type="submit"
                 >
-                  Create assessment
+                  {copy.submit}
                 </button>
               </form>
             </section>
@@ -171,8 +203,12 @@ function resolveErrorCode(value: string | readonly string[] | undefined) {
     return null;
   }
 
-  if (value in FORM_ERROR_MESSAGES) {
-    return value as keyof typeof FORM_ERROR_MESSAGES;
+  if (
+    value === "invalid-start-request" ||
+    value === "unknown-template" ||
+    value === "start-unavailable"
+  ) {
+    return value;
   }
 
   return null;

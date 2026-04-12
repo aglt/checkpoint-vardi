@@ -47,7 +47,6 @@ export interface AssessmentSummaryPrioritizedEntry {
   readonly hazard: string;
   readonly savedRiskLevel: AssessmentRiskRegisterEntryProjection["savedRiskLevel"];
   readonly classificationState: AssessmentRiskRegisterEntryProjection["classificationState"];
-  readonly classificationMessage: string | null;
 }
 
 export interface AssessmentSummaryProjection {
@@ -166,7 +165,6 @@ function buildPrioritizedEntries(
       hazard: entry.hazard.length > 0 ? entry.hazard : entry.criterionTitle,
       savedRiskLevel: entry.savedRiskLevel,
       classificationState: entry.classificationState,
-      classificationMessage: entry.classificationMessage,
     }));
 }
 
