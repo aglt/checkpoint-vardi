@@ -13,6 +13,7 @@ import {
   riskMitigationAction,
   riskEntry,
 } from "@vardi/db/testing";
+import type { AssessmentStructuredReportDocument } from "@vardi/export";
 
 import { buildAssessmentExportDocuments } from "./buildAssessmentExportDocuments";
 import {
@@ -192,7 +193,41 @@ function prepareExportReadyState(
   closeDatabase(connection);
 }
 
-test("buildAssessmentExportDocuments preserves checklist order and maps summary/register data deterministically", () => {
+function getSection(
+  document: AssessmentStructuredReportDocument,
+  title: string,
+) {
+  return document.sections.find((section) => section.title === title);
+}
+
+function getSectionRow(
+  document: AssessmentStructuredReportDocument,
+  sectionTitle: string,
+  label: string,
+) {
+  return getSection(document, sectionTitle)?.rows?.find((row) => row.label === label);
+}
+
+function getSectionBlock(
+  document: AssessmentStructuredReportDocument,
+  sectionTitle: string,
+  index: number,
+) {
+  return getSection(document, sectionTitle)?.blocks?.[index];
+}
+
+function getBlockRow(
+  document: AssessmentStructuredReportDocument,
+  sectionTitle: string,
+  blockIndex: number,
+  label: string,
+) {
+  return getSectionBlock(document, sectionTitle, blockIndex)?.rows.find(
+    (row) => row.label === label,
+  );
+}
+
+test("buildAssessmentExportDocuments adds deterministic framing, provenance, and mitigation ordering from persisted truth", () => {
   const fixture = seedExportAssessmentFixture();
   prepareExportReadyState(fixture, {
     classificationReasoning:
@@ -223,51 +258,115 @@ test("buildAssessmentExportDocuments preserves checklist order and maps summary/
     summaryProjection,
   });
 
-  assert.equal(documents.checklist.sections[0]?.id, fixture.checklist.sections[0]?.id);
-  assert.equal(
-    documents.checklist.sections[0]?.criteria[0]?.id,
-    fixture.checklist.sections[0]?.criteria[0]?.id,
-  );
-  assert.equal(documents.summary.companyName, "Construction Co.");
-  assert.equal(documents.summary.workplaceName, "Austurberg build site");
-  assert.equal(documents.summary.assessmentDate, "2026-04-20");
+  assert.equal(documents.checklist.title, "Assessment checklist observations");
   assert.deepEqual(
-    documents.register.entries.map((entry) => entry.id),
-    riskRegisterProjection.entries.map((entry) => entry.id),
+    documents.checklist.sections.map((section) => section.title),
+    [
+      "Assessment record",
+      "Workplace context",
+      "Template provenance",
+      "Framing and provenance",
+      "Checklist observations",
+    ],
   );
-  assert.equal(documents.register.entries[0]?.riskLevel, "High");
   assert.equal(
-    documents.register.entries[0]?.classificationReasoning,
+    getSectionRow(documents.summary, "Assessment record", "Company")?.value,
+    "Construction Co.",
+  );
+  assert.equal(
+    getSectionRow(documents.summary, "Workplace context", "Workplace")?.value,
+    "Austurberg build site",
+  );
+  assert.equal(
+    getSectionRow(documents.summary, "Assessment record", "Assessment date")?.value,
+    "2026-04-20",
+  );
+  assert.equal(
+    getSectionRow(documents.summary, "Assessment record", "Assessment started")?.value,
+    "2026-04-12 10:00 UTC",
+  );
+  assert.equal(
+    getSectionRow(documents.register, "Template provenance", "Risk matrix")?.value,
+    "Námsefni 3x3 (course-3x3)",
+  );
+  assert.equal(
+    getSectionRow(
+      documents.register,
+      "Framing and provenance",
+      "Saved-state provenance",
+    )?.value,
+    "All included values come from saved assessment records and seeded runtime references pinned to this assessment.",
+  );
+  assert.equal(
+    getSectionBlock(documents.register, "Risk register and classification", 0)?.title,
+    "Entry 1 - Ungarded machine on site",
+  );
+  assert.equal(
+    getBlockRow(
+      documents.register,
+      "Risk register and classification",
+      0,
+      "Classification reasoning",
+    )?.value,
     "Workers pass the machine often and an unguarded contact could cause severe injury.",
   );
-  assert.deepEqual(documents.register.entries[0]?.mitigationActions, [
-    {
-      id: "action-1",
-      description: "Install compliant guard and lockout procedure",
-      assigneeName: "Site foreman",
-      dueDate: "2026-04-25",
-      statusLabel: "Open",
-    },
-    {
-      id: "action-2",
-      description: "Brief the site crew on the new lockout flow",
-      assigneeName: "Safety coordinator",
-      dueDate: "",
-      statusLabel: "Done",
-    },
-  ]);
+  assert.equal(
+    getSectionBlock(documents.checklist, "Checklist observations", 0)?.title,
+    `Criterion ${fixture.checklist.sections[0]?.criteria[0]?.number} - ${fixture.checklist.sections[0]?.criteria[0]?.translations.is.title}`,
+  );
+  const unresolvedBlockTitle = `Criterion ${fixture.unresolvedCriterion.number} - ${fixture.unresolvedCriterion.translations.is.title}`;
+  const unresolvedExportBlock = getSection(
+    documents.checklist,
+    "Checklist observations",
+  )?.blocks?.find((block) =>
+    block.title === unresolvedBlockTitle,
+  );
 
-  const unresolvedExportCriterion = documents.checklist.sections
-    .flatMap((section) => section.criteria)
-    .find((criterion) => criterion.id === fixture.unresolvedCriterion.id);
-
-  assert.ok(unresolvedExportCriterion);
-  assert.ok(unresolvedExportCriterion?.legalReferences.includes("FL-1/2019"));
+  assert.ok(unresolvedExportBlock);
+  assert.equal(
+    unresolvedExportBlock?.rows
+      .find((row) => row.label === "Legal reference linkage")
+      ?.value?.includes("FL-1/2019"),
+    true,
+  );
   assert.ok(
-    documents.checklist.sections
-      .flatMap((section) => section.criteria)
-      .flatMap((criterion) => criterion.legalReferences)
-      .some((reference) => reference.includes(" - ")),
+    getSection(documents.checklist, "Checklist observations")?.blocks?.some((block) =>
+      block.rows.some(
+        (row) =>
+          row.label === "Legal reference linkage" &&
+          row.value.includes(" - "),
+      ),
+    ),
+  );
+  const unresolvedReferenceHandling = getSectionRow(
+    documents.checklist,
+    "Framing and provenance",
+    "Unresolved legal-reference handling",
+  )?.value;
+
+  assert.ok(unresolvedReferenceHandling?.includes("FL-1/2019"));
+  assert.equal(unresolvedReferenceHandling?.includes(" - "), false);
+  assert.deepEqual(
+    getSection(documents.register, "Mitigation action plan")?.blocks?.[0]?.rows?.map(
+      (row) => row.value,
+    ),
+    [
+      "Install compliant guard and lockout procedure. Status: Open. Assignee: Site foreman. Due: 2026-04-25",
+      "Brief the site crew on the new lockout flow. Status: Done. Assignee: Safety coordinator",
+    ],
+  );
+  assert.equal(
+    getSectionRow(documents.summary, "Assessment summary", "Participants")?.value,
+    "Student assessor, site foreman",
+  );
+  assert.equal(
+    getSectionRow(documents.summary, "Priority risk overview", "Priority 1")?.value,
+    [
+      "Risk level: High",
+      `Hazard: ${summaryProjection.prioritizedEntries[0]?.hazard}`,
+      `Checklist section: ${summaryProjection.prioritizedEntries[0]?.sectionTitle}`,
+      `Criterion ${summaryProjection.prioritizedEntries[0]?.criterionNumber} - ${summaryProjection.prioritizedEntries[0]?.criterionTitle}`,
+    ].join(" | "),
   );
 
   closeDatabase(connection);

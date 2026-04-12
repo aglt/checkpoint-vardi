@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-14`
-- Most recently completed step: `S1-13`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-13-explicit-risk-reasoning-capture.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-14-compliance-oriented-export-framing-and-assessment-metadata.md`
+- Next queued step: `S1-15`
+- Most recently completed step: `S1-14`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-14-compliance-oriented-export-framing-and-assessment-metadata.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
 
 ## S0 - Foundations
 
@@ -317,16 +317,37 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-14: Compliance-oriented export framing and assessment metadata
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-14-compliance-oriented-export-framing-and-assessment-metadata.md`
-**Start gate:** Open. `S1-13` now lands persisted reasoning through the assessment flow and export mapping seams that `S1-14` should build on.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-14-compliance-oriented-export-framing-and-assessment-metadata.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-15`, later stable export-facing browser verification, and more professional report framing.
+
+**Completion note:**
+> Verified locally on branch
+> `codex/s1-14-compliance-oriented-export-framing`: reshaped the
+> app-owned export seam into explicit assessment-record,
+> workplace-context, template-provenance, and framing/provenance
+> sections ahead of document-specific checklist-observation,
+> risk-register/classification, mitigation-action-plan, and
+> summary/priority-overview sections while keeping `@vardi/export`
+> package-owned as a structured renderer only. The export bundle now
+> formats persisted assessment-start timestamps deterministically in UTC,
+> keeps saved summary dates date-only, separates mitigation actions from
+> classification content when present, and preserves unresolved imported
+> legal references as code-only linkage in both framing notes and
+> criterion-level export content without inventing authoritative titles.
+> Added targeted export-mapping and rendering tests for ordering,
+> provenance, mitigation separation, and unresolved legal-reference
+> handling, then reran validation under `node v22.22.2` with
+> `pnpm --filter @vardi/export test`,
+> `pnpm --filter @vardi/web exec tsx --test lib/assessments/generateAssessmentExportBundle.test.ts`,
+> `pnpm test`, `pnpm typecheck`, and `pnpm lint`. PR: `#17`.
 
 ### Step S1-15: Sector/profile-specific assessment rules via seed-owned runtime extensions
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
-**Start gate:** Closed until `S1-11`, `S1-12`, and `S1-13` have established concrete mitigation, completion, and reasoning seams for runtime rules to drive.
+**Start gate:** Open. `S1-14` now lands the export-framing seam that later runtime-driven wording and rule shaping should build on.
 **Unblocks:** Sector-specific workflow behavior without scattered app conditionals, plus the final stabilized flow for `S1-16`.
 
 ### Step S1-16: Stable browser E2E for end-to-end assessment-to-export flow

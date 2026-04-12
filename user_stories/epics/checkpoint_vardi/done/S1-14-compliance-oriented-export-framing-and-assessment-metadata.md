@@ -1,6 +1,6 @@
 # S1-14 - Compliance-oriented export framing and assessment metadata
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P2
@@ -12,17 +12,31 @@ Depends on: S1-13
 
 ## Context
 
-`S1-08` proved that Varði can generate a teacher-deliverable export
-bundle from persisted checklist, register, and summary truth. The
-content is present, but the overall framing can still read like an
-internal data dump instead of a serious workplace risk-assessment
-deliverable with clear scope, provenance, ordering, and handling notes.
+This story is complete and is tracked in PR `#17`. `S1-08` proved that
+Varði could generate a teacher-deliverable export bundle from persisted
+checklist, register, and summary truth, but the output still read more
+like a flat data dump than a structured workplace assessment
+deliverable.
 
-This story strengthens report framing without overclaiming legal or
-regulatory status. Export rendering remains package-owned in
-`@vardi/export`, while export-specific section ordering, metadata
-selection, unresolved-reference handling, and prose framing remain
-app-owned.
+`S1-14` now keeps framing, metadata selection, ordering, and unresolved
+legal-reference handling app-owned in
+`apps/web/lib/assessments/buildAssessmentExportDocuments.ts` while
+keeping `@vardi/export` package-owned as a renderer only. The app now
+maps persisted assessment, workplace, checklist, risk-register, and
+summary truth into explicit assessment-record, workplace-context,
+template-provenance, and framing/provenance sections before the
+document-specific checklist-observation, risk-register/classification,
+mitigation-action-plan, and summary/priority-overview sections. The
+package renders those structured sections without inventing report
+standing, metadata labels, or export wording on its own.
+
+This slice stayed narrow: it did not change readiness rules, runtime
+requirements, or domain behavior outside the export framing seam.
+Unresolved imported legal references now remain code-only linkage in
+both per-criterion export content and the shared framing notes, and the
+new assessment-start timestamp formatting stays deterministic by using a
+fixed UTC minute-level format from persisted timestamps while saved
+summary dates remain date-only.
 
 ## Goal
 
@@ -91,6 +105,14 @@ data dumps.
 - deterministic ordering tests
 - unresolved-legal-ref representation tests
 - snapshot-style document-structure tests if that pattern already exists
+
+Validation completed locally under `node v22.22.2` with:
+
+- `pnpm --filter @vardi/export test`
+- `pnpm --filter @vardi/web exec tsx --test lib/assessments/generateAssessmentExportBundle.test.ts`
+- `pnpm test`
+- `pnpm typecheck`
+- `pnpm lint`
 
 ## Notes For Later Stories
 

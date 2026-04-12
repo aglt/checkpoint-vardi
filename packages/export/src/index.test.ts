@@ -12,80 +12,121 @@ import {
 function createSampleDocuments(): AssessmentReportDocuments {
   return {
     checklist: {
-      assessmentId: "assessment-123",
-      workplaceName: "Workshop Alpha",
-      workplaceAddress: "Austurberg 5",
-      companyName: "Workshop Alpha",
-      location: "Austurberg 5",
-      assessmentDate: "2026-04-20",
-      checklistTitle: "Woodworking workshop",
-      checklistVersion: "2026.1",
+      title: "Assessment checklist observations",
       sections: [
         {
-          id: "section-1",
-          title: "Machines",
-          criteria: [
+          title: "Assessment record",
+          rows: [
+            { label: "Assessment id", value: "assessment-123" },
+            { label: "Assessment started", value: "2026-04-20 10:00 UTC" },
+            { label: "Assessment date", value: "2026-04-20" },
+            { label: "Company", value: "Workshop Alpha" },
+          ],
+        },
+        {
+          title: "Framing and provenance",
+          rows: [
             {
-              id: "criterion-1",
-              number: "1.1",
-              title: "Guarding",
-              status: "notOk",
-              notes: "Missing table saw guard",
-              legalReferences: ["Rg-920/2006 - General obligations", "R-581/1995"],
+              label: "Saved-state provenance",
+              value:
+                "All included values come from saved assessment records and seeded runtime references pinned to this assessment.",
+            },
+            {
+              label: "Unresolved legal-reference handling",
+              value:
+                "Unresolved imported legal references remain code-only linkage in this export: R-581/1995.",
+            },
+          ],
+        },
+        {
+          title: "Checklist observations",
+          blocks: [
+            {
+              title: "Criterion 1.1 - Guarding",
+              rows: [
+                { label: "Checklist section", value: "Machines" },
+                { label: "Status", value: "Not ok" },
+                { label: "Observation notes", value: "Missing table saw guard" },
+                {
+                  label: "Legal reference linkage",
+                  value: "Rg-920/2006 - General obligations, R-581/1995",
+                },
+              ],
             },
           ],
         },
       ],
     },
     register: {
-      assessmentId: "assessment-123",
-      workplaceName: "Workshop Alpha",
-      workplaceAddress: "Austurberg 5",
-      companyName: "Workshop Alpha",
-      location: "Austurberg 5",
-      assessmentDate: "2026-04-20",
-      checklistTitle: "Woodworking workshop",
-      riskMatrixTitle: "Course 3x3",
-      entries: [
+      title: "Assessment risk register and classification",
+      sections: [
         {
-          id: "entry-1",
-          sectionTitle: "Machines",
-          criterionNumber: "1.1",
-          criterionTitle: "Guarding",
-          hazard: "Table saw without guard",
-          healthEffects: "Hand injury",
-          whoAtRisk: "Students",
-          likelihood: "2",
-          consequence: "3",
-          riskLevel: "High",
-          classificationReasoning:
-            "Students use the saw daily and the missing guard can cause severe injury.",
-          currentControls: "Safety signage",
-          costEstimate: "25000",
-          mitigationActions: [
+          title: "Risk register and classification",
+          blocks: [
             {
-              id: "action-1",
-              description: "Install replacement guard",
-              assigneeName: "Workshop lead",
-              dueDate: "2026-04-25",
-              statusLabel: "Open",
+              title: "Entry 1 - Table saw without guard",
+              rows: [
+                { label: "Checklist section", value: "Machines" },
+                { label: "Criterion", value: "Criterion 1.1 - Guarding" },
+                { label: "Possible health effects", value: "Hand injury" },
+                { label: "Who is at risk", value: "Students" },
+                { label: "Likelihood", value: "2" },
+                { label: "Consequence", value: "3" },
+                { label: "Saved risk level", value: "High" },
+                {
+                  label: "Classification reasoning",
+                  value:
+                    "Students use the saw daily and the missing guard can cause severe injury.",
+                },
+                { label: "Current controls", value: "Safety signage" },
+                { label: "Cost estimate", value: "25000" },
+              ],
+            },
+          ],
+        },
+        {
+          title: "Mitigation action plan",
+          blocks: [
+            {
+              title: "Entry 1 - Table saw without guard",
+              rows: [
+                {
+                  label: "Action 1",
+                  value:
+                    "Install replacement guard. Status: Open. Assignee: Workshop lead. Due: 2026-04-25",
+                },
+              ],
             },
           ],
         },
       ],
     },
     summary: {
-      assessmentId: "assessment-123",
-      workplaceName: "Workshop Alpha",
-      workplaceAddress: "Austurberg 5",
-      companyName: "Workshop Alpha",
-      location: "Austurberg 5",
-      assessmentDate: "2026-04-20",
-      checklistTitle: "Woodworking workshop",
-      participants: "Student assessor",
-      method: "Walkthrough and review",
-      notes: "Guarding and dust extraction are the top priorities.",
-    },
+      title: "Assessment summary and priority overview",
+      sections: [
+        {
+          title: "Assessment summary",
+          rows: [
+            { label: "Participants", value: "Student assessor" },
+            { label: "Method", value: "Walkthrough and review" },
+            {
+              label: "Summary notes",
+              value: "Guarding and dust extraction are the top priorities.",
+            },
+          ],
+        },
+        {
+          title: "Priority risk overview",
+          rows: [
+            {
+              label: "Priority 1",
+              value:
+                "Risk level: High | Hazard: Table saw without guard | Checklist section: Machines | Criterion 1.1 - Guarding",
+            },
+          ],
+        },
+      ],
+    }
   };
 }
 
@@ -121,8 +162,10 @@ test("renderAssessmentReportFiles creates valid docx and pdf outputs for all thr
   const registerDocumentXml = await registerArchive.file("word/document.xml")?.async("string");
   const summaryDocumentXml = await summaryArchive.file("word/document.xml")?.async("string");
 
-  assert.match(checklistDocumentXml ?? "", /Workshop Alpha/);
+  assert.match(checklistDocumentXml ?? "", /Assessment checklist observations/);
   assert.match(checklistDocumentXml ?? "", /Missing table saw guard/);
+  assert.match(checklistDocumentXml ?? "", /Unresolved legal-reference handling/);
+  assert.match(checklistDocumentXml ?? "", /R-581\/1995/);
   assert.match(registerDocumentXml ?? "", /Table saw without guard/);
   assert.match(registerDocumentXml ?? "", /Classification reasoning/);
   assert.match(
@@ -130,8 +173,9 @@ test("renderAssessmentReportFiles creates valid docx and pdf outputs for all thr
     /Students use the saw daily and the missing guard can cause severe injury\./,
   );
   assert.match(registerDocumentXml ?? "", /Install replacement guard/);
-  assert.match(registerDocumentXml ?? "", /Mitigation actions/);
+  assert.match(registerDocumentXml ?? "", /Mitigation action plan/);
   assert.match(summaryDocumentXml ?? "", /Student assessor/);
+  assert.match(summaryDocumentXml ?? "", /Priority risk overview/);
   assert.match(summaryDocumentXml ?? "", /Guarding and dust extraction/);
   assert.match(
     Buffer.from(checklistPdf.bytes).subarray(0, 5).toString("utf8"),
