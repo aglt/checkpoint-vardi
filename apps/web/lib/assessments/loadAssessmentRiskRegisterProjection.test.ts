@@ -8,6 +8,7 @@ import {
   finding,
   riskAssessment,
   riskEntry,
+  riskMitigationAction,
   workplace,
 } from "@vardi/db/testing";
 
@@ -107,12 +108,8 @@ function seedAssessmentWithTransferredRows() {
       consequence: null,
       riskLevel: null,
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
-      dueDate: null,
-      completedAt: null,
     },
     {
       id: "risk-entry-1",
@@ -125,12 +122,33 @@ function seedAssessmentWithTransferredRows() {
       consequence: null,
       riskLevel: null,
       currentControls: null,
-      proposedAction: null,
       controlHierarchy: null,
       costEstimate: null,
-      responsibleOwner: null,
+    },
+  ]).run();
+
+  connection.db.insert(riskMitigationAction).values([
+    {
+      id: "action-2",
+      riskEntryId: "risk-entry-1",
+      ownerId: "owner-1",
+      description: "Second action",
+      assigneeName: null,
       dueDate: null,
-      completedAt: null,
+      status: "done",
+      createdAt: new Date("2026-04-11T10:12:00.000Z"),
+      updatedAt: new Date("2026-04-11T10:12:00.000Z"),
+    },
+    {
+      id: "action-1",
+      riskEntryId: "risk-entry-1",
+      ownerId: "owner-1",
+      description: "First action",
+      assigneeName: "Supervisor",
+      dueDate: new Date("2026-04-15T00:00:00.000Z"),
+      status: "open",
+      createdAt: new Date("2026-04-11T10:11:00.000Z"),
+      updatedAt: new Date("2026-04-11T10:11:00.000Z"),
     },
   ]).run();
 
@@ -193,6 +211,25 @@ test("loadAssessmentRiskRegisterProjection localizes stale risk-level mismatches
     /stale/i,
   );
   assert.equal(projection.entries[1]?.classificationState, "ready");
+
+  closeDatabase(connection);
+});
+
+test("loadAssessmentRiskRegisterProjection includes mitigation actions in persisted order per risk entry", () => {
+  const connection = seedAssessmentWithTransferredRows();
+
+  const projection = loadAssessmentRiskRegisterProjection({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: "assessment-1",
+  });
+
+  assert.deepEqual(
+    projection.entries[0]?.mitigationActions.map((action) => action.id),
+    ["action-1", "action-2"],
+  );
+  assert.equal(projection.entries[0]?.mitigationActions[0]?.dueDate, "2026-04-15");
+  assert.equal(projection.entries[1]?.mitigationActions.length, 0);
 
   closeDatabase(connection);
 });

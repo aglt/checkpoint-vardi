@@ -376,6 +376,9 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
 
   assert.match(markup, /Transfer to risk register/);
   assert.match(markup, /All eligible findings transferred/);
+  assert.match(markup, /Mitigation actions/);
+  assert.match(markup, /No saved mitigation actions yet\./);
+  assert.doesNotMatch(markup, /Draft action/);
   assert.match(
     markup,
     new RegExp(
@@ -395,6 +398,9 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
   const riskEntryId = await transferSecondCriterionRiskEntry(fixture);
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
+  const { createAssessmentRiskMitigationActionAction } = await import(
+    "./createAssessmentRiskMitigationActionAction"
+  );
   const { saveAssessmentRiskEntryAction } = await import(
     "./saveAssessmentRiskEntryAction"
   );
@@ -409,11 +415,18 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
       likelihood: 2,
       consequence: 3,
       currentControls: "Safety signage",
-      proposedAction: "Install a replacement guard",
       costEstimate: 25000,
-      responsibleOwner: "Workshop lead",
+    },
+  });
+
+  await createAssessmentRiskMitigationActionAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      riskEntryId,
+      description: "Install a replacement guard",
+      assigneeName: "Workshop lead",
       dueDate: "2026-04-20",
-      completedAt: "2026-04-22",
+      status: "open",
     },
   });
 
@@ -445,7 +458,9 @@ test("assessment page renders transferred risk-entry editing and resumes saved c
   );
   assert.match(markup, new RegExp(escapeRegExp("Table saw without guard")));
   assert.match(markup, new RegExp(escapeRegExp("Students and staff")));
+  assert.match(markup, /Mitigation actions/);
   assert.match(markup, new RegExp(escapeRegExp("Install a replacement guard")));
+  assert.match(markup, new RegExp(escapeRegExp("Workshop lead")));
   assert.match(markup, /Saved classification: High\./);
 });
 
@@ -497,11 +512,23 @@ test("assessment page localizes stale risk classifications to the affected card"
     markup,
     new RegExp(
       [
-        escapeRegExp(
-          `data-risk-entry-id="${transferredRiskEntryIds[fixture.firstCriterion.id]}"`,
-        ),
-        '[\\s\\S]*?',
-        escapeRegExp('data-classification-state="staleRiskLevel"'),
+        "<article[^>]*(",
+        [
+          escapeRegExp(
+            `data-risk-entry-id="${transferredRiskEntryIds[fixture.firstCriterion.id]}"`,
+          ),
+          "[^>]*",
+          escapeRegExp('data-classification-state="staleRiskLevel"'),
+        ].join(""),
+        "|",
+        [
+          escapeRegExp('data-classification-state="staleRiskLevel"'),
+          "[^>]*",
+          escapeRegExp(
+            `data-risk-entry-id="${transferredRiskEntryIds[fixture.firstCriterion.id]}"`,
+          ),
+        ].join(""),
+        ")",
       ].join(""),
     ),
   );
@@ -599,11 +626,7 @@ test("summary save round-trip persists the final summary and flips export readin
       likelihood: 2,
       consequence: 3,
       currentControls: "Safety signage",
-      proposedAction: "Install a replacement guard",
       costEstimate: 25000,
-      responsibleOwner: "Workshop lead",
-      dueDate: "2026-04-20",
-      completedAt: "2026-04-22",
     },
   });
 

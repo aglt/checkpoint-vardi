@@ -150,12 +150,8 @@ test("response overlay is keyed by criterion id rather than insertion order", ()
     consequence: null,
     riskLevel: null,
     currentControls: null,
-    proposedAction: null,
     controlHierarchy: null,
     costEstimate: null,
-    responsibleOwner: null,
-    dueDate: null,
-    completedAt: null,
   }).run();
 
   connection.db.insert(assessmentSummary).values({

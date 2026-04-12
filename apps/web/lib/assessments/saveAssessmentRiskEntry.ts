@@ -108,11 +108,7 @@ export function saveAssessmentRiskEntry(
         consequence: parsedInput.data.consequence ?? null,
       }),
       currentControls: parsedInput.data.currentControls ?? null,
-      proposedAction: parsedInput.data.proposedAction ?? null,
       costEstimate: parsedInput.data.costEstimate ?? null,
-      responsibleOwner: parsedInput.data.responsibleOwner ?? null,
-      dueDate: parseDateOnly(parsedInput.data.dueDate),
-      completedAt: parseDateOnly(parsedInput.data.completedAt),
     });
 
     return saveAssessmentRiskEntryOutputSchema.parse(
@@ -181,20 +177,8 @@ function buildSaveAssessmentRiskEntryOutput(
     consequence: riskEntry.consequence,
     riskLevel: riskEntry.riskLevel,
     currentControls: riskEntry.currentControls,
-    proposedAction: riskEntry.proposedAction,
     costEstimate: riskEntry.costEstimate,
-    responsibleOwner: riskEntry.responsibleOwner,
-    dueDate: formatDateOnly(riskEntry.dueDate),
-    completedAt: formatDateOnly(riskEntry.completedAt),
   };
-}
-
-function parseDateOnly(value: string | undefined): Date | null {
-  return value ? new Date(`${value}T00:00:00.000Z`) : null;
-}
-
-function formatDateOnly(value: Date | null): string | null {
-  return value ? value.toISOString().slice(0, 10) : null;
 }
 
 function toFieldErrors(

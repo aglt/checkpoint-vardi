@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { eq } from "drizzle-orm";
+
 import {
   applyMigrations,
   closeDatabase,
@@ -13,6 +15,7 @@ import {
   finding,
   riskAssessment,
   riskEntry,
+  riskMitigationAction,
   workplace,
 } from "./schema.js";
 
@@ -60,7 +63,14 @@ test("migrations replay cleanly on a fresh SQLite database", () => {
 
   assert.deepEqual(
     tableNames.map((row) => row.name),
-    ["finding", "risk_assessment", "risk_entry", "summary", "workplace"],
+    [
+      "finding",
+      "risk_assessment",
+      "risk_entry",
+      "risk_mitigation_action",
+      "summary",
+      "workplace",
+    ],
   );
 
   closeDatabase(connection);
@@ -128,12 +138,8 @@ test("risk entry uniqueness is enforced on finding id", () => {
     consequence: null,
     riskLevel: null,
     currentControls: null,
-    proposedAction: null,
     controlHierarchy: null,
     costEstimate: null,
-    responsibleOwner: null,
-    dueDate: null,
-    completedAt: null,
   }).run();
 
   assert.throws(
@@ -149,12 +155,8 @@ test("risk entry uniqueness is enforced on finding id", () => {
         consequence: null,
         riskLevel: null,
         currentControls: null,
-        proposedAction: null,
         controlHierarchy: null,
         costEstimate: null,
-        responsibleOwner: null,
-        dueDate: null,
-        completedAt: null,
       }).run(),
   );
 
@@ -233,13 +235,34 @@ test("loadAssessmentAggregate returns the owner-scoped persisted graph", () => {
     consequence: null,
     riskLevel: null,
     currentControls: null,
-    proposedAction: null,
     controlHierarchy: null,
     costEstimate: null,
-    responsibleOwner: null,
-    dueDate: null,
-    completedAt: null,
   }).run();
+
+  connection.db.insert(riskMitigationAction).values([
+    {
+      id: "action-2",
+      riskEntryId: "risk-entry-1",
+      ownerId: "owner-1",
+      description: "Second action by time",
+      assigneeName: null,
+      dueDate: null,
+      status: "done",
+      createdAt: new Date("2026-04-11T09:12:00.000Z"),
+      updatedAt: new Date("2026-04-11T09:12:00.000Z"),
+    },
+    {
+      id: "action-1",
+      riskEntryId: "risk-entry-1",
+      ownerId: "owner-1",
+      description: "First action by time",
+      assigneeName: "Supervisor",
+      dueDate: new Date("2026-04-15T00:00:00.000Z"),
+      status: "open",
+      createdAt: new Date("2026-04-11T09:11:00.000Z"),
+      updatedAt: new Date("2026-04-11T09:11:00.000Z"),
+    },
+  ]).run();
 
   connection.db.insert(assessmentSummary).values({
     assessmentId: "assessment-owner-1",
@@ -262,6 +285,10 @@ test("loadAssessmentAggregate returns the owner-scoped persisted graph", () => {
   assert.equal(aggregate.assessment.id, "assessment-owner-1");
   assert.equal(aggregate.findings.length, 2);
   assert.equal(aggregate.riskEntries.length, 1);
+  assert.deepEqual(
+    aggregate.mitigationActions.map((action) => action.id),
+    ["action-1", "action-2"],
+  );
   assert.equal(aggregate.summary?.assessmentId, "assessment-owner-1");
 
   assert.throws(
@@ -273,6 +300,61 @@ test("loadAssessmentAggregate returns the owner-scoped persisted graph", () => {
       }),
     AssessmentAggregateNotFoundError,
   );
+
+  closeDatabase(connection);
+});
+
+test("risk mitigation actions cascade when a parent risk entry is deleted", () => {
+  const connection = seedAssessmentFixture();
+
+  connection.db.insert(finding).values({
+    id: "finding-1",
+    ownerId: "owner-1",
+    assessmentId: "assessment-owner-1",
+    criterionId: "woodworking-workshop.section-01.criterion-01",
+    status: "notOk",
+    notes: "needs action",
+    voiceTranscript: null,
+    notesLanguage: "is",
+    createdAt: baseCreatedAt,
+    updatedAt: baseUpdatedAt,
+  }).run();
+
+  connection.db.insert(riskEntry).values({
+    id: "risk-entry-1",
+    ownerId: "owner-1",
+    findingId: "finding-1",
+    hazard: "Sharp blade",
+    healthEffects: null,
+    whoAtRisk: null,
+    likelihood: null,
+    consequence: null,
+    riskLevel: null,
+    currentControls: null,
+    controlHierarchy: null,
+    costEstimate: null,
+  }).run();
+
+  connection.db.insert(riskMitigationAction).values({
+    id: "action-1",
+    riskEntryId: "risk-entry-1",
+    ownerId: "owner-1",
+    description: "Install guard",
+    assigneeName: "Workshop lead",
+    dueDate: null,
+    status: "open",
+    createdAt: baseUpdatedAt,
+    updatedAt: baseUpdatedAt,
+  }).run();
+
+  connection.db.delete(riskEntry).where(eq(riskEntry.id, "risk-entry-1")).run();
+
+  const remainingActions = connection.db
+    .select()
+    .from(riskMitigationAction)
+    .all();
+
+  assert.equal(remainingActions.length, 0);
 
   closeDatabase(connection);
 });

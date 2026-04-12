@@ -1,6 +1,6 @@
 # S1-11 - Risk mitigation planning on risk entries
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P1
@@ -12,22 +12,25 @@ Depends on: S1-08
 
 ## Context
 
-`S1-08` completed the teacher-deliverable MVP path: walkthrough,
-transfer, risk classification, summary, and export all run on persisted
-assessment truth. The current flow still stops at "what risk exists"
-instead of "what will be done about it", which keeps Varði closer to an
-assessment/export tool than a full workplace risk-management workflow.
+This story is complete. `S1-08` completed the teacher-deliverable MVP
+path: walkthrough, transfer, risk classification, summary, and export
+all run on persisted assessment truth. `S1-11` now extends that flow so
+the risk register can hold persisted mitigation planning owned by
+`risk_entry`, render it deterministically inside the existing in-flow
+editor, and include only saved mitigation truth in exported output.
 
-This story adds the first-class mitigation layer to the existing
-`risk_entry` flow. The owner stays app-level and assessment-owned:
-mitigation actions belong to persisted `risk_entry` rows, not directly
-to findings and not to `@vardi/export`. The system must only treat saved
-mitigation records as truth for UI, readiness, and export behavior.
+Mitigation actions now live in the new `risk_mitigation_action` child
+table in `packages/db`, keyed by `riskEntryId` and `ownerId`, with
+owner-scoped create/update/delete helpers and aggregate loading. The app
+keeps export shaping in `apps/web`, uses a dedicated risk-register
+projection seam instead of widening `loadAssessmentReadModel`, and
+renders inline mitigation create/edit/delete controls on each risk-entry
+card.
 
-The MVP slice here should stay deliberately narrow: persisted actions,
-light explicit validation, deterministic ordering, and in-flow editing.
-Reminders, notifications, attachments, and cross-assessment action
-dashboards remain out of scope.
+This slice stayed deliberately narrow: persisted actions, explicit
+validation, deterministic ordering, in-flow editing, and truthful export
+mapping. Reminders, notifications, attachments, and cross-assessment
+action dashboards remain out of scope.
 
 ## Goal
 
@@ -125,6 +128,10 @@ Minimum validation for MVP:
 - due date optional unless product truth changes explicitly later
 - responsible-party field optional unless product truth changes
   explicitly later
+
+Validation completed locally with `pnpm test`, `pnpm typecheck`, and
+`pnpm lint`. This session used `node v25.6.1`; Node 22 remains the
+declared repo contract, but was not directly re-verified in this shell.
 
 ## Notes For Later Stories
 

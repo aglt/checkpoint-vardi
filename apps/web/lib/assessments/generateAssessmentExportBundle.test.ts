@@ -10,6 +10,7 @@ import {
   closeDatabase,
   createMigratedDatabase,
   createWorkplaceAssessment,
+  riskMitigationAction,
   riskEntry,
 } from "@vardi/db/testing";
 
@@ -144,13 +145,34 @@ function prepareExportReadyState(
     consequence: 3,
     riskLevel: "high",
     currentControls: "Daily pre-start checks",
-    proposedAction: "Install compliant guard and lockout procedure",
     controlHierarchy: null,
     costEstimate: 42000,
-    responsibleOwner: "Site foreman",
-    dueDate: new Date("2026-04-25T00:00:00.000Z"),
-    completedAt: null,
   }).run();
+
+  connection.db.insert(riskMitigationAction).values([
+    {
+      id: "action-2",
+      riskEntryId: "risk-entry-1",
+      ownerId: "owner-1",
+      description: "Brief the site crew on the new lockout flow",
+      assigneeName: "Safety coordinator",
+      dueDate: null,
+      status: "done",
+      createdAt: new Date("2026-04-20T08:05:00.000Z"),
+      updatedAt: new Date("2026-04-20T08:05:00.000Z"),
+    },
+    {
+      id: "action-1",
+      riskEntryId: "risk-entry-1",
+      ownerId: "owner-1",
+      description: "Install compliant guard and lockout procedure",
+      assigneeName: "Site foreman",
+      dueDate: new Date("2026-04-25T00:00:00.000Z"),
+      status: "open",
+      createdAt: new Date("2026-04-20T08:00:00.000Z"),
+      updatedAt: new Date("2026-04-20T08:00:00.000Z"),
+    },
+  ]).run();
 
   connection.db.insert(assessmentSummary).values({
     assessmentId: fixture.assessmentId,
@@ -207,6 +229,22 @@ test("buildAssessmentExportDocuments preserves checklist order and maps summary/
     riskRegisterProjection.entries.map((entry) => entry.id),
   );
   assert.equal(documents.register.entries[0]?.riskLevel, "High");
+  assert.deepEqual(documents.register.entries[0]?.mitigationActions, [
+    {
+      id: "action-1",
+      description: "Install compliant guard and lockout procedure",
+      assigneeName: "Site foreman",
+      dueDate: "2026-04-25",
+      statusLabel: "Open",
+    },
+    {
+      id: "action-2",
+      description: "Brief the site crew on the new lockout flow",
+      assigneeName: "Safety coordinator",
+      dueDate: "",
+      statusLabel: "Done",
+    },
+  ]);
 
   const unresolvedExportCriterion = documents.checklist.sections
     .flatMap((section) => section.criteria)

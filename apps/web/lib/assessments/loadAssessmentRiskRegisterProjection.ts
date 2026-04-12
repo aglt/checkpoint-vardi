@@ -2,6 +2,7 @@ import { getRiskMatrixById, type RiskMatrix } from "@vardi/checklists";
 import {
   loadAssessmentAggregate,
   type RiskEntryRow,
+  type RiskMitigationActionRow,
   type VardiDatabase,
 } from "@vardi/db";
 import { classifyRisk, type RiskLevel } from "@vardi/risk";
@@ -42,11 +43,16 @@ export interface AssessmentRiskRegisterEntryProjection {
   readonly classificationState: RiskEntryClassificationState;
   readonly classificationMessage: string | null;
   readonly currentControls: string | null;
-  readonly proposedAction: string | null;
   readonly costEstimate: number | null;
-  readonly responsibleOwner: string | null;
+  readonly mitigationActions: readonly AssessmentRiskMitigationActionProjection[];
+}
+
+export interface AssessmentRiskMitigationActionProjection {
+  readonly id: string;
+  readonly description: string;
+  readonly assigneeName: string | null;
   readonly dueDate: string | null;
-  readonly completedAt: string | null;
+  readonly status: "open" | "inProgress" | "done";
 }
 
 export interface AssessmentRiskRegisterProjection {
@@ -77,6 +83,13 @@ export function loadAssessmentRiskRegisterProjection(
   const riskEntryByFindingId = new Map(
     aggregate.riskEntries.map((entry) => [entry.findingId, entry] as const),
   );
+  const mitigationActionsByRiskEntryId = new Map<string, RiskMitigationActionRow[]>();
+
+  for (const action of aggregate.mitigationActions) {
+    const existingActions = mitigationActionsByRiskEntryId.get(action.riskEntryId) ?? [];
+    existingActions.push(action);
+    mitigationActionsByRiskEntryId.set(action.riskEntryId, existingActions);
+  }
 
   return {
     assessmentId: readModel.assessment.id,
@@ -101,7 +114,13 @@ export function loadAssessmentRiskRegisterProjection(
         }
 
         return [
-          buildRiskRegisterEntryProjection(section, criterion, riskEntry, riskMatrix),
+          buildRiskRegisterEntryProjection(
+            section,
+            criterion,
+            riskEntry,
+            riskMatrix,
+            mitigationActionsByRiskEntryId.get(riskEntry.id) ?? [],
+          ),
         ];
       }),
     ),
@@ -113,6 +132,7 @@ function buildRiskRegisterEntryProjection(
   criterion: AssessmentCriterionReadModel,
   riskEntry: RiskEntryRow,
   riskMatrix: RiskMatrix,
+  mitigationActions: readonly RiskMitigationActionRow[],
 ): AssessmentRiskRegisterEntryProjection {
   try {
     const derivedRiskLevel = classifyRisk({
@@ -145,11 +165,8 @@ function buildRiskRegisterEntryProjection(
         ? "Saved classification is stale. Save this entry to repair it."
         : null,
       currentControls: riskEntry.currentControls,
-      proposedAction: riskEntry.proposedAction,
       costEstimate: riskEntry.costEstimate,
-      responsibleOwner: riskEntry.responsibleOwner,
-      dueDate: formatDateOnly(riskEntry.dueDate),
-      completedAt: formatDateOnly(riskEntry.completedAt),
+      mitigationActions: mitigationActions.map(buildRiskMitigationActionProjection),
     };
   } catch {
     return {
@@ -170,13 +187,22 @@ function buildRiskRegisterEntryProjection(
       classificationMessage:
         "Saved classification could not be verified. Save this entry to repair it.",
       currentControls: riskEntry.currentControls,
-      proposedAction: riskEntry.proposedAction,
       costEstimate: riskEntry.costEstimate,
-      responsibleOwner: riskEntry.responsibleOwner,
-      dueDate: formatDateOnly(riskEntry.dueDate),
-      completedAt: formatDateOnly(riskEntry.completedAt),
+      mitigationActions: mitigationActions.map(buildRiskMitigationActionProjection),
     };
   }
+}
+
+function buildRiskMitigationActionProjection(
+  action: RiskMitigationActionRow,
+): AssessmentRiskMitigationActionProjection {
+  return {
+    id: action.id,
+    description: action.description,
+    assigneeName: action.assigneeName,
+    dueDate: formatDateOnly(action.dueDate),
+    status: action.status,
+  };
 }
 
 function formatDateOnly(value: Date | null): string | null {

@@ -18,8 +18,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-07` is complete and now lives under `done/`
 - `S1-08` is complete and now lives under `done/`
 - `S1-10` is complete and now lives under `done/`
-- `S1-09` and `S1-11` through `S1-16` are staged under `not_started/`
-- the next implementation story is `S1-11`
+- `S1-11` is complete and now lives under `done/`
+- `S1-09` and `S1-12` through `S1-16` are staged under `not_started/`
+- the next implementation story is `S1-12`
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -27,9 +28,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S1-10 - Browser E2E foundation and blocked-readiness baseline`
-- Story file: `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
-- Next story: `S1-11 - Risk mitigation planning on risk entries`
+- Most recently completed story: `S1-11 - Risk mitigation planning on risk entries`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S1-11-risk-mitigation-planning-on-risk-entries.md`
+- Next story: `S1-12 - Guided assessment progression and completion guards`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -64,9 +65,9 @@ persisted assessment state into deterministic checklist, register, and summary
 exports plus a downloadable Word/PDF bundle on the summary step. `S1-10` now
 adds the first Playwright-based browser-level proof layer together with a
 deterministic isolated SQLite bootstrap for local runs, explicit runtime/testing
-DB entrypoints, and a truthful blocked-readiness workflow spec. `S1-11` then
+DB entrypoints, and a truthful blocked-readiness workflow spec. `S1-11` now
 introduces persisted mitigation planning on `risk_entry` rows, `S1-12`
-hardens truthful progression and completion guards, `S1-13` captures
+then hardens truthful progression and completion guards, `S1-13` captures
 explicit saved reasoning for risk classifications, `S1-14` strengthens export
 framing and metadata without overclaiming compliance status, `S1-15` lets a
 small supported rule set flow from seed/runtime truth into the app, and
@@ -81,7 +82,7 @@ if a concrete post-MVP need surfaces for broader platform groundwork.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. Stage One now has its first browser-proof baseline through
-`S1-10`; the next staged story is `S1-11`, `S1-16` remains the later
+`S1-11`; the next staged story is `S1-12`, `S1-16` remains the later
 browser-export regression proof once the flow settles, and `S1-09` stays
 conditional and non-blocking.
 

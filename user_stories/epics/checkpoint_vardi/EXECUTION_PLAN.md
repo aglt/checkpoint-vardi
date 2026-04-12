@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-11`
-- Most recently completed step: `S1-10`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-11-risk-mitigation-planning-on-risk-entries.md`
+- Next queued step: `S1-12`
+- Most recently completed step: `S1-11`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-11-risk-mitigation-planning-on-risk-entries.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-12-guided-assessment-progression-and-completion-guards.md`
 
 ## S0 - Foundations
 
@@ -246,16 +246,31 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-11: Risk mitigation planning on risk entries
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-11-risk-mitigation-planning-on-risk-entries.md`
-**Start gate:** Open. `S1-08` is complete and the current flow can now widen from classification into persisted action planning.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-11-risk-mitigation-planning-on-risk-entries.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-12`, richer export/register truth, and any later runtime rule that needs mitigation state.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-11-risk-mitigation-planning`:
+> replaced the old row-level action planning fields with persisted
+> `risk_mitigation_action` child rows owned by `risk_entry`, added
+> owner-scoped DB helpers plus app-owned create/update/delete seams,
+> extended the existing risk-register projection to render saved actions
+> deterministically, updated the in-flow editor to manage inline
+> mitigation actions separately from parent risk-entry saves, and mapped
+> only saved mitigation actions into the app-owned export document
+> shaping path consumed by `@vardi/export`.
+> Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing
+> workspace dependencies in this worktree. This session used
+> `node v25.6.1`; Node 22 remains the declared repo contract, but was
+> not directly re-verified here.
 
 ### Step S1-12: Guided assessment progression and completion guards
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-12-guided-assessment-progression-and-completion-guards.md`
-**Start gate:** Closed until `S1-11` lands or an equivalent action-planning truth owner is intentionally documented.
+**Start gate:** Open. `S1-11` is complete and mitigation truth now lives on saved `risk_entry` child actions.
 **Unblocks:** `S1-13`, later runtime-driven completion rules, and clearer server-owned gating across the assessment flow.
 
 ### Step S1-13: Explicit risk reasoning capture

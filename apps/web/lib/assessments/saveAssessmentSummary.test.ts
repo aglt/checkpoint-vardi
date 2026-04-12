@@ -139,13 +139,9 @@ test("saveAssessmentSummaryAction upserts normalized summary values and returns 
         consequence,
         risk_level,
         current_controls,
-        proposed_action,
         control_hierarchy,
-        cost_estimate,
-        responsible_owner,
-        due_date,
-        completed_at
-      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        cost_estimate
+      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `)
     .run(
       "risk-entry-1",
@@ -157,10 +153,6 @@ test("saveAssessmentSummaryAction upserts normalized summary values and returns 
       2,
       3,
       "high",
-      null,
-      null,
-      null,
-      null,
       null,
       null,
       null,

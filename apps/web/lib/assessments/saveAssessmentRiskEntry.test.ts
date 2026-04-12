@@ -167,11 +167,7 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
       likelihood: 2,
       consequence: 3,
       currentControls: "  Safety signage  ",
-      proposedAction: "  Install a replacement guard  ",
       costEstimate: 25000,
-      responsibleOwner: "  Workshop lead  ",
-      dueDate: "2026-04-20",
-      completedAt: "2026-04-22",
     },
   });
 
@@ -185,11 +181,7 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
     consequence: 3,
     riskLevel: "high",
     currentControls: "Safety signage",
-    proposedAction: "Install a replacement guard",
     costEstimate: 25000,
-    responsibleOwner: "Workshop lead",
-    dueDate: "2026-04-20",
-    completedAt: "2026-04-22",
   });
 
   const connection = createMigratedDatabase(fixture.databasePath);
@@ -203,8 +195,6 @@ test("saveAssessmentRiskEntryAction derives and persists the authoritative risk 
   assert.ok(persistedRiskEntry);
   assert.equal(persistedRiskEntry?.hazard, "Table saw without guard");
   assert.equal(persistedRiskEntry?.savedRiskLevel, "high");
-  assert.equal(persistedRiskEntry?.dueDate, "2026-04-20");
-  assert.equal(persistedRiskEntry?.completedAt, "2026-04-22");
 
   closeDatabase(connection);
 });
@@ -231,11 +221,7 @@ test("saveAssessmentRiskEntryAction leaves risk level null until both scores are
       likelihood: 2,
       consequence: undefined,
       currentControls: undefined,
-      proposedAction: undefined,
       costEstimate: undefined,
-      responsibleOwner: undefined,
-      dueDate: undefined,
-      completedAt: undefined,
     },
   });
 
