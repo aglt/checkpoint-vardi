@@ -24,6 +24,12 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-07 | Summary form and export readiness                       | done         | #9 |
 | S1-08 | Report export for checklist, register, and summary      | done         | #10 |
 | S1-10 | Browser E2E testing foundation                          | not_started  |    |
+| S1-11 | Risk mitigation planning on risk entries                | not_started  |    |
+| S1-12 | Guided assessment progression and completion guards     | not_started  |    |
+| S1-13 | Explicit risk reasoning capture                         | not_started  |    |
+| S1-14 | Compliance-oriented export framing and assessment metadata | not_started |    |
+| S1-15 | Sector/profile-specific assessment rules via seed-owned runtime extensions | not_started |    |
+| S1-16 | Stable browser E2E for end-to-end assessment-to-export flow | not_started |    |
 
 ## S1/S2 - Stage bridge
 
@@ -36,4 +42,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 **Next up:**
 
 - `S1-10 - Browser E2E testing foundation`
+- `S1-11 - Risk mitigation planning on risk entries`
+- Keep `S1-16` parked until the action-planning, progression, reasoning,
+  export-framing, and runtime-rule slices have settled on `main`.
 - Keep `S1-09` narrowly scoped and non-blocking unless `S1-10` or another active follow-up exposes a concrete need for it.
