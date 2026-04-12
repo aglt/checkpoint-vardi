@@ -23,7 +23,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-06 | Risk classification engine and risk-entry editing       | done         | #8 |
 | S1-07 | Summary form and export readiness                       | done         | #9 |
 | S1-08 | Report export for checklist, register, and summary      | done         | #10 |
-| S1-10 | Browser E2E testing foundation                          | not_started  |    |
+| S1-10 | Browser E2E foundation and blocked-readiness baseline   | done         | #12 |
 | S1-11 | Risk mitigation planning on risk entries                | not_started  |    |
 | S1-12 | Guided assessment progression and completion guards     | not_started  |    |
 | S1-13 | Explicit risk reasoning capture                         | not_started  |    |
@@ -41,8 +41,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 **Next up:**
 
-- `S1-10 - Browser E2E testing foundation`
 - `S1-11 - Risk mitigation planning on risk entries`
 - Keep `S1-16` parked until the action-planning, progression, reasoning,
   export-framing, and runtime-rule slices have settled on `main`.
-- Keep `S1-09` narrowly scoped and non-blocking unless `S1-10` or another active follow-up exposes a concrete need for it.
+- Keep `S1-09` narrowly scoped and non-blocking unless a later active follow-up exposes a concrete need for it.

@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-10`
-- Most recently completed step: `S1-08`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-08-report-export-checklist-register-summary.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-10-browser-e2e-testing-foundation.md`
+- Next queued step: `S1-11`
+- Most recently completed step: `S1-10`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-11-risk-mitigation-planning-on-risk-entries.md`
 
 ## S0 - Foundations
 
@@ -219,12 +219,30 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > `node v25.6.1`; Node 22 remains the declared repo contract, but was not
 > directly re-verified here. PR: `#10`.
 
-### Step S1-10: Browser E2E testing foundation
+### Step S1-10: Browser E2E foundation and blocked-readiness baseline
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-10-browser-e2e-testing-foundation.md`
-**Start gate:** Open. `S1-08` is complete.
-**Unblocks:** Truthful browser-level regression coverage for the current MVP workflow, future repo-local Playwright guidance, and the later stabilization slice in `S1-16`.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-10-browser-e2e-testing-foundation.md`
+**Start gate:** Closed.
+**Unblocks:** Truthful browser-level smoke and blocked-readiness regression coverage plus the later stable browser assessment-to-export flow in `S1-16`.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-10-browser-e2e-foundation`: added
+> Playwright as the narrow repo-local browser E2E baseline, added the root
+> `pnpm test:e2e` entrypoint, added an isolated SQLite bootstrap/reset seam
+> under `apps/web/e2e/` using `VARDI_DATABASE_PATH`, added a smoke spec for
+> `/` boot plus seeded templates, added a blocked-readiness workflow spec that
+> covers walkthrough save, transfer, risk-entry save, summary save, and the
+> current blocked export-readiness truth, and updated the repo-local
+> `vardi-web-e2e-testing` skill guidance with exact local run/debug rules.
+> This slice also fixed the assessment editors so imported server actions now
+> dispatch correctly from the browser and save-state request ids no longer
+> stall in `saving`, while splitting the DB package into explicit
+> `@vardi/db/runtime` and `@vardi/db/testing` entrypoints so the root package
+> seam stays narrower.
+> Ran `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e`. This
+> session used `node v25.6.1`; Node 22 remains the declared repo contract, but
+> was not directly re-verified here. PR: `#12`.
 
 ### Step S1-11: Risk mitigation planning on risk entries
 
@@ -272,5 +290,5 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-08` export slice, the queued `S1-10` test foundation, the newly staged `S1-11` through `S1-16` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-16` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.

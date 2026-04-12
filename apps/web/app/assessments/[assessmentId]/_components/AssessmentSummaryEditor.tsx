@@ -394,30 +394,29 @@ export function AssessmentSummaryEditor({
     }
 
     const sentDraft = summaryState.draft;
-    let nextRequestId = 0;
-
-    setSummaryState((current) => {
-      const startedSave = beginAssessmentSummarySave(current);
-      nextRequestId = startedSave.requestId;
-      return startedSave.state;
-    });
+    const startedSave = beginAssessmentSummarySave(summaryState);
+    const nextRequestId = startedSave.requestId;
 
     if (nextRequestId === 0) {
       return;
     }
 
-    void saveAssessmentSummaryAction({
-      assessmentId,
-      input: {
-        companyName: sentDraft.companyName,
-        location: sentDraft.location,
-        assessmentDate: sentDraft.assessmentDate,
-        participants: sentDraft.participants,
-        method: sentDraft.method,
-        notes: sentDraft.notes,
-      },
-    })
-      .then((response) => {
+    setSummaryState(startedSave.state);
+
+    startTransition(async () => {
+      try {
+        const response = await saveAssessmentSummaryAction({
+          assessmentId,
+          input: {
+            companyName: sentDraft.companyName,
+            location: sentDraft.location,
+            assessmentDate: sentDraft.assessmentDate,
+            participants: sentDraft.participants,
+            method: sentDraft.method,
+            notes: sentDraft.notes,
+          },
+        });
+
         startTransition(() => {
           setSummaryState((current) =>
             reconcileAssessmentSummarySaveSuccess(
@@ -428,8 +427,7 @@ export function AssessmentSummaryEditor({
             ),
           );
         });
-      })
-      .catch((error: unknown) => {
+      } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
             ? error.message
@@ -444,7 +442,8 @@ export function AssessmentSummaryEditor({
             ),
           );
         });
-      });
+      }
+    });
   }
 
   function handleExportDownload() {
@@ -457,12 +456,14 @@ export function AssessmentSummaryEditor({
       message: null,
     });
 
-    void generateAssessmentExportBundleAction({
-      input: {
-        assessmentId,
-      },
-    })
-      .then((response) => {
+    startTransition(async () => {
+      try {
+        const response = await generateAssessmentExportBundleAction({
+          input: {
+            assessmentId,
+          },
+        });
+
         downloadAssessmentExportBundle(response);
 
         startTransition(() => {
@@ -471,8 +472,7 @@ export function AssessmentSummaryEditor({
             message: `Downloaded ${response.fileName}.`,
           });
         });
-      })
-      .catch((error: unknown) => {
+      } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
             ? error.message
@@ -484,7 +484,8 @@ export function AssessmentSummaryEditor({
             message: errorMessage,
           });
         });
-      });
+      }
+    });
   }
 }
 
@@ -520,7 +521,12 @@ function ReadinessRow({
   readonly ready: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-[1.1rem] border border-white/10 bg-white/6 px-3 py-2 text-sm">
+    <div
+      className="flex items-center justify-between rounded-[1.1rem] border border-white/10 bg-white/6 px-3 py-2 text-sm"
+      data-readiness-count={String(count)}
+      data-readiness-label={label}
+      data-readiness-state={ready ? "ready" : "blocked"}
+    >
       <span className="font-medium text-white">{label}</span>
       <span className={ready ? "text-emerald-200" : "text-amber-100"}>
         {ready ? "Ready" : `${count} open`}

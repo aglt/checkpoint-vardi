@@ -7,7 +7,7 @@ import {
   createMigratedDatabase,
   riskAssessment,
   workplace,
-} from "@vardi/db";
+} from "@vardi/db/testing";
 
 import { loadAssessmentReadiness } from "./loadAssessmentReadiness";
 

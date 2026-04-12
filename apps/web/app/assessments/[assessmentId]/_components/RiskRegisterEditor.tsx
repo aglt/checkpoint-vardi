@@ -441,36 +441,39 @@ export function RiskRegisterEditor({
   }
 
   function persistRiskEntry(riskEntryId: string, nextDraft: RiskEntryDraft) {
-    let nextRequestId = 0;
-
-    setRiskEntryStates((current) => {
-      const startedSave = beginRiskEntrySave(current, riskEntryId);
-      nextRequestId = startedSave.requestId;
-      return startedSave.riskEntryStates;
-    });
+    const startedSave = beginRiskEntrySave(
+      riskEntryStatesRef.current,
+      riskEntryId,
+    );
+    const nextRequestId = startedSave.requestId;
 
     if (nextRequestId === 0) {
       return;
     }
 
-    void saveAssessmentRiskEntryAction({
-      assessmentId,
-      input: {
-        riskEntryId,
-        hazard: nextDraft.hazard,
-        healthEffects: toOptionalString(nextDraft.healthEffects),
-        whoAtRisk: toOptionalString(nextDraft.whoAtRisk),
-        likelihood: nextDraft.likelihood ?? undefined,
-        consequence: nextDraft.consequence ?? undefined,
-        currentControls: toOptionalString(nextDraft.currentControls),
-        proposedAction: toOptionalString(nextDraft.proposedAction),
-        costEstimate: toOptionalInteger(nextDraft.costEstimate),
-        responsibleOwner: toOptionalString(nextDraft.responsibleOwner),
-        dueDate: toOptionalString(nextDraft.dueDate),
-        completedAt: toOptionalString(nextDraft.completedAt),
-      },
-    })
-      .then((response) => {
+    riskEntryStatesRef.current = startedSave.riskEntryStates;
+    setRiskEntryStates(startedSave.riskEntryStates);
+
+    startTransition(async () => {
+      try {
+        const response = await saveAssessmentRiskEntryAction({
+          assessmentId,
+          input: {
+            riskEntryId,
+            hazard: nextDraft.hazard,
+            healthEffects: toOptionalString(nextDraft.healthEffects),
+            whoAtRisk: toOptionalString(nextDraft.whoAtRisk),
+            likelihood: nextDraft.likelihood ?? undefined,
+            consequence: nextDraft.consequence ?? undefined,
+            currentControls: toOptionalString(nextDraft.currentControls),
+            proposedAction: toOptionalString(nextDraft.proposedAction),
+            costEstimate: toOptionalInteger(nextDraft.costEstimate),
+            responsibleOwner: toOptionalString(nextDraft.responsibleOwner),
+            dueDate: toOptionalString(nextDraft.dueDate),
+            completedAt: toOptionalString(nextDraft.completedAt),
+          },
+        });
+
         startTransition(() => {
           setRiskEntryStates((current) =>
             reconcileRiskEntrySaveSuccess(
@@ -482,8 +485,7 @@ export function RiskRegisterEditor({
             ),
           );
         });
-      })
-      .catch((error: unknown) => {
+      } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
             ? error.message
@@ -499,7 +501,8 @@ export function RiskRegisterEditor({
             ),
           );
         });
-      });
+      }
+    });
   }
 }
 

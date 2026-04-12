@@ -7,7 +7,7 @@ import {
   createMigratedDatabase,
   createWorkplaceAssessment,
   updateAssessmentFindingResponse,
-} from "@vardi/db";
+} from "@vardi/db/testing";
 
 import type { AssessmentReadModel } from "./loadAssessmentReadModel";
 import {

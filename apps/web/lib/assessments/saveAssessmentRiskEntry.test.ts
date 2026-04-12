@@ -11,7 +11,7 @@ import {
   createWorkplaceAssessment,
   loadAssessmentAggregate,
   riskEntry,
-} from "@vardi/db";
+} from "@vardi/db/testing";
 
 import { loadAssessmentRiskRegisterProjection } from "./loadAssessmentRiskRegisterProjection";
 import { AssessmentRiskEntrySaveContextIntegrityError } from "./loadAssessmentRiskEntrySaveContext";

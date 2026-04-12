@@ -10,7 +10,7 @@ import {
   riskAssessment,
   riskEntry,
   workplace,
-} from "@vardi/db";
+} from "@vardi/db/testing";
 
 import { AssessmentReadModelIntegrityError, loadAssessmentReadModel } from "./loadAssessmentReadModel";
 
