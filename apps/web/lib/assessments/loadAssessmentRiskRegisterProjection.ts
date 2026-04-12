@@ -67,7 +67,9 @@ export interface AssessmentRiskRegisterProjection {
   readonly entries: readonly AssessmentRiskRegisterEntryProjection[];
 }
 
-// This is the app-owned projection for the risk-register editor surface.
+// This is the app-owned projection for the risk-register editor surface. Saved
+// classification reasoning stays scoped here and the export mapping seam; do
+// not leak it into the walkthrough read model.
 export function loadAssessmentRiskRegisterProjection(
   params: LoadAssessmentRiskRegisterProjectionParams,
 ): AssessmentRiskRegisterProjection {

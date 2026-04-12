@@ -25,6 +25,9 @@ and renders the field inside the existing in-flow risk-entry editor. The
 same saved value now flows through app-owned export mapping into the
 register report without asking `@vardi/export` to invent prose or expand
 unresolved legal-reference placeholders into authoritative wording.
+`classificationReasoning` is classification-only by contract in this
+story; mitigation reasoning, reviewer notes, or future sub-reasoning
+splits must land in their own explicitly owned fields later.
 
 This slice stayed deliberately narrow: one persisted reasoning field,
 update flow inside the current editor, deterministic export rendering,
@@ -67,6 +70,8 @@ Possible richer shape only if it fits the current product cleanly:
 - unsaved local draft text never appears in export or readiness truth
 - missing reasoning does not block save, completion, or export readiness in
   this slice
+- reasoning stays scoped to risk-entry save, risk-register projection, and
+  export mapping; it does not widen the walkthrough or generic read model
 - reasoning fields must not invent compliance language
 - unresolved legal refs remain code-only linkage, not expanded
   authoritative prose
@@ -89,6 +94,8 @@ Possible richer shape only if it fits the current product cleanly:
 
 - Keep ownership with the risk-entry classification domain and the app's
   assessment/risk-entry seams.
+- Keep `classificationReasoning` classification-specific; do not reuse it for
+  mitigation, reviewer-note, or other future semantics.
 - Do not move text shaping into `@vardi/export`.
 - If readiness impact is introduced, route it through the single
   progression/completion owner from `S1-12`.

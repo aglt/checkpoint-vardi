@@ -149,6 +149,8 @@ test("response overlay is keyed by criterion id rather than insertion order", ()
     likelihood: null,
     consequence: null,
     riskLevel: null,
+    classificationReasoning:
+      "This saved explanation belongs to the risk register only.",
     currentControls: null,
     controlHierarchy: null,
     costEstimate: null,
@@ -180,6 +182,20 @@ test("response overlay is keyed by criterion id rather than insertion order", ()
     "second inserted first",
   );
   assert.equal(readModel.sections[0]?.criteria[1]?.riskEntryStatus, "present");
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(
+      readModel.sections[0]?.criteria[1] ?? {},
+      "classificationReasoning",
+    ),
+    false,
+  );
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(
+      readModel.sections[0]?.criteria[1]?.response ?? {},
+      "classificationReasoning",
+    ),
+    false,
+  );
   assert.equal(readModel.summaryStatus, "present");
 
   closeDatabase(connection);

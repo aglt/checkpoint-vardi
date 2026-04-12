@@ -59,6 +59,8 @@ export function buildAssessmentExportDocuments(
         likelihood: formatOptionalNumber(entry.likelihood),
         consequence: formatOptionalNumber(entry.consequence),
         riskLevel: formatRiskLevel(entry.savedRiskLevel),
+        // Export uses only the saved classification-only reasoning already
+        // projected from persisted risk-entry truth.
         classificationReasoning: entry.classificationReasoning ?? "",
         currentControls: entry.currentControls ?? "",
         costEstimate: formatOptionalNumber(entry.costEstimate),

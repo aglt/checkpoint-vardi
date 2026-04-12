@@ -157,6 +157,8 @@ export const saveAssessmentRiskEntryInputSchema = z
       normalizeOptionalInteger,
       z.number().int().positive().optional(),
     ),
+    // Classification-only reasoning for the saved risk score. Do not reuse this
+    // field for mitigation or reviewer-note semantics.
     classificationReasoning: z.preprocess(
       trimOptionalString,
       z
