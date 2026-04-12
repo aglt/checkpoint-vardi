@@ -20,9 +20,10 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-10` is complete and now lives under `done/`
 - `S1-11` is complete and now lives under `done/`
 - `S1-12` is complete and now lives under `done/`
+- `S1-13` is complete and now lives under `done/`
 - `S1-17` is complete and now lives under `done/`
-- `S1-09` and `S1-13` through `S1-18` are staged under `not_started/`
-- the next implementation story is `S1-13`
+- `S1-09` and `S1-14` through `S1-18` are staged under `not_started/`
+- the next implementation story is `S1-14`
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -30,9 +31,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S1-12 - Guided assessment progression and completion guards`
-- Story file: `user_stories/epics/checkpoint_vardi/done/S1-12-guided-assessment-progression-and-completion-guards.md`
-- Next story: `S1-13 - Explicit risk reasoning capture`
+- Most recently completed story: `S1-13 - Explicit risk reasoning capture`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S1-13-explicit-risk-reasoning-capture.md`
+- Next story: `S1-14 - Compliance-oriented export framing and assessment metadata`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -41,7 +42,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 ### S1 - MVP assessment workflow
 
-The completed delivery slice now runs from `S1-02` through `S1-12`, with
+The completed delivery slice now runs from `S1-02` through `S1-13`, with
 `S1-17` tightening the same MVP flow by making app-owned web copy render
 consistently through a single request-derived app-language seam. Together
 these stories moved the repo from "runnable scaffold" to a
@@ -54,7 +55,8 @@ proof that the real app boots and that the current blocked-readiness path
 behaves honestly, the app-owned copy seam that keeps Icelandic and
 English rendering from leaking into each other, and now a dedicated
 app-owned progression owner that keeps guided status and completion
-truth tied to persisted workflow state.
+truth tied to persisted workflow state plus persisted saved reasoning on
+risk classifications that exports can render from stored truth only.
 
 `S1-01` established the canonical seed runtime truth and the package-owned
 read seam that every later S1 story depends on. `S1-02` established the narrow
@@ -97,8 +99,8 @@ groundwork.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. Stage One now has its first browser-proof baseline through
-`S1-12` plus the current app-language consistency follow-up through `S1-17`;
-the next staged story is `S1-13`, `S1-16` remains the later browser-export
+`S1-13` plus the current app-language consistency follow-up through `S1-17`;
+the next staged story is `S1-14`, `S1-16` remains the later browser-export
 regression proof once the flow settles, `S1-18` tracks the named
 severity-choice alignment gap, and `S1-09` stays conditional and non-blocking.
 

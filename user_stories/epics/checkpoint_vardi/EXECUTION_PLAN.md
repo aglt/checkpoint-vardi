@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-13`
-- Most recently completed step: `S1-12`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-12-guided-assessment-progression-and-completion-guards.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-13-explicit-risk-reasoning-capture.md`
+- Next queued step: `S1-14`
+- Most recently completed step: `S1-13`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-13-explicit-risk-reasoning-capture.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-14-compliance-oriented-export-framing-and-assessment-metadata.md`
 
 ## S0 - Foundations
 
@@ -294,16 +294,32 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-13: Explicit risk reasoning capture
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-13-explicit-risk-reasoning-capture.md`
-**Start gate:** Open. `S1-12` now owns guided completion and readiness truth from persisted state.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-13-explicit-risk-reasoning-capture.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-14`, template-driven justification requirements, and less opaque saved risk classifications.
+
+**Completion note:**
+> Verified locally on branch
+> `codex/s1-13-explicit-risk-reasoning-capture`: added one optional
+> persisted `classificationReasoning` field on `risk_entry`, extended the
+> existing owner-scoped DB and schema-backed risk-entry save seams, reused the
+> app-owned risk-register projection and editor to capture saved reasoning
+> alongside classification, and mapped only persisted reasoning into the
+> app-owned register export documents consumed by `@vardi/export`. This slice
+> kept progression and export-readiness rules unchanged so unsaved drafts still
+> cannot unlock downstream truth and missing reasoning does not block the
+> current MVP flow.
+> Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing
+> workspace dependencies in this worktree. This session used `node v25.6.1`;
+> Node 22 remains the declared repo contract, but was not directly re-verified
+> here. PR: `#16`.
 
 ### Step S1-14: Compliance-oriented export framing and assessment metadata
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-14-compliance-oriented-export-framing-and-assessment-metadata.md`
-**Start gate:** Closed until `S1-13` lands and the persisted assessment flow includes any newly saved reasoning fields the export layer should render.
+**Start gate:** Open. `S1-13` now lands persisted reasoning through the assessment flow and export mapping seams that `S1-14` should build on.
 **Unblocks:** `S1-15`, later stable export-facing browser verification, and more professional report framing.
 
 ### Step S1-15: Sector/profile-specific assessment rules via seed-owned runtime extensions
