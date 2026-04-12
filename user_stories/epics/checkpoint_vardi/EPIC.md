@@ -19,7 +19,7 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-08` is complete and now lives under `done/`
 - `S1-10` is complete and now lives under `done/`
 - `S1-11` is complete and now lives under `done/`
-- `S1-09` and `S1-12` through `S1-16` are staged under `not_started/`
+- `S1-09` and `S1-12` through `S1-18` are staged under `not_started/`
 - the next implementation story is `S1-12`
 - the maintenance workflow is defined by `$vardi-story-management`
 
@@ -71,9 +71,13 @@ then hardens truthful progression and completion guards, `S1-13` captures
 explicit saved reasoning for risk classifications, `S1-14` strengthens export
 framing and metadata without overclaiming compliance status, `S1-15` lets a
 small supported rule set flow from seed/runtime truth into the app, and
-`S1-16` closes the queue with a later stable browser regression once those
-flow-shaping slices settle. `S1-09` still exists only as a narrow bridge story
-if a concrete post-MVP need surfaces for broader platform groundwork.
+`S1-16` closes the current browser-proof queue with a later stable regression
+once those flow-shaping slices settle, while `S1-17` is the focused
+language-consistency follow-up that removes mixed app-language copy from the
+current MVP web flow and `S1-18` is the separate severity-alignment repair for
+the screenshot-backed named risk choice. `S1-09` still exists only as a narrow
+bridge story if a concrete post-MVP need surfaces for broader platform
+groundwork.
 
 ### S0 - Foundations
 
@@ -83,7 +87,9 @@ if a concrete post-MVP need surfaces for broader platform groundwork.
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. Stage One now has its first browser-proof baseline through
 `S1-11`; the next staged story is `S1-12`, `S1-16` remains the later
-browser-export regression proof once the flow settles, and `S1-09` stays
+browser-export regression proof once the flow settles, `S1-17` tracks the
+cross-cutting app-language consistency gap on the current MVP web surfaces,
+`S1-18` tracks the named severity-choice alignment gap, and `S1-09` stays
 conditional and non-blocking.
 
 ## Guardrails
