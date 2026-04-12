@@ -26,6 +26,12 @@ export {
   type UpdateAssessmentFindingResponseParams,
 } from "./update-assessment-finding-response.js";
 export {
+  MissingRiskEntryHazardError,
+  transferAssessmentFindingsToRiskRegister,
+  type TransferAssessmentFindingsToRiskRegisterParams,
+  type TransferAssessmentFindingsToRiskRegisterResult,
+} from "./transfer-assessment-findings-to-risk-register.js";
+export {
   assessmentStatuses,
   assessmentSummary,
   controlHierarchies,

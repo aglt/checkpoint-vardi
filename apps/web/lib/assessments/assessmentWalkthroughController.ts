@@ -3,7 +3,10 @@ import type {
   SaveAssessmentCriterionStatus,
 } from "@vardi/schemas";
 
-import type { AssessmentSectionReadModel } from "./loadAssessmentReadModel";
+import type {
+  AssessmentSectionReadModel,
+  PresenceStatus,
+} from "./loadAssessmentReadModel";
 
 export type SaveState = "idle" | "saving" | "error";
 
@@ -29,6 +32,14 @@ export interface AssessmentWalkthroughProgress {
   readonly completedSections: number;
   readonly progressPercentage: number;
 }
+
+export interface AssessmentRiskTransferProgress {
+  readonly eligibleCriteria: number;
+  readonly transferredCriteria: number;
+  readonly remainingCriteria: number;
+}
+
+export type CriterionRiskEntryStatusMap = Record<string, PresenceStatus>;
 
 export function buildInitialCriterionState(
   sections: readonly AssessmentSectionReadModel[],
@@ -85,6 +96,41 @@ export function getAssessmentWalkthroughProgress(
     completedSections,
     progressPercentage:
       totalCriteria === 0 ? 0 : Math.round((answeredCriteria / totalCriteria) * 100),
+  };
+}
+
+export function buildInitialCriterionRiskEntryStatus(
+  sections: readonly AssessmentSectionReadModel[],
+): CriterionRiskEntryStatusMap {
+  return Object.fromEntries(
+    sections.flatMap((section) =>
+      section.criteria.map((criterion) => [criterion.id, criterion.riskEntryStatus] as const),
+    ),
+  ) as CriterionRiskEntryStatusMap;
+}
+
+export function getAssessmentRiskTransferProgress(
+  criterionStates: CriterionStateMap,
+  riskEntryStatusByCriterionId: CriterionRiskEntryStatusMap,
+): AssessmentRiskTransferProgress {
+  const eligibleCriteria = Object.values(criterionStates).reduce(
+    (count, state) => count + (state.saved.status === "notOk" ? 1 : 0),
+    0,
+  );
+  const transferredCriteria = Object.entries(criterionStates).reduce(
+    (count, [criterionId, state]) =>
+      count +
+      (state.saved.status === "notOk" &&
+      riskEntryStatusByCriterionId[criterionId] === "present"
+        ? 1
+        : 0),
+    0,
+  );
+
+  return {
+    eligibleCriteria,
+    transferredCriteria,
+    remainingCriteria: Math.max(eligibleCriteria - transferredCriteria, 0),
   };
 }
 
@@ -218,6 +264,20 @@ export function isDirty(state: CriterionClientState): boolean {
     state.saved.status !== state.draft.status ||
     state.saved.notes !== state.draft.notes
   );
+}
+
+export function markTransferredRiskEntriesPresent(
+  criterionStates: CriterionStateMap,
+  riskEntryStatusByCriterionId: CriterionRiskEntryStatusMap,
+): CriterionRiskEntryStatusMap {
+  return Object.fromEntries(
+    Object.entries(criterionStates).map(([criterionId, state]) => [
+      criterionId,
+      state.saved.status === "notOk"
+        ? "present"
+        : riskEntryStatusByCriterionId[criterionId] ?? "absent",
+    ]),
+  ) as CriterionRiskEntryStatusMap;
 }
 
 export function canPersistCriterionDraft(

@@ -1,24 +1,36 @@
 "use client";
 
 import React, { startTransition, useEffect, useRef, useState } from "react";
-import type { SaveAssessmentCriterionStatus } from "@vardi/schemas";
+import { useRouter } from "next/navigation";
+import type {
+  SaveAssessmentCriterionStatus,
+  TransferAssessmentFindingsToRiskRegisterOutput,
+} from "@vardi/schemas";
 
 import {
   beginCriterionSave,
+  buildInitialCriterionRiskEntryStatus,
   buildInitialCriterionState,
+  getAssessmentRiskTransferProgress,
   canPersistCriterionDraft,
   getAnsweredCount,
   getAssessmentWalkthroughProgress,
   isDirty,
+  markTransferredRiskEntriesPresent,
   reconcileCriterionSaveFailure,
   reconcileCriterionSaveSuccess,
   type CriterionClientState,
   type CriterionDraft,
+  type CriterionRiskEntryStatusMap,
   type CriterionStateMap,
   updateCriterionDraftNotes,
 } from "@/lib/assessments/assessmentWalkthroughController";
-import type { AssessmentSectionReadModel } from "@/lib/assessments/loadAssessmentReadModel";
+import type {
+  AssessmentSectionReadModel,
+  PresenceStatus,
+} from "@/lib/assessments/loadAssessmentReadModel";
 import { saveAssessmentCriterionResponseAction } from "@/lib/assessments/saveAssessmentCriterionResponseAction";
+import { transferAssessmentFindingsToRiskRegisterAction } from "@/lib/assessments/transferAssessmentFindingsToRiskRegisterAction";
 
 interface AssessmentWalkthroughProps {
   readonly assessmentId: string;
@@ -59,9 +71,21 @@ export function AssessmentWalkthrough({
   riskMatrixTitle,
   sections,
 }: AssessmentWalkthroughProps) {
+  const router = useRouter();
   const [criterionStates, setCriterionStates] = useState<CriterionStateMap>(
     () => buildInitialCriterionState(sections),
   );
+  const [riskEntryStatusByCriterionId, setRiskEntryStatusByCriterionId] =
+    useState<CriterionRiskEntryStatusMap>(
+      () => buildInitialCriterionRiskEntryStatus(sections),
+    );
+  const [transferState, setTransferState] = useState<{
+    readonly status: "idle" | "transferring" | "success" | "error";
+    readonly message: string | null;
+  }>({
+    status: "idle",
+    message: null,
+  });
   const criterionStatesRef = useRef<CriterionStateMap>(criterionStates);
   const pendingSaveTimersRef = useRef<Record<string, number | undefined>>({});
 
@@ -78,12 +102,24 @@ export function AssessmentWalkthrough({
     [],
   );
 
+  useEffect(() => {
+    setRiskEntryStatusByCriterionId(buildInitialCriterionRiskEntryStatus(sections));
+  }, [sections]);
+
   const {
     totalCriteria,
     answeredCriteria,
     completedSections,
     progressPercentage,
   } = getAssessmentWalkthroughProgress(sections, criterionStates);
+  const {
+    eligibleCriteria: eligibleTransferCriteria,
+    transferredCriteria,
+    remainingCriteria,
+  } = getAssessmentRiskTransferProgress(
+    criterionStates,
+    riskEntryStatusByCriterionId,
+  );
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(115,138,92,0.18),transparent_34%),linear-gradient(180deg,#f7f1e6_0%,#efe5d1_54%,#e5dcc8_100%)] px-4 py-6 text-slate-950 sm:px-6 lg:px-8">
@@ -142,7 +178,71 @@ export function AssessmentWalkthrough({
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
-          <aside className="order-first self-start lg:sticky lg:top-6">
+          <aside className="order-first self-start space-y-4 lg:sticky lg:top-6">
+            <div className="rounded-[1.75rem] border border-black/10 bg-white/82 px-5 py-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    Step 1b
+                  </p>
+                  <div className="space-y-1">
+                    <h2 className="text-lg font-semibold tracking-tight text-slate-950">
+                      Transfer to risk register
+                    </h2>
+                    <p className="text-sm leading-6 text-slate-600">
+                      Only persisted <span className="font-semibold">Not ok</span>{" "}
+                      findings transfer. Re-running adds any missing rows without
+                      duplicating existing register entries.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-2 text-sm text-slate-700">
+                  <TransferMetric
+                    label="Eligible findings"
+                    value={String(eligibleTransferCriteria)}
+                  />
+                  <TransferMetric
+                    label="Already transferred"
+                    value={String(transferredCriteria)}
+                  />
+                  <TransferMetric
+                    label="Remaining to transfer"
+                    value={String(remainingCriteria)}
+                  />
+                </div>
+
+                <p
+                  aria-live="polite"
+                  className={getTransferMessageClassName(transferState.status)}
+                >
+                  {getTransferMessage({
+                    transferState,
+                    eligibleTransferCriteria,
+                    remainingCriteria,
+                  })}
+                </p>
+
+                <button
+                  className={getTransferButtonClassName(
+                    transferState.status === "transferring" ||
+                      remainingCriteria === 0,
+                  )}
+                  disabled={
+                    transferState.status === "transferring" ||
+                    remainingCriteria === 0
+                  }
+                  onClick={handleTransferToRiskRegister}
+                  type="button"
+                >
+                  {getTransferButtonLabel({
+                    transferState: transferState.status,
+                    remainingCriteria,
+                  })}
+                </button>
+              </div>
+            </div>
+
             <div className="rounded-[1.75rem] border border-black/10 bg-[#243026] px-5 py-5 text-white shadow-[0_24px_60px_rgba(25,31,24,0.2)]">
               <div className="space-y-4">
                 <div className="space-y-1">
@@ -219,7 +319,17 @@ export function AssessmentWalkthrough({
                                 </p>
                               </div>
                             </div>
-                            <SaveStatePill state={state} />
+                            <div className="flex flex-col items-start gap-2 sm:items-end">
+                              {state.saved.status === "notOk" ? (
+                                <TransferStatusPill
+                                  status={
+                                    riskEntryStatusByCriterionId[criterion.id] ??
+                                    criterion.riskEntryStatus
+                                  }
+                                />
+                              ) : null}
+                              <SaveStatePill state={state} />
+                            </div>
                           </div>
 
                           <div
@@ -354,6 +464,46 @@ export function AssessmentWalkthrough({
     persistCriterion(criterionId, criterionState.draft);
   }
 
+  function handleTransferToRiskRegister() {
+    if (transferState.status === "transferring" || remainingCriteria === 0) {
+      return;
+    }
+
+    setTransferState({
+      status: "transferring",
+      message: null,
+    });
+
+    void transferAssessmentFindingsToRiskRegisterAction({
+      assessmentId,
+    })
+      .then((response) => {
+        startTransition(() => {
+          setRiskEntryStatusByCriterionId((current) =>
+            markTransferredRiskEntriesPresent(criterionStatesRef.current, current),
+          );
+          setTransferState({
+            status: "success",
+            message: buildTransferSuccessMessage(response),
+          });
+          router.refresh();
+        });
+      })
+      .catch((error: unknown) => {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "We could not transfer these findings right now.";
+
+        startTransition(() => {
+          setTransferState({
+            status: "error",
+            message: errorMessage,
+          });
+        });
+      });
+  }
+
   function scheduleSave(criterionId: string) {
     clearPendingSave(criterionId);
 
@@ -461,6 +611,21 @@ function SummaryCard({
   );
 }
 
+function TransferMetric({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl border border-black/8 bg-[#f7f2e8] px-3 py-3">
+      <span className="text-sm font-medium text-slate-600">{label}</span>
+      <span className="text-base font-semibold text-slate-950">{value}</span>
+    </div>
+  );
+}
+
 function SaveStatePill({ state }: { readonly state: CriterionClientState }) {
   return (
     <div className={getSavePillClassName(state)}>
@@ -475,6 +640,17 @@ function SaveStatePill({ state }: { readonly state: CriterionClientState }) {
             : state.saved.status === "unanswered" && state.saved.notes.length === 0
               ? "Not started"
               : "Saved"}
+    </div>
+  );
+}
+
+function TransferStatusPill({ status }: { readonly status: PresenceStatus }) {
+  return (
+    <div
+      className={getTransferPillClassName(status)}
+      data-transfer-state={status}
+    >
+      {status === "present" ? "Transferred" : "Needs transfer"}
     </div>
   );
 }
@@ -520,6 +696,15 @@ function getSavePillClassName(state: CriterionClientState): string {
   );
 }
 
+function getTransferPillClassName(status: PresenceStatus): string {
+  return joinClasses(
+    "inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]",
+    status === "present"
+      ? "border-[#6f8460] bg-[#edf4ea] text-[#335126]"
+      : "border-[#b96f47] bg-[#fff1e7] text-[#6a3212]",
+  );
+}
+
 function getSaveMessage(state: CriterionClientState): string {
   if (state.saveState === "saving") {
     return "Saving this criterion...";
@@ -553,6 +738,84 @@ function getSaveMessageClassName(state: CriterionClientState): string {
   );
 }
 
+function getTransferMessage(params: {
+  readonly transferState: {
+    readonly status: "idle" | "transferring" | "success" | "error";
+    readonly message: string | null;
+  };
+  readonly eligibleTransferCriteria: number;
+  readonly remainingCriteria: number;
+}): string {
+  if (params.transferState.status === "transferring") {
+    return "Transferring eligible findings into the risk register...";
+  }
+
+  if (params.transferState.message) {
+    return params.transferState.message;
+  }
+
+  if (params.eligibleTransferCriteria === 0) {
+    return "Mark a criterion as Not ok to make it eligible for transfer.";
+  }
+
+  if (params.remainingCriteria === 0) {
+    return "All persisted Not ok findings are already in the risk register.";
+  }
+
+  return "Transfer will add only the persisted Not ok findings that are still missing.";
+}
+
+function getTransferMessageClassName(
+  status: "idle" | "transferring" | "success" | "error",
+): string {
+  return joinClasses(
+    "text-sm leading-6",
+    status === "error"
+      ? "text-[#8a2f0d]"
+      : status === "success"
+        ? "text-[#335126]"
+        : "text-slate-600",
+  );
+}
+
+function getTransferButtonClassName(disabled: boolean): string {
+  return joinClasses(
+    "w-full rounded-full px-4 py-3 text-sm font-semibold transition",
+    disabled
+      ? "cursor-not-allowed border border-black/10 bg-[#ebe4d7] text-slate-500"
+      : "border border-[#243026] bg-[#243026] text-white shadow-[0_12px_28px_rgba(25,31,24,0.16)] hover:bg-[#314035]",
+  );
+}
+
+function getTransferButtonLabel(params: {
+  readonly transferState: "idle" | "transferring" | "success" | "error";
+  readonly remainingCriteria: number;
+}): string {
+  if (params.transferState === "transferring") {
+    return "Transferring...";
+  }
+
+  if (params.remainingCriteria === 0) {
+    return "All eligible findings transferred";
+  }
+
+  return `Transfer ${params.remainingCriteria} ${pluralize(params.remainingCriteria, "finding", "findings")}`;
+}
+
+function buildTransferSuccessMessage(
+  response: TransferAssessmentFindingsToRiskRegisterOutput,
+): string {
+  if (response.createdRiskEntryCount === 0 && response.existingRiskEntryCount > 0) {
+    return `All ${response.existingRiskEntryCount} eligible ${pluralize(response.existingRiskEntryCount, "finding was", "findings were")} already in the risk register.`;
+  }
+
+  if (response.existingRiskEntryCount === 0) {
+    return `Transferred ${response.createdRiskEntryCount} ${pluralize(response.createdRiskEntryCount, "finding", "findings")} into the risk register.`;
+  }
+
+  return `Transferred ${response.createdRiskEntryCount} ${pluralize(response.createdRiskEntryCount, "finding", "findings")} and kept ${response.existingRiskEntryCount} existing ${pluralize(response.existingRiskEntryCount, "entry", "entries")} in place.`;
+}
+
 function formatSavedAt(value: string): string {
   return new Intl.DateTimeFormat("en", {
     hour: "numeric",
@@ -562,4 +825,12 @@ function formatSavedAt(value: string): string {
 
 function joinClasses(...classNames: ReadonlyArray<string | false | null | undefined>): string {
   return classNames.filter(Boolean).join(" ");
+}
+
+function pluralize(
+  count: number,
+  singular: string,
+  plural: string,
+): string {
+  return count === 1 ? singular : plural;
 }

@@ -11,11 +11,24 @@ import {
   createWorkplaceAssessment,
   updateAssessmentFindingResponse,
 } from "@vardi/db";
+import {
+  AppRouterContext,
+  type AppRouterInstance,
+} from "next/dist/shared/lib/app-router-context.shared-runtime";
+import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { loadAssessmentReadModel } from "./loadAssessmentReadModel";
 
 const startedAt = new Date("2026-04-11T10:00:00.000Z");
+const appRouterStub: AppRouterInstance = {
+  back() {},
+  forward() {},
+  refresh() {},
+  push() {},
+  replace() {},
+  prefetch() {},
+};
 
 function getRequiredChecklist() {
   const checklist = getSeedChecklistBySlug("woodworking-workshop");
@@ -142,7 +155,7 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
   const { default: AssessmentPage } = await import(
     "../../app/assessments/[assessmentId]/page"
   );
-  const markup = renderToStaticMarkup(
+  const markup = renderWithAppRouter(
     await AssessmentPage({
       params: Promise.resolve({
         assessmentId: fixture.assessmentId,
@@ -190,7 +203,7 @@ test("assessment page re-renders with the persisted answer state selected", asyn
   const { default: AssessmentPage } = await import(
     "../../app/assessments/[assessmentId]/page"
   );
-  const markup = renderToStaticMarkup(
+  const markup = renderWithAppRouter(
     await AssessmentPage({
       params: Promise.resolve({
         assessmentId: fixture.assessmentId,
@@ -222,6 +235,91 @@ test("assessment page re-renders with the persisted answer state selected", asyn
   );
 });
 
+test("walkthrough transfer action promotes persisted notOk findings into risk entries", async () => {
+  const fixture = seedWalkthroughAssessment();
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const { saveAssessmentCriterionResponseAction } = await import(
+    "./saveAssessmentCriterionResponseAction"
+  );
+  const { transferAssessmentFindingsToRiskRegisterAction } = await import(
+    "./transferAssessmentFindingsToRiskRegisterAction"
+  );
+
+  await saveAssessmentCriterionResponseAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      criterionId: fixture.secondCriterion.id,
+      status: "notOk",
+      notes: "Missing guard",
+    },
+  });
+
+  const transferResult = await transferAssessmentFindingsToRiskRegisterAction({
+    assessmentId: fixture.assessmentId,
+  });
+
+  assert.deepEqual(transferResult, {
+    assessmentId: fixture.assessmentId,
+    eligibleFindingCount: 1,
+    createdRiskEntryCount: 1,
+    existingRiskEntryCount: 0,
+  });
+
+  const connection = createMigratedDatabase(fixture.databasePath);
+  const readModel = loadAssessmentReadModel({
+    db: connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+  });
+  const transferredCriterion = readModel.sections
+    .flatMap((section) => section.criteria)
+    .find((criterion) => criterion.id === fixture.secondCriterion.id);
+
+  assert.ok(transferredCriterion);
+  assert.equal(transferredCriterion.response.status, "notOk");
+  assert.equal(transferredCriterion.riskEntryStatus, "present");
+  closeDatabase(connection);
+
+  const { default: AssessmentPage } = await import(
+    "../../app/assessments/[assessmentId]/page"
+  );
+  const markup = renderWithAppRouter(
+    await AssessmentPage({
+      params: Promise.resolve({
+        assessmentId: fixture.assessmentId,
+      }),
+    }),
+  );
+
+  assert.match(markup, /Transfer to risk register/);
+  assert.match(markup, /All eligible findings transferred/);
+  assert.match(
+    markup,
+    new RegExp(
+      [
+        escapeRegExp(`data-criterion-id="${fixture.secondCriterion.id}"`),
+        '[\\s\\S]*?',
+        escapeRegExp('data-transfer-state="present"'),
+        '[\\s\\S]*?',
+        escapeRegExp("Transferred"),
+      ].join(""),
+    ),
+  );
+});
+
 function escapeRegExp(value: string): string {
   return value.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function renderWithAppRouter(element: React.ReactElement): string {
+  return renderToStaticMarkup(
+    React.createElement(
+      AppRouterContext.Provider,
+      {
+        value: appRouterStub,
+      },
+      element,
+    ),
+  );
 }

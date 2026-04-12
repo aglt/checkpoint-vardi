@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-05`
-- Most recently completed step: `S1-04`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-04-assessment-walkthrough-form-slice.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-05-transfer-noncompliant-findings-into-risk-register.md`
+- Next queued step: `S1-06`
+- Most recently completed step: `S1-05`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-05-transfer-noncompliant-findings-into-risk-register.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-06-risk-classification-engine-and-editing.md`
 
 ## S0 - Foundations
 
@@ -130,16 +130,31 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
 
 ### Step S1-05: Transfer non-compliant findings into risk register
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-05-transfer-noncompliant-findings-into-risk-register.md`
-**Start gate:** Closed until `S1-04` is complete.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-05-transfer-noncompliant-findings-into-risk-register.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-06` by creating structured risk-entry rows.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-05-transfer-noncompliant-findings-into-risk-register`:
+> added the typed Step `1b` transfer contract, the transactional owner-scoped
+> DB transfer seam in `packages/db`, the narrow app helper plus server action,
+> and a minimal walkthrough trigger that promotes persisted `notOk` findings
+> into `risk_entry` rows using seeded criterion titles as the initial hazard.
+> Re-running transfer now pre-filters existing rows by `findingId`, relies on
+> the existing unique DB constraint as the final guardrail, and preserves
+> traceability through `risk_entry.findingId -> finding.criterionId` without
+> widening into risk scoring or editing.
+> Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing
+> workspace dependencies in this worktree. This session used `node v25.6.1`;
+> Node 22 remains the declared repo contract, but was not directly re-verified
+> here. PR: `#7`.
 
 ### Step S1-06: Risk classification engine and risk-entry editing
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-06-risk-classification-engine-and-editing.md`
-**Start gate:** Closed until `S1-01` and `S1-05` are complete.
+**Start gate:** Open. `S1-01` and `S1-05` are complete.
 **Unblocks:** `S1-07` by making risk entries editable and classifiable.
 
 ### Step S1-07: Summary form and export readiness

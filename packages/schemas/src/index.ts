@@ -74,6 +74,20 @@ export const saveAssessmentCriterionResponseOutputSchema = z.object({
   updatedAt: z.string().datetime(),
 });
 
+export const transferAssessmentFindingsToRiskRegisterInputSchema = z.object({
+  assessmentId: z.preprocess(
+    trimString,
+    z.string().min(1, "Assessment id is required.").max(200),
+  ),
+});
+
+export const transferAssessmentFindingsToRiskRegisterOutputSchema = z.object({
+  assessmentId: z.string().min(1),
+  eligibleFindingCount: z.number().int().nonnegative(),
+  createdRiskEntryCount: z.number().int().nonnegative(),
+  existingRiskEntryCount: z.number().int().nonnegative(),
+});
+
 export type WorkplaceArchetype = z.infer<typeof workplaceArchetypeSchema>;
 export type AssessmentWalkthroughStatus = z.infer<
   typeof assessmentWalkthroughStatusSchema
@@ -92,4 +106,10 @@ export type SaveAssessmentCriterionResponseInput = z.infer<
 >;
 export type SaveAssessmentCriterionResponseOutput = z.infer<
   typeof saveAssessmentCriterionResponseOutputSchema
+>;
+export type TransferAssessmentFindingsToRiskRegisterInput = z.infer<
+  typeof transferAssessmentFindingsToRiskRegisterInputSchema
+>;
+export type TransferAssessmentFindingsToRiskRegisterOutput = z.infer<
+  typeof transferAssessmentFindingsToRiskRegisterOutputSchema
 >;
