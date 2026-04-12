@@ -5,8 +5,11 @@ import type { SaveAssessmentCriterionResponseOutput } from "@vardi/schemas";
 
 import {
   beginCriterionSave,
+  buildInitialCriterionRiskEntryStatus,
   buildInitialCriterionState,
+  getAssessmentRiskTransferProgress,
   getAssessmentWalkthroughProgress,
+  markTransferredRiskEntriesPresent,
   reconcileCriterionSaveFailure,
   reconcileCriterionSaveSuccess,
   updateCriterionDraftNotes,
@@ -92,6 +95,51 @@ test("buildInitialCriterionState and progress preserve resumed answers", () => {
     answeredCriteria: 1,
     completedSections: 0,
     progressPercentage: 50,
+  });
+});
+
+test("risk transfer progress only counts persisted notOk findings and can mark them transferred", () => {
+  const criterionStates = buildInitialCriterionState(sections);
+  const initialRiskEntryStatus = buildInitialCriterionRiskEntryStatus(sections);
+
+  assert.deepEqual(
+    getAssessmentRiskTransferProgress(criterionStates, initialRiskEntryStatus),
+    {
+      eligibleCriteria: 0,
+      transferredCriteria: 0,
+      remainingCriteria: 0,
+    },
+  );
+
+  const started = beginCriterionSave(criterionStates, "criterion-1", {
+    status: "notOk",
+    notes: "Guard missing",
+  });
+  const saved = reconcileCriterionSaveSuccess(
+    started.criterionStates,
+    "criterion-1",
+    started.requestId,
+    createSaveResponse({
+      status: "notOk",
+      notes: "Guard missing",
+    }),
+    {
+      status: "notOk",
+      notes: "Guard missing",
+    },
+  );
+
+  assert.deepEqual(
+    getAssessmentRiskTransferProgress(saved, initialRiskEntryStatus),
+    {
+      eligibleCriteria: 1,
+      transferredCriteria: 0,
+      remainingCriteria: 1,
+    },
+  );
+  assert.deepEqual(markTransferredRiskEntriesPresent(saved, initialRiskEntryStatus), {
+    "criterion-1": "present",
+    "criterion-2": "absent",
   });
 });
 
