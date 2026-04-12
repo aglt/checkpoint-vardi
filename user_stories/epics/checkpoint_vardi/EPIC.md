@@ -17,7 +17,8 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-06` is complete and now lives under `done/`
 - `S1-07` is complete and now lives under `done/`
 - `S1-08` is complete and now lives under `done/`
-- `S1-09` and `S1-10` are now staged under `not_started/`
+- `S1-09` is deferred and remains parked under `not_started/`
+- `S1-10` is staged under `not_started/`
 - the next implementation story is `S1-10`
 - the maintenance workflow is defined by `$vardi-story-management`
 
@@ -62,8 +63,8 @@ persisted assessment state into deterministic checklist, register, and summary
 exports plus a downloadable Word/PDF bundle on the summary step. `S1-10`
 follows it to add Playwright-based browser-level proof for the real MVP flow
 and to capture repo-local Playwright usage guidance for future agents. `S1-09`
-exists only as a narrow bridge story if a concrete post-MVP need surfaces for
-broader platform groundwork.
+is currently deferred and must not be implemented unless a later concrete
+post-MVP vertical slice surfaces for broader platform groundwork.
 
 ### S0 - Foundations
 
@@ -72,7 +73,7 @@ broader platform groundwork.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. The next staged story is `S1-10`, while `S1-09` remains
-conditional and non-blocking.
+deferred.
 
 ## Guardrails
 

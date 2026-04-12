@@ -1,6 +1,6 @@
 # S1-09 - Foundation for broader safety-plan modules
 
-> **Status: NOT STARTED**
+> **Status: DEFERRED**
 > **Stage:** S1/S2 bridge
 > **Epic:** Checkpoint Vardi - Stage boundary guardrail
 > **Priority:** P2
@@ -9,6 +9,16 @@ Role: **Implementation source of truth** for any minimal groundwork that S1 genu
 Depends on: None
 
 ---
+
+## Context
+
+`S1-09` was reviewed and explicitly deferred. The current MVP root truth remains
+`workplace -> risk_assessment`, and no active story currently requires a broader
+container, grouping abstraction, or migration surface above that root.
+
+This story stays parked under `not_started/` for reference only. It must not be
+implemented until a later concrete vertical slice needs broader safety-plan
+grouping and explicitly authorizes the required root/container change.
 
 ## Goal
 
@@ -27,6 +37,22 @@ Create only the minimal structural foundation needed for the broader reusable pl
 - MVP stories remain focused on assessment and report generation.
 - Any broader-platform groundwork introduced here stays small and non-blocking.
 - No accidental scope creep into S2 product areas.
+
+## Deferred Until
+
+- a real product workflow needs grouping multiple assessments under a broader
+  safety-plan concept
+- a later story explicitly authorizes a root/container change above
+  `risk_assessment`
+- the required aggregate, export, and browser-test impact is part of the same
+  approved vertical slice
+
+## Notes
+
+- No implementation is currently accepted for this story.
+- Do not introduce a `safetyPlan` table, migration, aggregate root, or export
+  ownership change under `S1-09` as it stands.
+- If future work becomes necessary, rewrite this story before coding begins.
 
 ## Execution Rules
 

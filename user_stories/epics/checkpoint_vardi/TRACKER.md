@@ -1,6 +1,8 @@
 # Checkpoint Vardi - Story Tracker
 
-Status tracks which folder each story lives in: `done/` or `not_started/`.
+Status tracks implementation state. Most stories map directly to `done/` or
+`not_started/`; a deferred story remains parked under `not_started/` until it
+is rewritten or resumed.
 PR is filled when a PR is open or merged (format: `#NN`).
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -29,11 +31,12 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 | ID    | Story                                          | Status       | PR |
 |-------|------------------------------------------------|--------------|----|
-| S1-09 | Foundation for broader safety-plan modules     | not_started  |    |
+| S1-09 | Foundation for broader safety-plan modules     | deferred     |    |
 
 ---
 
 **Next up:**
 
 - `S1-10 - Browser E2E testing foundation`
-- Keep `S1-09` narrowly scoped and non-blocking unless `S1-10` or another active follow-up exposes a concrete need for it.
+- Keep `S1-09` deferred until a later vertical slice explicitly needs broader
+  safety-plan grouping.

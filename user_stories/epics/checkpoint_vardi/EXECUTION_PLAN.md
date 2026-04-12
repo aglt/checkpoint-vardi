@@ -227,7 +227,10 @@ S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08 ->
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
-**Status:** Not started.
+**Status:** Deferred.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
 **Start gate:** Closed unless the completed `S1-08` export slice, the queued `S1-10` test foundation, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
-**Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.
+**Unblocks:** Nothing active right now. Reopen only when a later approved
+vertical slice explicitly needs broader safety-plan grouping and includes the
+required root/container, aggregate, export, and browser-test impact in the same
+change.
