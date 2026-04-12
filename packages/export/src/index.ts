@@ -16,78 +16,32 @@ export type ChecklistCriterionStatus =
 export type AssessmentReportFormat = "docx" | "pdf";
 export type AssessmentReportKind = "checklist" | "register" | "summary";
 
-export interface AssessmentReportHeader {
-  readonly assessmentId: string;
-  readonly workplaceName: string;
-  readonly workplaceAddress: string | null;
-  readonly companyName: string;
-  readonly location: string;
-  readonly assessmentDate: string;
+export interface AssessmentReportRow {
+  readonly label: string;
+  readonly value: string;
 }
 
-export interface ChecklistCriterionReport {
-  readonly id: string;
-  readonly number: string;
+export interface AssessmentReportBlock {
   readonly title: string;
-  readonly status: ChecklistCriterionStatus;
-  readonly notes: string;
-  readonly legalReferences: readonly string[];
+  readonly rows: readonly AssessmentReportRow[];
 }
 
-export interface ChecklistSectionReport {
-  readonly id: string;
+export interface AssessmentReportSection {
   readonly title: string;
-  readonly criteria: readonly ChecklistCriterionReport[];
+  readonly description?: string;
+  readonly rows?: readonly AssessmentReportRow[];
+  readonly blocks?: readonly AssessmentReportBlock[];
 }
 
-export interface ChecklistReportDocument extends AssessmentReportHeader {
-  readonly checklistTitle: string;
-  readonly checklistVersion: string;
-  readonly sections: readonly ChecklistSectionReport[];
-}
-
-export interface RegisterEntryReport {
-  readonly id: string;
-  readonly sectionTitle: string;
-  readonly criterionNumber: string;
-  readonly criterionTitle: string;
-  readonly hazard: string;
-  readonly healthEffects: string;
-  readonly whoAtRisk: string;
-  readonly likelihood: string;
-  readonly consequence: string;
-  readonly riskLevel: string;
-  readonly classificationReasoning: string;
-  readonly currentControls: string;
-  readonly costEstimate: string;
-  readonly mitigationActions: readonly RegisterMitigationActionReport[];
-}
-
-export interface RegisterMitigationActionReport {
-  readonly id: string;
-  readonly description: string;
-  readonly assigneeName: string;
-  readonly dueDate: string;
-  readonly statusLabel: string;
-}
-
-export interface RegisterReportDocument extends AssessmentReportHeader {
-  readonly checklistTitle: string;
-  readonly riskMatrixTitle: string;
-  readonly entries: readonly RegisterEntryReport[];
-}
-
-export interface SummaryReportDocument extends AssessmentReportHeader {
-  readonly checklistTitle: string;
-  readonly participants: string;
-  readonly method: string;
-  readonly notes: string;
+export interface AssessmentStructuredReportDocument {
+  readonly title: string;
+  readonly sections: readonly AssessmentReportSection[];
 }
 
 export interface AssessmentReportDocuments {
-  readonly checklist: ChecklistReportDocument;
-  readonly register: RegisterReportDocument;
-  readonly summary: SummaryReportDocument;
+  readonly checklist: AssessmentStructuredReportDocument;
+  readonly register: AssessmentStructuredReportDocument;
+  readonly summary: AssessmentStructuredReportDocument;
 }
 
 export interface RenderedAssessmentReportFile {
@@ -118,12 +72,6 @@ const DOCX_CONTENT_TYPE =
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const PDF_CONTENT_TYPE = "application/pdf";
 const EMPTY_VALUE = "Not provided.";
-const STATUS_LABELS: Record<ChecklistCriterionStatus, string> = {
-  ok: "Ok",
-  notOk: "Not ok",
-  notApplicable: "Not applicable",
-  unanswered: "Unanswered",
-};
 
 export async function renderAssessmentReportFiles(
   documents: AssessmentReportDocuments,
@@ -213,216 +161,39 @@ export async function renderAssessmentReportBundle(params: {
 }
 
 export async function renderChecklistReportDocx(
-  document: ChecklistReportDocument,
+  document: AssessmentStructuredReportDocument,
 ): Promise<Uint8Array> {
-  const children: Array<Paragraph> = [
-    createTitleParagraph("Checklist report"),
-    ...buildHeaderParagraphs(document, [
-      ["Checklist", document.checklistTitle],
-      ["Checklist version", document.checklistVersion],
-    ]),
-  ];
-
-  for (const section of document.sections) {
-    children.push(
-      new Paragraph({
-        heading: HeadingLevel.HEADING_1,
-        text: section.title,
-        spacing: { before: 240, after: 120 },
-      }),
-    );
-
-    for (const criterion of section.criteria) {
-      children.push(
-        new Paragraph({
-          heading: HeadingLevel.HEADING_2,
-          text: `Criterion ${criterion.number} - ${criterion.title}`,
-          spacing: { before: 120, after: 80 },
-        }),
-      );
-      children.push(
-        createKeyValueParagraph("Status", STATUS_LABELS[criterion.status]),
-        createKeyValueParagraph("Notes", toDisplayValue(criterion.notes)),
-        createKeyValueParagraph(
-          "Legal references",
-          criterion.legalReferences.length > 0
-            ? criterion.legalReferences.join(", ")
-            : "No legal references listed.",
-        ),
-      );
-    }
-  }
-
-  return renderDocx(children);
+  return renderAssessmentReportDocx(document);
 }
 
 export async function renderChecklistReportPdf(
-  document: ChecklistReportDocument,
+  document: AssessmentStructuredReportDocument,
 ): Promise<Uint8Array> {
-  return renderPdf((pdf) => {
-    writePdfTitle(pdf, "Checklist report");
-    writePdfHeader(pdf, document, [
-      ["Checklist", document.checklistTitle],
-      ["Checklist version", document.checklistVersion],
-    ]);
-
-    for (const section of document.sections) {
-      writePdfSectionHeading(pdf, section.title);
-
-      for (const criterion of section.criteria) {
-        writePdfEntryHeading(
-          pdf,
-          `Criterion ${criterion.number} - ${criterion.title}`,
-        );
-        writePdfKeyValue(pdf, "Status", STATUS_LABELS[criterion.status]);
-        writePdfKeyValue(pdf, "Notes", toDisplayValue(criterion.notes));
-        writePdfKeyValue(
-          pdf,
-          "Legal references",
-          criterion.legalReferences.length > 0
-            ? criterion.legalReferences.join(", ")
-            : "No legal references listed.",
-        );
-      }
-    }
-  });
+  return renderAssessmentReportPdf(document);
 }
 
 export async function renderRegisterReportDocx(
-  document: RegisterReportDocument,
+  document: AssessmentStructuredReportDocument,
 ): Promise<Uint8Array> {
-  const children: Array<Paragraph> = [
-    createTitleParagraph("Risk register"),
-    ...buildHeaderParagraphs(document, [
-      ["Checklist", document.checklistTitle],
-      ["Risk matrix", document.riskMatrixTitle],
-    ]),
-  ];
-
-  if (document.entries.length === 0) {
-    children.push(
-      createKeyValueParagraph("Entries", "No transferred risk entries were exported."),
-    );
-  }
-
-  for (const [index, entry] of document.entries.entries()) {
-    children.push(
-      new Paragraph({
-        heading: HeadingLevel.HEADING_1,
-        text: `Entry ${index + 1} - ${entry.hazard}`,
-        spacing: { before: 240, after: 120 },
-      }),
-      createKeyValueParagraph(
-        "Traceability",
-        `${entry.sectionTitle} · Criterion ${entry.criterionNumber} · ${entry.criterionTitle}`,
-      ),
-      createKeyValueParagraph("Possible health effects", toDisplayValue(entry.healthEffects)),
-      createKeyValueParagraph("Who is at risk", toDisplayValue(entry.whoAtRisk)),
-      createKeyValueParagraph("Likelihood", toDisplayValue(entry.likelihood)),
-      createKeyValueParagraph("Consequence", toDisplayValue(entry.consequence)),
-      createKeyValueParagraph("Risk level", toDisplayValue(entry.riskLevel)),
-      createKeyValueParagraph(
-        "Classification reasoning",
-        toDisplayValue(entry.classificationReasoning),
-      ),
-      createKeyValueParagraph("Current controls", toDisplayValue(entry.currentControls)),
-      createKeyValueParagraph("Cost estimate", toDisplayValue(entry.costEstimate)),
-      createKeyValueParagraph(
-        "Mitigation actions",
-        formatRegisterMitigationActions(entry.mitigationActions),
-      ),
-    );
-  }
-
-  return renderDocx(children);
+  return renderAssessmentReportDocx(document);
 }
 
 export async function renderRegisterReportPdf(
-  document: RegisterReportDocument,
+  document: AssessmentStructuredReportDocument,
 ): Promise<Uint8Array> {
-  return renderPdf((pdf) => {
-    writePdfTitle(pdf, "Risk register");
-    writePdfHeader(pdf, document, [
-      ["Checklist", document.checklistTitle],
-      ["Risk matrix", document.riskMatrixTitle],
-    ]);
-
-    if (document.entries.length === 0) {
-      writePdfKeyValue(pdf, "Entries", "No transferred risk entries were exported.");
-      return;
-    }
-
-    for (const [index, entry] of document.entries.entries()) {
-      writePdfSectionHeading(pdf, `Entry ${index + 1} - ${entry.hazard}`);
-      writePdfKeyValue(
-        pdf,
-        "Traceability",
-        `${entry.sectionTitle} · Criterion ${entry.criterionNumber} · ${entry.criterionTitle}`,
-      );
-      writePdfKeyValue(pdf, "Possible health effects", toDisplayValue(entry.healthEffects));
-      writePdfKeyValue(pdf, "Who is at risk", toDisplayValue(entry.whoAtRisk));
-      writePdfKeyValue(pdf, "Likelihood", toDisplayValue(entry.likelihood));
-      writePdfKeyValue(pdf, "Consequence", toDisplayValue(entry.consequence));
-      writePdfKeyValue(pdf, "Risk level", toDisplayValue(entry.riskLevel));
-      writePdfKeyValue(
-        pdf,
-        "Classification reasoning",
-        toDisplayValue(entry.classificationReasoning),
-      );
-      writePdfKeyValue(pdf, "Current controls", toDisplayValue(entry.currentControls));
-      writePdfKeyValue(pdf, "Cost estimate", toDisplayValue(entry.costEstimate));
-      writePdfKeyValue(
-        pdf,
-        "Mitigation actions",
-        formatRegisterMitigationActions(entry.mitigationActions),
-      );
-    }
-  });
+  return renderAssessmentReportPdf(document);
 }
 
 export async function renderSummaryReportDocx(
-  document: SummaryReportDocument,
+  document: AssessmentStructuredReportDocument,
 ): Promise<Uint8Array> {
-  const children: Array<Paragraph> = [
-    createTitleParagraph("Assessment summary"),
-    ...buildHeaderParagraphs(document, [["Checklist", document.checklistTitle]]),
-    createKeyValueParagraph("Participants", document.participants),
-    createKeyValueParagraph("Method", document.method),
-    createKeyValueParagraph("Summary notes", document.notes),
-  ];
-
-  return renderDocx(children);
+  return renderAssessmentReportDocx(document);
 }
 
 export async function renderSummaryReportPdf(
-  document: SummaryReportDocument,
+  document: AssessmentStructuredReportDocument,
 ): Promise<Uint8Array> {
-  return renderPdf((pdf) => {
-    writePdfTitle(pdf, "Assessment summary");
-    writePdfHeader(pdf, document, [["Checklist", document.checklistTitle]]);
-    writePdfKeyValue(pdf, "Participants", document.participants);
-    writePdfKeyValue(pdf, "Method", document.method);
-    writePdfKeyValue(pdf, "Summary notes", document.notes);
-  });
-}
-
-function buildHeaderParagraphs(
-  header: AssessmentReportHeader,
-  extraRows: readonly [string, string][],
-): readonly Paragraph[] {
-  const rows: Array<readonly [string, string | null]> = [
-    ["Assessment id", header.assessmentId],
-    ["Workplace", header.workplaceName],
-    ["Workplace address", header.workplaceAddress],
-    ["Company", header.companyName],
-    ["Location", header.location],
-    ["Assessment date", header.assessmentDate],
-    ...extraRows,
-  ];
-
-  return rows.map(([label, value]) =>
-    createKeyValueParagraph(label, toDisplayValue(value)),
-  );
+  return renderAssessmentReportPdf(document);
 }
 
 function createTitleParagraph(text: string): Paragraph {
@@ -455,6 +226,51 @@ function buildTextRuns(value: string): TextRun[] {
 
     return [run];
   });
+}
+
+async function renderAssessmentReportDocx(
+  document: AssessmentStructuredReportDocument,
+): Promise<Uint8Array> {
+  const children: Array<Paragraph> = [createTitleParagraph(document.title)];
+
+  for (const section of document.sections) {
+    children.push(
+      new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        text: section.title,
+        spacing: { before: 240, after: 120 },
+      }),
+    );
+
+    if (section.description) {
+      children.push(
+        new Paragraph({
+          spacing: { after: 80 },
+          text: section.description,
+        }),
+      );
+    }
+
+    for (const row of section.rows ?? []) {
+      children.push(createKeyValueParagraph(row.label, toDisplayValue(row.value)));
+    }
+
+    for (const block of section.blocks ?? []) {
+      children.push(
+        new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          text: block.title,
+          spacing: { before: 120, after: 80 },
+        }),
+      );
+
+      for (const row of block.rows) {
+        children.push(createKeyValueParagraph(row.label, toDisplayValue(row.value)));
+      }
+    }
+  }
+
+  return renderDocx(children);
 }
 
 async function renderDocx(children: readonly Paragraph[]): Promise<Uint8Array> {
@@ -493,30 +309,41 @@ async function renderPdf(
   });
 }
 
-function writePdfTitle(document: PDFKit.PDFDocument, value: string) {
-  document.fontSize(20).font("Helvetica-Bold").text(value);
-  document.moveDown(0.5);
+async function renderAssessmentReportPdf(
+  document: AssessmentStructuredReportDocument,
+): Promise<Uint8Array> {
+  return renderPdf((pdf) => {
+    writePdfTitle(pdf, document.title);
+
+    for (const section of document.sections) {
+      writePdfSectionHeading(pdf, section.title);
+
+      if (section.description) {
+        pdf
+          .fontSize(10)
+          .font("Helvetica")
+          .text(section.description, {
+            width: pdf.page.width - pdf.page.margins.left - pdf.page.margins.right,
+          });
+        pdf.moveDown(0.2);
+      }
+
+      for (const row of section.rows ?? []) {
+        writePdfKeyValue(pdf, row.label, toDisplayValue(row.value));
+      }
+
+      for (const block of section.blocks ?? []) {
+        writePdfEntryHeading(pdf, block.title);
+        for (const row of block.rows) {
+          writePdfKeyValue(pdf, row.label, toDisplayValue(row.value));
+        }
+      }
+    }
+  });
 }
 
-function writePdfHeader(
-  document: PDFKit.PDFDocument,
-  header: AssessmentReportHeader,
-  extraRows: readonly [string, string][],
-) {
-  const rows: Array<readonly [string, string | null]> = [
-    ["Assessment id", header.assessmentId],
-    ["Workplace", header.workplaceName],
-    ["Workplace address", header.workplaceAddress],
-    ["Company", header.companyName],
-    ["Location", header.location],
-    ["Assessment date", header.assessmentDate],
-    ...extraRows,
-  ];
-
-  for (const [label, value] of rows) {
-    writePdfKeyValue(document, label, toDisplayValue(value));
-  }
-
+function writePdfTitle(document: PDFKit.PDFDocument, value: string) {
+  document.fontSize(20).font("Helvetica-Bold").text(value);
   document.moveDown(0.5);
 }
 
@@ -549,24 +376,4 @@ function writePdfKeyValue(
 
 function toDisplayValue(value: string | null | undefined): string {
   return value && value.trim().length > 0 ? value : EMPTY_VALUE;
-}
-
-function formatRegisterMitigationActions(
-  actions: readonly RegisterMitigationActionReport[],
-): string {
-  if (actions.length === 0) {
-    return "No saved mitigation actions.";
-  }
-
-  return actions
-    .map((action, index) => {
-      const detailParts = [
-        `Status: ${action.statusLabel}`,
-        action.assigneeName.trim().length > 0 ? `Assignee: ${action.assigneeName}` : null,
-        action.dueDate.trim().length > 0 ? `Due: ${action.dueDate}` : null,
-      ].filter((value): value is string => value != null);
-
-      return `${index + 1}. ${action.description} (${detailParts.join("; ")})`;
-    })
-    .join("\n");
 }
