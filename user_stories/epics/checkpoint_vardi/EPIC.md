@@ -55,7 +55,9 @@ assessment data model, assessment start, walkthrough capture, transfer into
 the risk register, risk scoring, summary capture, final exports, browser
 proof that the real app boots and that the current blocked-readiness path
 behaves honestly, the app-owned copy seam that keeps Icelandic and
-English rendering from leaking into each other, and now a dedicated
+English rendering from leaking into each other while preserving the
+request-derived `is`/`en` fallback contract later reasserted in PR `#19`,
+and now a dedicated
 app-owned progression owner that keeps guided status and completion
 truth tied to persisted workflow state plus persisted saved reasoning on
 risk classifications that exports can render from stored truth only.

@@ -375,6 +375,10 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > start page and assessment flow including the merged mitigation-action surface.
 > Ran `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, and
 > `pnpm build` under `node v22.22.2`. PR: `#14`.
+> A later merged follow-up in PR `#19` kept the request-derived `is`/`en`
+> seam unchanged, made the `en-US` and Icelandic-fallback contract explicit in
+> focused app-language tests, and reran `pnpm test`, `pnpm typecheck`, and
+> `pnpm lint` under `node v22.22.2`.
 
 ### Step S1-18: Risk severity choice alignment with the reference workflow
 

@@ -15,7 +15,11 @@ Depends on: S1-08
 This story is complete and merged via PR `#14`. The current MVP web flow
 now resolves a temporary request-derived app display language at the
 page/layout boundary, normalizes to `is` or `en`, and falls back to `is`
-without treating request language as durable product truth.
+without treating request language as durable product truth. A later
+merged follow-up in PR `#19` keeps that request-derived contract intact
+while making the fallback expectations explicit in test coverage:
+`en-US -> en`, unsupported request language -> `is`, and missing request
+language -> `is`.
 
 App-owned copy for the start page, walkthrough, risk register, and
 summary/readiness surfaces now lives in `apps/web/lib/i18n/`. Lower
