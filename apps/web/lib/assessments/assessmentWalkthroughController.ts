@@ -77,7 +77,7 @@ export function getAssessmentWalkthroughProgress(
     0,
   );
   const answeredCriteria = Object.values(criterionStates).reduce(
-    (count, state) => count + (state.draft.status === "unanswered" ? 0 : 1),
+    (count, state) => count + (state.saved.status === "unanswered" ? 0 : 1),
     0,
   );
   const completedSections = sections.reduce(
@@ -255,7 +255,7 @@ export function getAnsweredCount(
 ): number {
   return criteria.reduce((count, criterion) => {
     const state = criterionStates[criterion.id];
-    return count + (state && state.draft.status !== "unanswered" ? 1 : 0);
+    return count + (state && state.saved.status !== "unanswered" ? 1 : 0);
   }, 0);
 }
 

@@ -1,6 +1,6 @@
 # S1-12 - Guided assessment progression and completion guards
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P1
@@ -12,19 +12,19 @@ Depends on: S1-11
 
 ## Context
 
-The current assessment slices are structurally sound: walkthrough
-responses persist, `notOk` findings transfer into `risk_entry` rows,
-summary data saves, and export readiness computes from persisted state.
-What is still too open is progression truth. Users can move around the
-flow without a single intentional owner for "not started", "in
-progress", "complete", and "blocked" states across walkthrough, risk
-register, summary, and export.
+This story is complete. The assessment page now uses a dedicated
+app-owned progression projection to derive walkthrough, risk-register,
+summary, and export status from persisted assessment truth only. The
+projection stays structural and reviewable: it returns step completion,
+availability, blocker codes, counts, and export readiness without taking
+ownership of presentation copy.
 
-This story hardens the product into a guided workflow. Downstream steps
-may remain viewable, but the app must stop implying that unsaved local
-defaults or partial work are complete. Completion and readiness must
-remain server/app-owned and persisted-state-derived, not reconstructed ad
-hoc in components.
+The UI now consumes that projection as the single workflow owner for
+guided navigation, persisted progress indicators, and blocked-state
+messaging. Later steps remain visible, but they become blocked as the
+next guided step when an earlier persisted prerequisite reopens.
+Unsaved walkthrough drafts, unsaved summary defaults, and local client
+state never unlock downstream steps or export.
 
 ## Goal
 

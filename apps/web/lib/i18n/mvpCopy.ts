@@ -3,6 +3,12 @@ import type {
   RiskMitigationActionStatus,
 } from "@vardi/schemas";
 import type { RiskLevel } from "@vardi/risk";
+import type {
+  AssessmentProgressionBlocker,
+  AssessmentProgressionCompletionState,
+  AssessmentProgressionStepId,
+  AssessmentProgressionStepStatus,
+} from "@/lib/assessments/loadAssessmentProgressionProjection";
 
 import { getRequestLocale, type AppLanguage } from "./appLanguage";
 
@@ -620,6 +626,158 @@ export function getAssessmentSummaryStaticCopy(language: AppLanguage) {
   return SUMMARY_COPY[language];
 }
 
+export function getAssessmentProgressionStepLabel(
+  language: AppLanguage,
+  stepId: AssessmentProgressionStepId,
+): string {
+  if (language === "is") {
+    switch (stepId) {
+      case "walkthrough":
+        return "Yfirferð";
+      case "riskRegister":
+        return "Áhættuskrá";
+      case "summary":
+        return "Samantekt";
+      case "export":
+        return "Útflutningur";
+    }
+  }
+
+  switch (stepId) {
+    case "walkthrough":
+      return "Walkthrough";
+    case "riskRegister":
+      return "Risk register";
+    case "summary":
+      return "Summary";
+    case "export":
+      return "Export";
+  }
+}
+
+export function getAssessmentProgressionStatusLabel(params: {
+  readonly language: AppLanguage;
+  readonly step: AssessmentProgressionStepStatus;
+  readonly currentStepId: AssessmentProgressionStepId;
+}): string {
+  if (params.currentStepId === params.step.id) {
+    return params.language === "is" ? "Næsta skref" : "Current step";
+  }
+
+  if (params.step.availability === "blocked") {
+    return params.language === "is" ? "Lokað" : "Blocked";
+  }
+
+  return getAssessmentProgressionCompletionLabel(
+    params.language,
+    params.step.completionState,
+  );
+}
+
+export function getAssessmentProgressionMetricLabel(params: {
+  readonly language: AppLanguage;
+  readonly step: AssessmentProgressionStepStatus;
+}): string {
+  const { language, step } = params;
+
+  switch (step.id) {
+    case "walkthrough":
+      return getProgressCountLabel(language, {
+        answeredCriteria: step.answeredCriterionCount,
+        totalCriteria: step.totalCriterionCount,
+      });
+    case "riskRegister":
+      if (step.requiredEntryCount === 0) {
+        return language === "is"
+          ? "Engin vistuð áhættuskrárvinna krafist"
+          : "No persisted register work required";
+      }
+
+      return language === "is"
+        ? `${step.metrics.completedCount} af ${step.metrics.totalCount} lokið`
+        : `${step.metrics.completedCount} of ${step.metrics.totalCount} complete`;
+    case "summary":
+      return language === "is"
+        ? `${step.savedFieldCount} af ${step.requiredFieldCount} vistuðum reitum lokið`
+        : `${step.savedFieldCount} of ${step.requiredFieldCount} saved fields complete`;
+    case "export":
+      return step.exportReady
+        ? language === "is"
+          ? "Tilbúið til útflutnings"
+          : "Ready for export"
+        : language === "is"
+          ? "Útflutningur óopnaður"
+          : "Export still locked";
+  }
+}
+
+export function getAssessmentProgressionGuidanceMessage(params: {
+  readonly language: AppLanguage;
+  readonly step: AssessmentProgressionStepStatus;
+  readonly currentStepId: AssessmentProgressionStepId;
+}): string {
+  if (params.step.availability === "blocked" && params.step.blockedByStepId) {
+    const blockedByLabel = getAssessmentProgressionStepLabel(
+      params.language,
+      params.step.blockedByStepId,
+    );
+
+    return params.language === "is"
+      ? `Ljúktu fyrst við ${blockedByLabel.toLowerCase()} til að gera þetta að næsta leiðbeinda skrefi. Vistað efni helst sýnilegt á meðan.`
+      : `Complete ${blockedByLabel.toLowerCase()} first to make this the next guided step. Saved data stays visible while blocked.`;
+  }
+
+  if (params.currentStepId === params.step.id) {
+    return params.language === "is"
+      ? "Þetta er næsta leiðbeinda skrefið samkvæmt vistaðri stöðu matsins."
+      : "This is the next guided step from the persisted assessment state.";
+  }
+
+  if (params.step.completionState === "complete") {
+    return params.language === "is"
+      ? "Vistaðar forsendur þessa skrefs eru lokið og halda sér sýnilegar hér fyrir neðan."
+      : "The persisted requirements for this step are complete and stay visible below.";
+  }
+
+  return params.language === "is"
+    ? "Vistaðar hindranir og framvinda þessa skrefs haldast hér samstillt."
+    : "The persisted blockers and progress for this step stay aligned here.";
+}
+
+export function getAssessmentProgressionBlockerMessages(
+  language: AppLanguage,
+  blockers: readonly AssessmentProgressionBlocker[],
+): string[] {
+  return blockers.map((blocker) =>
+    getAssessmentProgressionBlockerMessage(language, blocker),
+  );
+}
+
+export function getAssessmentProgressionCompletionLabel(
+  language: AppLanguage,
+  completionState: AssessmentProgressionCompletionState,
+): string {
+  if (language === "is") {
+    switch (completionState) {
+      case "notStarted":
+        return "Ekki hafið";
+      case "inProgress":
+        return "Í vinnslu";
+      case "complete":
+        return "Lokið";
+    }
+  }
+
+  switch (completionState) {
+    case "notStarted":
+      return "Not started";
+    case "inProgress":
+      return "In progress";
+    case "complete":
+      return "Complete";
+  }
+}
+
 export function getAnswerOptions(language: AppLanguage) {
   return ANSWER_OPTION_COPY[language];
 }
@@ -1093,57 +1251,57 @@ export function getReadinessBlockers(
     };
   },
 ): string[] {
-  const blockers: string[] = [];
-
-  if (!readiness.walkthrough.ready) {
-    blockers.push(
-      language === "is"
-        ? `Það vantar svör fyrir ${readiness.walkthrough.unansweredCriterionCount} ${pluralize(readiness.walkthrough.unansweredCriterionCount, "matsatriði", "matsatriði")}.`
-        : `${readiness.walkthrough.unansweredCriterionCount} ${pluralize(readiness.walkthrough.unansweredCriterionCount, "walkthrough item still needs an answer", "walkthrough items still need answers")}.`,
-    );
-  }
-
-  if (!readiness.transfer.ready) {
-    blockers.push(
-      language === "is"
-        ? `Það á eftir að færa ${readiness.transfer.missingRiskEntryCount} ${pluralize(readiness.transfer.missingRiskEntryCount, "viðeigandi niðurstöðu", "viðeigandi niðurstöður")} í áhættuskrána.`
-        : `${readiness.transfer.missingRiskEntryCount} ${pluralize(readiness.transfer.missingRiskEntryCount, "eligible finding still needs transfer", "eligible findings still need transfer")} into the risk register.`,
-    );
-  }
-
-  if (readiness.classification.unclassifiedRiskEntryCount > 0) {
-    blockers.push(
-      language === "is"
-        ? `Vistaða flokkun vantar fyrir ${readiness.classification.unclassifiedRiskEntryCount} ${pluralize(readiness.classification.unclassifiedRiskEntryCount, "færslu", "færslur")}.`
-        : `${readiness.classification.unclassifiedRiskEntryCount} ${pluralize(readiness.classification.unclassifiedRiskEntryCount, "transferred entry still needs a saved classification", "transferred entries still need saved classifications")}.`,
-    );
-  }
-
-  if (readiness.classification.staleRiskEntryCount > 0) {
-    blockers.push(
-      language === "is"
-        ? `${readiness.classification.staleRiskEntryCount} ${pluralize(readiness.classification.staleRiskEntryCount, "færsla er með úrelt vistað stig", "færslur eru með úrelt vistað stig")} og þarf endurvistun.`
-        : `${readiness.classification.staleRiskEntryCount} ${pluralize(readiness.classification.staleRiskEntryCount, "risk entry has a stale saved level", "risk entries have stale saved levels")} and need re-saving.`,
-    );
-  }
-
-  if (readiness.classification.invalidRiskEntryCount > 0) {
-    blockers.push(
-      language === "is"
-        ? `Ekki tókst að staðfesta vistaða flokkun fyrir ${readiness.classification.invalidRiskEntryCount} ${pluralize(readiness.classification.invalidRiskEntryCount, "færslu", "færslur")}.`
-        : `${readiness.classification.invalidRiskEntryCount} ${pluralize(readiness.classification.invalidRiskEntryCount, "risk entry could not verify its saved classification", "risk entries could not verify their saved classifications")}.`,
-    );
-  }
-
-  if (!readiness.summary.ready) {
-    blockers.push(
-      language === "is"
-        ? `Samantekt vantar enn vistuð gildi fyrir ${formatSummaryFieldList(language, readiness.summary.missingFields)}.`
-        : `Summary is still missing saved values for ${formatSummaryFieldList(language, readiness.summary.missingFields)}.`,
-    );
-  }
-
-  return blockers;
+  return getAssessmentProgressionBlockerMessages(language, [
+    ...(readiness.walkthrough.unansweredCriterionCount > 0
+      ? [
+          {
+            code: "walkthroughUnansweredCriteria" as const,
+            count: readiness.walkthrough.unansweredCriterionCount,
+          },
+        ]
+      : []),
+    ...(readiness.transfer.missingRiskEntryCount > 0
+      ? [
+          {
+            code: "riskRegisterMissingTransfers" as const,
+            count: readiness.transfer.missingRiskEntryCount,
+          },
+        ]
+      : []),
+    ...(readiness.classification.unclassifiedRiskEntryCount > 0
+      ? [
+          {
+            code: "riskRegisterUnclassifiedEntries" as const,
+            count: readiness.classification.unclassifiedRiskEntryCount,
+          },
+        ]
+      : []),
+    ...(readiness.classification.staleRiskEntryCount > 0
+      ? [
+          {
+            code: "riskRegisterStaleEntries" as const,
+            count: readiness.classification.staleRiskEntryCount,
+          },
+        ]
+      : []),
+    ...(readiness.classification.invalidRiskEntryCount > 0
+      ? [
+          {
+            code: "riskRegisterInvalidEntries" as const,
+            count: readiness.classification.invalidRiskEntryCount,
+          },
+        ]
+      : []),
+    ...(readiness.summary.missingFields.length > 0
+      ? [
+          {
+            code: "summaryMissingFields" as const,
+            count: readiness.summary.missingFields.length,
+            fieldIds: readiness.summary.missingFields,
+          },
+        ]
+      : []),
+  ]);
 }
 
 export function getPriorityBadgeLabel(params: {
@@ -1299,6 +1457,38 @@ export function getSummaryFieldLabel(
       return "method";
     case "notes":
       return "summary notes";
+  }
+}
+
+function getAssessmentProgressionBlockerMessage(
+  language: AppLanguage,
+  blocker: AssessmentProgressionBlocker,
+): string {
+  switch (blocker.code) {
+    case "walkthroughUnansweredCriteria":
+      return language === "is"
+        ? `Það vantar svör fyrir ${blocker.count} ${pluralize(blocker.count, "matsatriði", "matsatriði")}.`
+        : `${blocker.count} ${pluralize(blocker.count, "walkthrough item still needs an answer", "walkthrough items still need answers")}.`;
+    case "riskRegisterMissingTransfers":
+      return language === "is"
+        ? `Það á eftir að færa ${blocker.count} ${pluralize(blocker.count, "viðeigandi niðurstöðu", "viðeigandi niðurstöður")} í áhættuskrána.`
+        : `${blocker.count} ${pluralize(blocker.count, "eligible finding still needs transfer", "eligible findings still need transfer")} into the risk register.`;
+    case "riskRegisterUnclassifiedEntries":
+      return language === "is"
+        ? `Vistaða flokkun vantar fyrir ${blocker.count} ${pluralize(blocker.count, "færslu", "færslur")}.`
+        : `${blocker.count} ${pluralize(blocker.count, "transferred entry still needs a saved classification", "transferred entries still need saved classifications")}.`;
+    case "riskRegisterStaleEntries":
+      return language === "is"
+        ? `${blocker.count} ${pluralize(blocker.count, "færsla er með úrelt vistað stig", "færslur eru með úrelt vistað stig")} og þarf endurvistun.`
+        : `${blocker.count} ${pluralize(blocker.count, "risk entry has a stale saved level", "risk entries have stale saved levels")} and need re-saving.`;
+    case "riskRegisterInvalidEntries":
+      return language === "is"
+        ? `Ekki tókst að staðfesta vistaða flokkun fyrir ${blocker.count} ${pluralize(blocker.count, "færslu", "færslur")}.`
+        : `${blocker.count} ${pluralize(blocker.count, "risk entry could not verify its saved classification", "risk entries could not verify their saved classifications")}.`;
+    case "summaryMissingFields":
+      return language === "is"
+        ? `Samantekt vantar enn vistuð gildi fyrir ${formatSummaryFieldList(language, blocker.fieldIds ?? [])}.`
+        : `Summary is still missing saved values for ${formatSummaryFieldList(language, blocker.fieldIds ?? [])}.`;
   }
 }
 

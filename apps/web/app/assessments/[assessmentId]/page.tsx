@@ -2,9 +2,11 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { AssessmentAggregateNotFoundError } from "@vardi/db";
 
+import { AssessmentProgressionProvider } from "./_components/AssessmentProgressionContext";
 import { AssessmentSummaryEditor } from "./_components/AssessmentSummaryEditor";
 import { AssessmentWalkthrough } from "./_components/AssessmentWalkthrough";
 import { RiskRegisterEditor } from "./_components/RiskRegisterEditor";
+import { loadAssessmentProgressionProjection } from "@/lib/assessments/loadAssessmentProgressionProjection";
 import { loadAssessmentReadModel } from "@/lib/assessments/loadAssessmentReadModel";
 import { loadAssessmentRiskRegisterProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
 import { loadAssessmentSummaryProjection } from "@/lib/assessments/loadAssessmentSummaryProjection";
@@ -44,37 +46,49 @@ export default async function AssessmentWalkthroughPage({
       assessmentId,
       riskRegisterProjection,
     });
+    const progression = loadAssessmentProgressionProjection({
+      db,
+      ownerId,
+      assessmentId,
+      readModel,
+      riskRegisterProjection,
+      summaryProjection,
+    });
 
     return (
-      <AssessmentWalkthrough
+      <AssessmentProgressionProvider
         assessmentId={readModel.assessment.id}
-        checklistTitle={readModel.checklist.translations.is.title}
-        checklistVersion={readModel.checklist.version}
-        language={language}
-        riskMatrixTitle={readModel.riskMatrix.translations.is.title}
-        sections={readModel.sections}
-        workplaceName={readModel.workplace.name}
+        initialProgression={progression}
       >
-        <RiskRegisterEditor
+        <AssessmentWalkthrough
           assessmentId={readModel.assessment.id}
-          entries={riskRegisterProjection.entries}
+          checklistTitle={readModel.checklist.translations.is.title}
+          checklistVersion={readModel.checklist.version}
           language={language}
-          riskMatrixConsequenceLevels={
-            riskRegisterProjection.riskMatrix.consequenceLevels
-          }
-          riskMatrixLikelihoodLevels={
-            riskRegisterProjection.riskMatrix.likelihoodLevels
-          }
-          riskMatrixTitle={riskRegisterProjection.riskMatrix.title}
-        />
-        <AssessmentSummaryEditor
-          assessmentId={readModel.assessment.id}
-          language={language}
-          prioritizedEntries={summaryProjection.prioritizedEntries}
-          readiness={summaryProjection.readiness}
-          summary={summaryProjection.summary}
-        />
-      </AssessmentWalkthrough>
+          riskMatrixTitle={readModel.riskMatrix.translations.is.title}
+          sections={readModel.sections}
+          workplaceName={readModel.workplace.name}
+        >
+          <RiskRegisterEditor
+            assessmentId={readModel.assessment.id}
+            entries={riskRegisterProjection.entries}
+            language={language}
+            riskMatrixConsequenceLevels={
+              riskRegisterProjection.riskMatrix.consequenceLevels
+            }
+            riskMatrixLikelihoodLevels={
+              riskRegisterProjection.riskMatrix.likelihoodLevels
+            }
+            riskMatrixTitle={riskRegisterProjection.riskMatrix.title}
+          />
+          <AssessmentSummaryEditor
+            assessmentId={readModel.assessment.id}
+            language={language}
+            prioritizedEntries={summaryProjection.prioritizedEntries}
+            summary={summaryProjection.summary}
+          />
+        </AssessmentWalkthrough>
+      </AssessmentProgressionProvider>
     );
   } catch (error) {
     if (error instanceof AssessmentAggregateNotFoundError) {

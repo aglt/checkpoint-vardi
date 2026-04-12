@@ -1,7 +1,4 @@
-import type {
-  AssessmentExportReadiness,
-  SaveAssessmentSummaryOutput,
-} from "@vardi/schemas";
+import type { SaveAssessmentSummaryOutput } from "@vardi/schemas";
 
 import type {
   AssessmentSummaryProjection,
@@ -22,7 +19,6 @@ export interface AssessmentSummaryDraft {
 export interface AssessmentSummaryClientState {
   readonly saved: AssessmentSummaryDraft;
   readonly draft: AssessmentSummaryDraft;
-  readonly readiness: AssessmentExportReadiness;
   readonly saveState: SaveState;
   readonly errorMessage: string | null;
   readonly requestId: number;
@@ -30,12 +26,10 @@ export interface AssessmentSummaryClientState {
 
 export function buildInitialAssessmentSummaryState(
   summary: AssessmentSummaryProjection["summary"],
-  readiness: AssessmentSummaryProjection["readiness"],
 ): AssessmentSummaryClientState {
   return {
     saved: toSavedSummaryDraft(summary.saved),
     draft: summary.form,
-    readiness,
     saveState: "idle",
     errorMessage: null,
     requestId: 0,
@@ -99,7 +93,6 @@ export function reconcileAssessmentSummarySaveSuccess(
     ...state,
     saved: savedDraft,
     draft: draftChangedSinceSend ? state.draft : savedDraft,
-    readiness: response.readiness,
     saveState: "idle",
     errorMessage: null,
   };

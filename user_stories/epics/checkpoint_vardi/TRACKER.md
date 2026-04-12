@@ -25,7 +25,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-08 | Report export for checklist, register, and summary      | done         | #10 |
 | S1-10 | Browser E2E foundation and blocked-readiness baseline   | done         | #12 |
 | S1-11 | Risk mitigation planning on risk entries                | done         | #13 |
-| S1-12 | Guided assessment progression and completion guards     | not_started  |    |
+| S1-12 | Guided assessment progression and completion guards     | done         |    |
 | S1-13 | Explicit risk reasoning capture                         | not_started  |    |
 | S1-14 | Compliance-oriented export framing and assessment metadata | not_started |    |
 | S1-15 | Sector/profile-specific assessment rules via seed-owned runtime extensions | not_started |    |
@@ -43,7 +43,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 **Next up:**
 
-- `S1-12 - Guided assessment progression and completion guards`
+- `S1-13 - Explicit risk reasoning capture`
 - Keep `S1-16` parked until the action-planning, progression, reasoning,
   export-framing, and runtime-rule slices have settled on `main`.
 - Keep `S1-09` narrowly scoped and non-blocking unless a later active follow-up exposes a concrete need for it.

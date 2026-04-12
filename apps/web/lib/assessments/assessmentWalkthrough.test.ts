@@ -613,6 +613,52 @@ test("assessment page renders the summary editor with workplace defaults and rea
   assert.match(markup, /data-export-button-state="idle"/);
 });
 
+test("assessment page renders progression navigation and keeps blocked later steps visible from persisted state", async () => {
+  const fixture = seedWalkthroughAssessment();
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  const { default: AssessmentPage } = await import(
+    "../../app/assessments/[assessmentId]/page"
+  );
+  const markup = renderWithAppRouter(
+    await AssessmentPage({
+      params: Promise.resolve({
+        assessmentId: fixture.assessmentId,
+      }),
+    }),
+  );
+
+  assert.match(markup, /data-assessment-current-step="walkthrough"/);
+  assert.match(
+    markup,
+    /<a[^>]*data-progression-current="true"[^>]*data-progression-step-id="walkthrough"[^>]*>/,
+  );
+  assert.match(
+    markup,
+    /<a[^>]*data-progression-availability="blocked"[^>]*data-progression-step-id="riskRegister"[^>]*>/,
+  );
+  assert.match(
+    markup,
+    /<a[^>]*data-progression-availability="blocked"[^>]*data-progression-step-id="summary"[^>]*>/,
+  );
+  assert.match(
+    markup,
+    /<a[^>]*data-progression-availability="blocked"[^>]*data-progression-step-id="export"[^>]*>/,
+  );
+  assert.match(
+    markup,
+    /<section[^>]*data-step-availability="blocked"[^>]*id="assessment-step-riskRegister"[^>]*>/,
+  );
+  assert.match(
+    markup,
+    /<section[^>]*data-step-availability="blocked"[^>]*id="assessment-step-summary"[^>]*>/,
+  );
+  assert.match(
+    markup,
+    /<section[^>]*data-step-availability="blocked"[^>]*id="assessment-step-export"[^>]*>/,
+  );
+});
+
 test("summary save round-trip persists the final summary and flips export readiness after the persisted flow is complete", async () => {
   const fixture = seedWalkthroughAssessment();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
@@ -694,6 +740,92 @@ test("summary save round-trip persists the final summary and flips export readin
     markup,
     /Útflutningur notar vistaðan gátlista, áhættuskrá og samantektargildi\./,
   );
+});
+
+test("assessment page keeps later persisted data visible while walkthrough regression re-blocks guidance", async () => {
+  const fixture = seedWalkthroughAssessment();
+  process.env.VARDI_DATABASE_PATH = fixture.databasePath;
+
+  markAllFindingsOk(fixture);
+
+  const riskEntryId = await transferSecondCriterionRiskEntry(fixture);
+  const { saveAssessmentRiskEntryAction } = await import(
+    "./saveAssessmentRiskEntryAction"
+  );
+  const { saveAssessmentSummaryAction } = await import(
+    "./saveAssessmentSummaryAction"
+  );
+
+  await saveAssessmentRiskEntryAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      riskEntryId,
+      hazard: "Table saw without guard",
+      healthEffects: "Hand injury",
+      whoAtRisk: "Students and staff",
+      likelihood: 2,
+      consequence: 3,
+      currentControls: "Safety signage",
+      costEstimate: 25000,
+    },
+  });
+
+  await saveAssessmentSummaryAction({
+    assessmentId: fixture.assessmentId,
+    input: {
+      companyName: "FB workshop",
+      location: "Austurberg 5",
+      assessmentDate: "2026-04-20",
+      participants: "Student assessor",
+      method: "Walkthrough",
+      notes: "Prioritize guarding and dust extraction first.",
+    },
+  });
+
+  const connection = createBootstrappedDatabase(fixture.databasePath);
+  connection.sqlite
+    .prepare(`
+      update finding
+      set status = ?, notes = ?, updated_at = ?
+      where owner_id = ? and assessment_id = ? and criterion_id = ?
+    `)
+    .run(
+      "unanswered",
+      null,
+      new Date("2026-04-11T10:20:00.000Z").getTime(),
+      "owner-1",
+      fixture.assessmentId,
+      fixture.secondCriterion.id,
+    );
+  closeDatabase(connection);
+
+  const { default: AssessmentPage } = await import(
+    "../../app/assessments/[assessmentId]/page"
+  );
+  const markup = renderWithAppRouter(
+    await AssessmentPage({
+      params: Promise.resolve({
+        assessmentId: fixture.assessmentId,
+      }),
+    }),
+  );
+
+  assert.match(markup, /data-assessment-current-step="walkthrough"/);
+  assert.match(
+    markup,
+    /<section[^>]*data-step-availability="blocked"[^>]*data-step-completion="complete"[^>]*id="assessment-step-riskRegister"[^>]*>/,
+  );
+  assert.match(
+    markup,
+    /<section[^>]*data-step-availability="blocked"[^>]*data-step-completion="complete"[^>]*id="assessment-step-summary"[^>]*>/,
+  );
+  assert.match(
+    markup,
+    /<section[^>]*data-step-availability="blocked"[^>]*data-step-completion="inProgress"[^>]*id="assessment-step-export"[^>]*>/,
+  );
+  assert.match(markup, /Table saw without guard/);
+  assert.match(markup, /Prioritize guarding and dust extraction first\./);
+  assert.match(markup, /Vistað efni helst sýnilegt á meðan\./);
 });
 
 function escapeRegExp(value: string): string {

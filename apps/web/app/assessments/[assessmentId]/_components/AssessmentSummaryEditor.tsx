@@ -15,6 +15,11 @@ import {
 } from "@/lib/assessments/assessmentSummaryController";
 import type { AppLanguage } from "@/lib/i18n/appLanguage";
 import {
+  getAssessmentProgressionBlockerMessages,
+  getAssessmentProgressionGuidanceMessage,
+  getAssessmentProgressionMetricLabel,
+  getAssessmentProgressionStatusLabel,
+  getAssessmentProgressionStepLabel,
   buildLocalizedDownloadMessage,
   getAssessmentSummaryStaticCopy,
   getExportMessage,
@@ -26,13 +31,13 @@ import {
 import { generateAssessmentExportBundleAction } from "@/lib/assessments/generateAssessmentExportBundleAction";
 import type { AssessmentSummaryProjection } from "@/lib/assessments/loadAssessmentSummaryProjection";
 import { saveAssessmentSummaryAction } from "@/lib/assessments/saveAssessmentSummaryAction";
+import { useAssessmentProgression } from "./AssessmentProgressionContext";
 
 interface AssessmentSummaryEditorProps {
   readonly assessmentId: string;
   readonly language: AppLanguage;
   readonly summary: AssessmentSummaryProjection["summary"];
   readonly prioritizedEntries: AssessmentSummaryProjection["prioritizedEntries"];
-  readonly readiness: AssessmentSummaryProjection["readiness"];
 }
 
 export function AssessmentSummaryEditor({
@@ -40,11 +45,14 @@ export function AssessmentSummaryEditor({
   language,
   summary,
   prioritizedEntries,
-  readiness,
 }: AssessmentSummaryEditorProps) {
+  const { progression, refreshProgression } = useAssessmentProgression();
   const copy = getAssessmentSummaryStaticCopy(language);
+  const readiness = progression.exportReadiness;
+  const summaryStep = progression.summary;
+  const exportStep = progression.export;
   const [summaryState, setSummaryState] = useState<AssessmentSummaryClientState>(
-    () => buildInitialAssessmentSummaryState(summary, readiness),
+    () => buildInitialAssessmentSummaryState(summary),
   );
   const [exportState, setExportState] = useState<{
     readonly status: "idle" | "exporting" | "error" | "success";
@@ -55,32 +63,43 @@ export function AssessmentSummaryEditor({
   });
 
   useEffect(() => {
-    setSummaryState(buildInitialAssessmentSummaryState(summary, readiness));
-  }, [readiness, summary]);
+    setSummaryState(buildInitialAssessmentSummaryState(summary));
+  }, [summary]);
 
   useEffect(() => {
     setExportState({
       status: "idle",
       message: null,
     });
-  }, [assessmentId, readiness, summary]);
+  }, [assessmentId, readiness.exportReady, summary]);
 
-  const readinessBlockers = getReadinessBlockers(language, summaryState.readiness);
+  const readinessBlockers = getReadinessBlockers(language, readiness);
+  const summaryBlockerMessages = getAssessmentProgressionBlockerMessages(
+    language,
+    summaryStep.blockers,
+  );
+  const exportBlockerMessages = getAssessmentProgressionBlockerMessages(
+    language,
+    exportStep.blockers,
+  );
   const classificationPendingCount =
-    summaryState.readiness.classification.unclassifiedRiskEntryCount +
-    summaryState.readiness.classification.staleRiskEntryCount +
-    summaryState.readiness.classification.invalidRiskEntryCount;
+    readiness.classification.unclassifiedRiskEntryCount +
+    readiness.classification.staleRiskEntryCount +
+    readiness.classification.invalidRiskEntryCount;
   const summaryDirty = isAssessmentSummaryDirty(summaryState);
   const exportDisabled =
     exportState.status === "exporting" ||
     summaryState.saveState === "saving" ||
-    !summaryState.readiness.exportReady ||
+    !readiness.exportReady ||
     summaryDirty;
 
   return (
     <section
       className="rounded-[2rem] border border-black/10 bg-[linear-gradient(180deg,rgba(255,252,246,0.94)_0%,rgba(246,239,226,0.92)_100%)] p-4 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur sm:p-5 lg:p-6"
-      data-summary-readiness={summaryState.readiness.exportReady ? "ready" : "blocked"}
+      data-step-availability={summaryStep.availability}
+      data-step-completion={summaryStep.completionState}
+      data-summary-readiness={readiness.exportReady ? "ready" : "blocked"}
+      id="assessment-step-summary"
     >
       <div className="flex flex-col gap-3 border-b border-black/8 pb-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2">
@@ -96,13 +115,39 @@ export function AssessmentSummaryEditor({
         </div>
         <div
           className={getExportReadinessBadgeClassName(
-            summaryState.readiness.exportReady,
+            readiness.exportReady,
           )}
         >
-          {summaryState.readiness.exportReady
+          {readiness.exportReady
             ? copy.readinessBadge.ready
             : copy.readinessBadge.blocked}
         </div>
+      </div>
+
+      <div className={getStepBannerClassName(summaryStep.availability)}>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className={getStepBannerPillClassName(summaryStep.availability)}>
+            {getAssessmentProgressionStatusLabel({
+              language,
+              step: summaryStep,
+              currentStepId: progression.currentStepId,
+            })}
+          </span>
+          <p className="text-sm leading-6 text-slate-700">
+            {getAssessmentProgressionGuidanceMessage({
+              language,
+              step: summaryStep,
+              currentStepId: progression.currentStepId,
+            })}
+          </p>
+        </div>
+        {summaryBlockerMessages.length > 0 ? (
+          <div className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+            {summaryBlockerMessages.map((message) => (
+              <p key={message}>{message}</p>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_22rem]">
@@ -237,34 +282,32 @@ export function AssessmentSummaryEditor({
 
               <div className="space-y-2">
                 <ReadinessRow
-                  count={
-                    summaryState.readiness.walkthrough.unansweredCriterionCount
-                  }
+                  count={readiness.walkthrough.unansweredCriterionCount}
                   dataKey="walkthrough"
                   label={copy.readiness.labels.walkthrough}
                   language={language}
-                  ready={summaryState.readiness.walkthrough.ready}
+                  ready={readiness.walkthrough.ready}
                 />
                 <ReadinessRow
-                  count={summaryState.readiness.transfer.missingRiskEntryCount}
+                  count={readiness.transfer.missingRiskEntryCount}
                   dataKey="transfer"
                   label={copy.readiness.labels.transfer}
                   language={language}
-                  ready={summaryState.readiness.transfer.ready}
+                  ready={readiness.transfer.ready}
                 />
                 <ReadinessRow
                   count={classificationPendingCount}
                   dataKey="classification"
                   label={copy.readiness.labels.classification}
                   language={language}
-                  ready={summaryState.readiness.classification.ready}
+                  ready={readiness.classification.ready}
                 />
                 <ReadinessRow
-                  count={summaryState.readiness.summary.missingFields.length}
+                  count={readiness.summary.missingFields.length}
                   dataKey="summary"
                   label={copy.readiness.labels.summary}
                   language={language}
-                  ready={summaryState.readiness.summary.ready}
+                  ready={readiness.summary.ready}
                 />
               </div>
 
@@ -355,20 +398,8 @@ export function AssessmentSummaryEditor({
               language,
               saveState: summaryState.saveState,
               dirty: summaryDirty,
-              exportReady: summaryState.readiness.exportReady,
+              exportReady: readiness.exportReady,
               errorMessage: summaryState.errorMessage,
-            })}
-          </p>
-          <p
-            aria-live="polite"
-            className={getExportMessageClassName(exportState.status)}
-            data-export-state={exportState.status}
-          >
-            {getExportMessage({
-              language,
-              exportReady: summaryState.readiness.exportReady,
-              exportState,
-              summaryDirty,
             })}
           </p>
         </div>
@@ -386,6 +417,78 @@ export function AssessmentSummaryEditor({
               ? copy.saveButtonSaving
               : copy.saveButton}
           </button>
+        </div>
+      </div>
+
+      <section
+        className="mt-5 rounded-[1.75rem] border border-black/10 bg-[#f7f2e8] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] sm:px-5"
+        data-step-availability={exportStep.availability}
+        data-step-completion={exportStep.completionState}
+        id="assessment-step-export"
+      >
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+            {getAssessmentProgressionStepLabel(language, exportStep.id)}
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xl font-semibold tracking-tight text-slate-950">
+                {getAssessmentProgressionMetricLabel({
+                  language,
+                  step: exportStep,
+                })}
+              </h3>
+              <p className="text-sm leading-6 text-slate-600">
+                {copy.readiness.description}
+              </p>
+            </div>
+            <span className={getExportReadinessBadgeClassName(readiness.exportReady)}>
+              {readiness.exportReady
+                ? copy.readinessBadge.ready
+                : copy.readinessBadge.blocked}
+            </span>
+          </div>
+        </div>
+
+        <div className={getStepBannerClassName(exportStep.availability)}>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className={getStepBannerPillClassName(exportStep.availability)}>
+              {getAssessmentProgressionStatusLabel({
+                language,
+                step: exportStep,
+                currentStepId: progression.currentStepId,
+              })}
+            </span>
+            <p className="text-sm leading-6 text-slate-700">
+              {getAssessmentProgressionGuidanceMessage({
+                language,
+                step: exportStep,
+                currentStepId: progression.currentStepId,
+              })}
+            </p>
+          </div>
+          {exportBlockerMessages.length > 0 ? (
+            <div className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+              {exportBlockerMessages.map((message) => (
+                <p key={message}>{message}</p>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <p
+            aria-live="polite"
+            className={getExportMessageClassName(exportState.status)}
+            data-export-state={exportState.status}
+          >
+            {getExportMessage({
+              language,
+              exportReady: readiness.exportReady,
+              exportState,
+              summaryDirty,
+            })}
+          </p>
           <button
             className={getExportButtonClassName(exportDisabled)}
             data-export-button-state={exportState.status}
@@ -398,7 +501,7 @@ export function AssessmentSummaryEditor({
               : copy.exportButton}
           </button>
         </div>
-      </div>
+      </section>
     </section>
   );
 
@@ -449,6 +552,7 @@ export function AssessmentSummaryEditor({
             ),
           );
         });
+        await refreshProgression();
       } catch (error: unknown) {
         startTransition(() => {
           setSummaryState((current) =>
@@ -604,6 +708,24 @@ function getExportButtonClassName(disabled: boolean): string {
     disabled
       ? "cursor-not-allowed border border-black/8 bg-black/5 text-slate-400"
       : "border border-[#132b4f] bg-[#132b4f] text-white hover:bg-[#0f2340]",
+  );
+}
+
+function getStepBannerClassName(availability: "available" | "blocked"): string {
+  return joinClasses(
+    "mt-4 rounded-[1.5rem] border px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]",
+    availability === "blocked"
+      ? "border-[#d7b778] bg-[#fff2d4]"
+      : "border-black/10 bg-white/82",
+  );
+}
+
+function getStepBannerPillClassName(availability: "available" | "blocked"): string {
+  return joinClasses(
+    "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]",
+    availability === "blocked"
+      ? "border-[#d7b778] bg-white text-[#805312]"
+      : "border-black/10 bg-white text-slate-700",
   );
 }
 

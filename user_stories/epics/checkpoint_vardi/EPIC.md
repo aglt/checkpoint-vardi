@@ -19,9 +19,10 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-08` is complete and now lives under `done/`
 - `S1-10` is complete and now lives under `done/`
 - `S1-11` is complete and now lives under `done/`
+- `S1-12` is complete and now lives under `done/`
 - `S1-17` is complete and now lives under `done/`
-- `S1-09` and `S1-12` through `S1-18` are staged under `not_started/`
-- the next implementation story is `S1-12`
+- `S1-09` and `S1-13` through `S1-18` are staged under `not_started/`
+- the next implementation story is `S1-13`
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -29,9 +30,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S1-17 - Language-consistent web content for the current MVP flow`
-- Story file: `user_stories/epics/checkpoint_vardi/done/S1-17-language-consistent-web-content.md`
-- Next story: `S1-12 - Guided assessment progression and completion guards`
+- Most recently completed story: `S1-12 - Guided assessment progression and completion guards`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S1-12-guided-assessment-progression-and-completion-guards.md`
+- Next story: `S1-13 - Explicit risk reasoning capture`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -40,7 +41,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 ### S1 - MVP assessment workflow
 
-The completed delivery slice now runs from `S1-02` through `S1-11`, with
+The completed delivery slice now runs from `S1-02` through `S1-12`, with
 `S1-17` tightening the same MVP flow by making app-owned web copy render
 consistently through a single request-derived app-language seam. Together
 these stories moved the repo from "runnable scaffold" to a
@@ -50,8 +51,10 @@ start, walkthrough, risk-register, and summary surfaces: seed truth,
 assessment data model, assessment start, walkthrough capture, transfer into
 the risk register, risk scoring, summary capture, final exports, browser
 proof that the real app boots and that the current blocked-readiness path
-behaves honestly, and now the app-owned copy seam that keeps Icelandic and
-English rendering from leaking into each other.
+behaves honestly, the app-owned copy seam that keeps Icelandic and
+English rendering from leaking into each other, and now a dedicated
+app-owned progression owner that keeps guided status and completion
+truth tied to persisted workflow state.
 
 `S1-01` established the canonical seed runtime truth and the package-owned
 read seam that every later S1 story depends on. `S1-02` established the narrow
@@ -73,8 +76,9 @@ exports plus a downloadable Word/PDF bundle on the summary step. `S1-10` now
 adds the first Playwright-based browser-level proof layer together with a
 deterministic isolated SQLite bootstrap for local runs, explicit runtime/testing
 DB entrypoints, and a truthful blocked-readiness workflow spec. `S1-11` now
-introduces persisted mitigation planning on `risk_entry` rows, `S1-12`
-then hardens truthful progression and completion guards, `S1-13` captures
+introduces persisted mitigation planning on `risk_entry` rows, `S1-12` now
+hardens truthful progression and completion guards through an app-owned
+persisted-state projection, `S1-13` captures
 explicit saved reasoning for risk classifications, `S1-14` strengthens export
 framing and metadata without overclaiming compliance status, `S1-15` lets a
 small supported rule set flow from seed/runtime truth into the app, and
@@ -93,8 +97,8 @@ groundwork.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. Stage One now has its first browser-proof baseline through
-`S1-11` plus the current app-language consistency follow-up through `S1-17`;
-the next staged story is `S1-12`, `S1-16` remains the later browser-export
+`S1-12` plus the current app-language consistency follow-up through `S1-17`;
+the next staged story is `S1-13`, `S1-16` remains the later browser-export
 regression proof once the flow settles, `S1-18` tracks the named
 severity-choice alignment gap, and `S1-09` stays conditional and non-blocking.
 

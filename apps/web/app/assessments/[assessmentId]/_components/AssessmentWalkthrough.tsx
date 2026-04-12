@@ -10,8 +10,6 @@ import {
   buildInitialCriterionState,
   canPersistCriterionDraft,
   getAnsweredCount,
-  getAssessmentRiskTransferProgress,
-  getAssessmentWalkthroughProgress,
   isDirty,
   markTransferredRiskEntriesPresent,
   reconcileCriterionSaveFailure,
@@ -26,8 +24,16 @@ import type {
   AssessmentSectionReadModel,
   PresenceStatus,
 } from "@/lib/assessments/loadAssessmentReadModel";
+import type {
+  AssessmentProgressionStepId,
+  AssessmentProgressionStepStatus,
+} from "@/lib/assessments/loadAssessmentProgressionProjection";
 import type { AppLanguage } from "@/lib/i18n/appLanguage";
 import {
+  getAssessmentProgressionGuidanceMessage,
+  getAssessmentProgressionMetricLabel,
+  getAssessmentProgressionStatusLabel,
+  getAssessmentProgressionStepLabel,
   buildTransferSuccessMessage,
   getAnswerOptions,
   getAssessmentWalkthroughStaticCopy,
@@ -42,6 +48,7 @@ import {
 } from "@/lib/i18n/mvpCopy";
 import { saveAssessmentCriterionResponseAction } from "@/lib/assessments/saveAssessmentCriterionResponseAction";
 import { transferAssessmentFindingsToRiskRegisterAction } from "@/lib/assessments/transferAssessmentFindingsToRiskRegisterAction";
+import { useAssessmentProgression } from "./AssessmentProgressionContext";
 
 interface AssessmentWalkthroughProps {
   readonly assessmentId: string;
@@ -65,6 +72,7 @@ export function AssessmentWalkthrough({
   children,
 }: AssessmentWalkthroughProps) {
   const router = useRouter();
+  const { progression, refreshProgression } = useAssessmentProgression();
   const copy = getAssessmentWalkthroughStaticCopy(language);
   const answerOptions =
     getAnswerOptions(language) satisfies ReadonlyArray<{
@@ -105,26 +113,26 @@ export function AssessmentWalkthrough({
   useEffect(() => {
     setRiskEntryStatusByCriterionId(buildInitialCriterionRiskEntryStatus(sections));
   }, [sections]);
-
-  const {
-    totalCriteria,
-    answeredCriteria,
-    completedSections,
-    progressPercentage,
-  } = getAssessmentWalkthroughProgress(sections, criterionStates);
-  const {
-    eligibleCriteria: eligibleTransferCriteria,
-    transferredCriteria,
-    remainingCriteria,
-  } = getAssessmentRiskTransferProgress(
-    criterionStates,
-    riskEntryStatusByCriterionId,
-  );
+  const walkthroughStep = progression.walkthrough;
+  const riskRegisterStep = progression.riskRegister;
+  const progressPercentage = walkthroughStep.metrics.percentage;
+  const answeredCriteria = walkthroughStep.answeredCriterionCount;
+  const totalCriteria = walkthroughStep.totalCriterionCount;
+  const completedSections = walkthroughStep.completedSectionCount;
+  const eligibleTransferCriteria = riskRegisterStep.eligibleFindingCount;
+  const transferredCriteria = riskRegisterStep.transferredRiskEntryCount;
+  const remainingCriteria = riskRegisterStep.missingTransferCount;
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(115,138,92,0.18),transparent_34%),linear-gradient(180deg,#f7f1e6_0%,#efe5d1_54%,#e5dcc8_100%)] px-4 py-6 text-slate-950 sm:px-6 lg:px-8">
+    <main
+      className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(115,138,92,0.18),transparent_34%),linear-gradient(180deg,#f7f1e6_0%,#efe5d1_54%,#e5dcc8_100%)] px-4 py-6 text-slate-950 sm:px-6 lg:px-8"
+      data-assessment-current-step={progression.currentStepId}
+    >
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-        <section className="overflow-hidden rounded-[2rem] border border-black/10 bg-white/80 shadow-[0_28px_80px_rgba(28,29,24,0.12)] backdrop-blur">
+        <section
+          className="overflow-hidden rounded-[2rem] border border-black/10 bg-white/80 shadow-[0_28px_80px_rgba(28,29,24,0.12)] backdrop-blur"
+          id="assessment-step-walkthrough"
+        >
           <div className="grid gap-6 px-5 py-6 sm:px-6 lg:grid-cols-[minmax(0,1.3fr)_20rem] lg:px-8 lg:py-8">
             <div className="space-y-5">
               <div className="space-y-3">
@@ -193,20 +201,71 @@ export function AssessmentWalkthrough({
         <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
           <aside className="order-first self-start space-y-4 lg:sticky lg:top-6">
             <div className="rounded-[1.75rem] border border-black/10 bg-white/82 px-5 py-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                      {copy.transfer.eyebrow}
-                    </p>
-                    <div className="space-y-1">
-                      <h2 className="text-lg font-semibold tracking-tight text-slate-950">
-                        {copy.transfer.heading}
-                      </h2>
-                      <p className="text-sm leading-6 text-slate-600">
-                        {copy.transfer.description}
-                      </p>
+              <div className="space-y-4">
+                {progression.steps.map((step) => (
+                  <a
+                    className="block rounded-[1.3rem] border border-black/10 bg-[#fbf7ef] px-4 py-4 transition hover:border-[#6f8460]"
+                    data-progression-availability={step.availability}
+                    data-progression-completion={step.completionState}
+                    data-progression-current={
+                      progression.currentStepId === step.id ? "true" : "false"
+                    }
+                    data-progression-step-id={step.id}
+                    href={`#assessment-step-${step.id}`}
+                    key={step.id}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                          {getAssessmentProgressionStepLabel(language, step.id)}
+                        </div>
+                        <div className="text-sm font-semibold leading-6 text-slate-950">
+                          {getAssessmentProgressionMetricLabel({
+                            language,
+                            step,
+                          })}
+                        </div>
+                      </div>
+                      <span
+                        className={getProgressionPillClassName(
+                          step,
+                          progression.currentStepId,
+                        )}
+                      >
+                        {getAssessmentProgressionStatusLabel({
+                          language,
+                          step,
+                          currentStepId: progression.currentStepId,
+                        })}
+                      </span>
                     </div>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      {getAssessmentProgressionGuidanceMessage({
+                        language,
+                        step,
+                        currentStepId: progression.currentStepId,
+                      })}
+                    </p>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-black/10 bg-white/82 px-5 py-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    {copy.transfer.eyebrow}
+                  </p>
+                  <div className="space-y-1">
+                    <h2 className="text-lg font-semibold tracking-tight text-slate-950">
+                      {copy.transfer.heading}
+                    </h2>
+                    <p className="text-sm leading-6 text-slate-600">
+                      {copy.transfer.description}
+                    </p>
                   </div>
+                </div>
 
                 <div className="grid gap-2 text-sm text-slate-700">
                   <TransferMetric
@@ -606,6 +665,7 @@ export function AssessmentWalkthrough({
             ),
           );
         });
+        await refreshProgression();
       } catch (error: unknown) {
         startTransition(() => {
           setCriterionStates((current) =>
@@ -653,6 +713,22 @@ function TransferMetric({
       <span className="text-sm font-medium text-slate-600">{label}</span>
       <span className="text-base font-semibold text-slate-950">{value}</span>
     </div>
+  );
+}
+
+function getProgressionPillClassName(
+  step: AssessmentProgressionStepStatus,
+  currentStepId: AssessmentProgressionStepId,
+): string {
+  return joinClasses(
+    "inline-flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]",
+    currentStepId === step.id
+      ? "border-[#6f8460] bg-[#edf4ea] text-[#335126]"
+      : step.availability === "blocked"
+        ? "border-[#d7b778] bg-[#fff2d4] text-[#805312]"
+        : step.completionState === "complete"
+          ? "border-[#a8c2a1] bg-[#e7f1e2] text-[#355428]"
+          : "border-black/10 bg-white text-slate-600",
   );
 }
 

@@ -33,6 +33,9 @@ import {
 } from "@/lib/assessments/assessmentRiskRegisterController";
 import type { AppLanguage } from "@/lib/i18n/appLanguage";
 import {
+  getAssessmentProgressionBlockerMessages,
+  getAssessmentProgressionGuidanceMessage,
+  getAssessmentProgressionStatusLabel,
   getRiskEntrySaveMessage,
   getRiskLevelLabel,
   getRiskMitigationActionCardEyebrow,
@@ -50,6 +53,7 @@ import { deleteAssessmentRiskMitigationActionAction } from "@/lib/assessments/de
 import type { AssessmentRiskRegisterEntryProjection } from "@/lib/assessments/loadAssessmentRiskRegisterProjection";
 import { saveAssessmentRiskEntryAction } from "@/lib/assessments/saveAssessmentRiskEntryAction";
 import { updateAssessmentRiskMitigationActionAction } from "@/lib/assessments/updateAssessmentRiskMitigationActionAction";
+import { useAssessmentProgression } from "./AssessmentProgressionContext";
 
 interface RiskRegisterEditorProps {
   readonly assessmentId: string;
@@ -68,6 +72,7 @@ export function RiskRegisterEditor({
   riskMatrixConsequenceLevels,
   entries,
 }: RiskRegisterEditorProps) {
+  const { progression, refreshProgression } = useAssessmentProgression();
   const copy = getRiskRegisterStaticCopy(language);
   const [riskEntryStates, setRiskEntryStates] = useState<RiskEntryStateMap>(() =>
     buildInitialRiskEntryState(entries),
@@ -87,9 +92,19 @@ export function RiskRegisterEditor({
     setRiskEntryStates(buildInitialRiskEntryState(entries));
     setMitigationActionStates(buildInitialRiskMitigationActionState(entries));
   }, [entries]);
+  const step = progression.riskRegister;
+  const blockerMessages = getAssessmentProgressionBlockerMessages(
+    language,
+    step.blockers,
+  );
 
   return (
-    <section className="rounded-[2rem] border border-black/10 bg-white/82 p-4 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur sm:p-5 lg:p-6">
+    <section
+      className="rounded-[2rem] border border-black/10 bg-white/82 p-4 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur sm:p-5 lg:p-6"
+      data-step-availability={step.availability}
+      data-step-completion={step.completionState}
+      id="assessment-step-riskRegister"
+    >
       <div className="flex flex-col gap-3 border-b border-black/8 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
@@ -105,6 +120,32 @@ export function RiskRegisterEditor({
         <div className="rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1.5 text-sm font-medium text-slate-700">
           {getTransferredEntryCountLabel(language, entries.length)}
         </div>
+      </div>
+
+      <div className={getStepBannerClassName(step.availability)}>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className={getStepBannerPillClassName(step.availability)}>
+            {getAssessmentProgressionStatusLabel({
+              language,
+              step,
+              currentStepId: progression.currentStepId,
+            })}
+          </span>
+          <p className="text-sm leading-6 text-slate-700">
+            {getAssessmentProgressionGuidanceMessage({
+              language,
+              step,
+              currentStepId: progression.currentStepId,
+            })}
+          </p>
+        </div>
+        {blockerMessages.length > 0 ? (
+          <div className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+            {blockerMessages.map((message) => (
+              <p key={message}>{message}</p>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {entries.length === 0 ? (
@@ -836,6 +877,7 @@ export function RiskRegisterEditor({
             ),
           );
         });
+        await refreshProgression();
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
@@ -1171,6 +1213,24 @@ function getRiskMitigationActionMessageClassName(
     state.saveState === "error"
       ? "text-[#8a2f0d]"
       : "text-slate-600",
+  );
+}
+
+function getStepBannerClassName(availability: "available" | "blocked"): string {
+  return joinClasses(
+    "mt-4 rounded-[1.5rem] border px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]",
+    availability === "blocked"
+      ? "border-[#d7b778] bg-[#fff2d4]"
+      : "border-black/10 bg-[#f7f2e8]",
+  );
+}
+
+function getStepBannerPillClassName(availability: "available" | "blocked"): string {
+  return joinClasses(
+    "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]",
+    availability === "blocked"
+      ? "border-[#d7b778] bg-white text-[#805312]"
+      : "border-black/10 bg-white text-slate-700",
   );
 }
 

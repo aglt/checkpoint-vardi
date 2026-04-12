@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-12`
-- Most recently completed step: `S1-17`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-17-language-consistent-web-content.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-12-guided-assessment-progression-and-completion-guards.md`
+- Next queued step: `S1-13`
+- Most recently completed step: `S1-12`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-12-guided-assessment-progression-and-completion-guards.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-13-explicit-risk-reasoning-capture.md`
 
 ## S0 - Foundations
 
@@ -270,16 +270,33 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-12: Guided assessment progression and completion guards
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-12-guided-assessment-progression-and-completion-guards.md`
-**Start gate:** Open. `S1-11` is complete and mitigation truth now lives on saved `risk_entry` child actions.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-12-guided-assessment-progression-and-completion-guards.md`
+**Start gate:** Closed.
 **Unblocks:** `S1-13`, later runtime-driven completion rules, and clearer server-owned gating across the assessment flow.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-12-guided-assessment-progression-and-completion-guards`:
+> added a dedicated app-owned `loadAssessmentProgressionProjection` seam plus a
+> narrow progression reload action, kept progression output structural-only with
+> step status, blocker codes, counts, and export readiness derived from
+> persisted assessment truth, and wired the assessment page to consume that
+> server snapshot for guided navigation, blocked-state messaging, and truthful
+> progress indicators without widening `loadAssessmentReadModel`. The workflow
+> now keeps later steps visible but blocked when earlier persisted prerequisites
+> reopen, while unsaved walkthrough drafts, unsaved summary defaults, and local
+> client state never unlock downstream steps or export. Added targeted
+> progression projection, walkthrough-controller, and assessment-page tests for
+> blocked/allowed states, reopened-step regressions, orphaned transferred rows,
+> and unsaved-default behavior. Ran `pnpm test`, `pnpm typecheck`, and
+> `pnpm lint` after installing workspace dependencies in this worktree and
+> verifying under `node v22.22.2`. PR: pending.
 
 ### Step S1-13: Explicit risk reasoning capture
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-13-explicit-risk-reasoning-capture.md`
-**Start gate:** Closed until `S1-12` establishes the current owner for completion and readiness truth.
+**Start gate:** Open. `S1-12` now owns guided completion and readiness truth from persisted state.
 **Unblocks:** `S1-14`, template-driven justification requirements, and less opaque saved risk classifications.
 
 ### Step S1-14: Compliance-oriented export framing and assessment metadata
