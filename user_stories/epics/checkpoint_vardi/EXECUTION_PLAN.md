@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-09` (conditional)
+- Next queued step: `S1-19`
 - Most recently completed step: `S1-16`
 - Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-19-simplify-checklist-flow-clear-progress-risk-clarity.md`
 
 ## S0 - Foundations
 
@@ -43,10 +43,10 @@ S0-01 (Runnable Empty Scaffold)
 
 ```text
 S0-01 -> S1-01 -> S1-02 -> S1-03 -> S1-04 -> S1-05 -> S1-06 -> S1-07 -> S1-08
-S1-08 -> S1-10 -> S1-16
-S1-08 -> S1-11 -> S1-12 -> S1-13 -> S1-14 -> S1-15 -> S1-16
+S1-08 -> S1-10 -> S1-16 -> S1-19
+S1-08 -> S1-11 -> S1-12 -> S1-13 -> S1-14 -> S1-15 -> S1-19
 S1-08 -> S1-17
-S1-08 -> S1-18
+S1-08 -> S1-18 -> S1-19
 S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 ```
 
@@ -354,7 +354,7 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 **Status:** Completed.
 **Story file:** `user_stories/epics/checkpoint_vardi/done/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
 **Start gate:** Closed.
-**Unblocks:** Sector-specific workflow behavior without scattered app conditionals, plus the final stabilized flow for `S1-16`.
+**Unblocks:** Sector-specific workflow behavior without scattered app conditionals, plus the stabilized walkthrough follow-up in `S1-19`.
 
 **Completion note:**
 > Verified locally under `node v22.22.2`: `@vardi/checklists` now validates and
@@ -408,7 +408,7 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 **Status:** Completed.
 **Story file:** `user_stories/epics/checkpoint_vardi/done/S1-18-risk-severity-choice-alignment.md`
 **Start gate:** Closed.
-**Unblocks:** A more truthful risk-severity UX on the current flow and later stable browser assertions in `S1-16`.
+**Unblocks:** A more truthful risk-severity UX on the current flow and the walkthrough simplification in `S1-19`.
 
 **Completion note:**
 > Verified locally on branch `codex/s1-18-risk-severity-choice-alignment`:
@@ -422,9 +422,16 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e` under
 > `node v22.22.2`. PR: `#18`.
 
+### Step S1-19: Simplify checklist flow with clear progress and risk clarity
+
+**Status:** Not started.
+**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-19-simplify-checklist-flow-clear-progress-risk-clarity.md`
+**Start gate:** Open on current `main`; PR `#22` already narrowed the checklist shell and `S1-16` already locked the current settled flow into browser regression, so this is the next focused walkthrough refinement slice.
+**Unblocks:** A lower-cognitive-load walkthrough path, clearer blocking truth, and any needed refresh to the existing browser regression coverage.
+
 ### Step S1-09: Foundation for broader safety-plan modules
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-10` browser proof slice, the completed `S1-11` through `S1-18` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-10` browser proof slice, the completed `S1-11` through `S1-18` follow-up flow, the queued `S1-19` walkthrough refinement, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.
