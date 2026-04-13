@@ -40,6 +40,7 @@ function seedFindingFixture() {
     assessmentId: "assessment-1",
     criterionId: "checklist.woodworking-workshop.section-01.criterion-01",
     status: "unanswered",
+    attentionSeverity: null,
     notes: null,
     voiceTranscript: null,
     notesLanguage: null,
@@ -60,11 +61,13 @@ test("updateAssessmentFindingResponse persists status and normalized notes by cr
     assessmentId: "assessment-1",
     criterionId: "checklist.woodworking-workshop.section-01.criterion-01",
     status: "notOk",
+    attentionSeverity: "large",
     notes: "  Missing blade guard  ",
     updatedAt: savedAt,
   });
 
   assert.equal(updatedFinding.status, "notOk");
+  assert.equal(updatedFinding.attentionSeverity, "large");
   assert.equal(updatedFinding.notes, "Missing blade guard");
   assert.equal(updatedFinding.notesLanguage, null);
   assert.deepEqual(updatedFinding.updatedAt, savedAt);
@@ -81,11 +84,13 @@ test("updateAssessmentFindingResponse clears notes and fails for missing owner-s
     assessmentId: "assessment-1",
     criterionId: "checklist.woodworking-workshop.section-01.criterion-01",
     status: "ok",
+    attentionSeverity: null,
     notes: "   ",
     updatedAt: new Date("2026-04-11T09:20:00.000Z"),
   });
 
   assert.equal(clearedFinding.status, "ok");
+  assert.equal(clearedFinding.attentionSeverity, null);
   assert.equal(clearedFinding.notes, null);
   assert.equal(clearedFinding.notesLanguage, null);
 

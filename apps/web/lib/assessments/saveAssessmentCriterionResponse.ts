@@ -60,6 +60,7 @@ export function saveAssessmentCriterionResponse(
       assessmentId: params.assessmentId,
       criterionId: parsedInput.data.criterionId,
       status: parsedInput.data.status,
+      attentionSeverity: parsedInput.data.attentionSeverity ?? null,
       notes: parsedInput.data.notes ?? null,
       notesLanguage: params.notesLanguage,
     });
@@ -68,6 +69,7 @@ export function saveAssessmentCriterionResponse(
       assessmentId: params.assessmentId,
       criterionId: updatedFinding.criterionId,
       status: updatedFinding.status,
+      attentionSeverity: updatedFinding.attentionSeverity,
       notes: updatedFinding.notes,
       updatedAt: updatedFinding.updatedAt.toISOString(),
     });

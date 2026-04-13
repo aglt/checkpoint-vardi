@@ -65,9 +65,7 @@ export default async function AssessmentWalkthroughPage({
         <AssessmentWalkthrough
           assessmentId={readModel.assessment.id}
           checklistTitle={readModel.checklist.translations.is.title}
-          checklistVersion={readModel.checklist.version}
           language={language}
-          riskMatrixTitle={readModel.riskMatrix.translations.is.title}
           sections={readModel.sections}
           workplaceName={readModel.workplace.name}
         >

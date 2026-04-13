@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNotNull } from "drizzle-orm";
 
 import type { VardiDatabase } from "./database.js";
 import { finding, riskEntry } from "./schema.js";
@@ -41,6 +41,7 @@ export function transferAssessmentFindingsToRiskRegister(
           eq(finding.ownerId, params.ownerId),
           eq(finding.assessmentId, params.assessmentId),
           eq(finding.status, "notOk"),
+          isNotNull(finding.attentionSeverity),
         ),
       )
       .all();

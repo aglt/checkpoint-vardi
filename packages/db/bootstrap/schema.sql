@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS finding (
   assessment_id TEXT NOT NULL REFERENCES risk_assessment (id) ON DELETE CASCADE,
   criterion_id TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'unanswered' CHECK (status IN ('ok', 'notOk', 'notApplicable', 'unanswered')),
+  attention_severity TEXT CHECK (attention_severity IN ('small', 'medium', 'large')),
   notes TEXT,
   voice_transcript TEXT,
   notes_language TEXT,

@@ -82,6 +82,7 @@ export function createWorkplaceAssessment(
         assessmentId,
         criterionId,
         status: "unanswered" as const,
+        attentionSeverity: null,
         notes: null,
         voiceTranscript: null,
         notesLanguage: null,

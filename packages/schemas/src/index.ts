@@ -79,6 +79,12 @@ export const saveAssessmentCriterionStatusSchema = z.enum([
   "notApplicable",
 ]);
 
+export const assessmentWalkthroughAttentionSeveritySchema = z.enum([
+  "small",
+  "medium",
+  "large",
+]);
+
 export const riskMitigationActionStatusSchema = z.enum([
   "open",
   "inProgress",
@@ -105,22 +111,45 @@ export const startAssessmentFromSeededTemplateOutputSchema = z.object({
   assessmentId: z.string().min(1),
 });
 
-export const saveAssessmentCriterionResponseInputSchema = z.object({
-  criterionId: z.preprocess(
-    trimString,
-    z.string().min(1, "Criterion id is required.").max(200),
-  ),
-  status: saveAssessmentCriterionStatusSchema,
-  notes: z.preprocess(
-    trimOptionalString,
-    z.string().max(4000, "Notes must be 4000 characters or fewer.").optional(),
-  ),
-});
+export const saveAssessmentCriterionResponseInputSchema = z
+  .object({
+    criterionId: z.preprocess(
+      trimString,
+      z.string().min(1, "Criterion id is required.").max(200),
+    ),
+    status: saveAssessmentCriterionStatusSchema,
+    attentionSeverity: z.preprocess(
+      trimOptionalString,
+      assessmentWalkthroughAttentionSeveritySchema.optional(),
+    ),
+    notes: z.preprocess(
+      trimOptionalString,
+      z.string().max(4000, "Notes must be 4000 characters or fewer.").optional(),
+    ),
+  })
+  .superRefine((value, context) => {
+    if (value.status === "notOk" && value.attentionSeverity == null) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["attentionSeverity"],
+        message: "Severity is required when the walkthrough answer needs attention.",
+      });
+    }
+
+    if (value.status !== "notOk" && value.attentionSeverity != null) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["attentionSeverity"],
+        message: "Severity only applies to walkthrough items that need attention.",
+      });
+    }
+  });
 
 export const saveAssessmentCriterionResponseOutputSchema = z.object({
   assessmentId: z.string().min(1),
   criterionId: z.string().min(1),
   status: saveAssessmentCriterionStatusSchema,
+  attentionSeverity: assessmentWalkthroughAttentionSeveritySchema.nullable(),
   notes: z.string().nullable(),
   updatedAt: z.string().datetime(),
 });
@@ -253,6 +282,7 @@ export const assessmentExportReadinessSchema = z.object({
   walkthrough: z.object({
     ready: z.boolean(),
     unansweredCriterionCount: z.number().int().nonnegative(),
+    missingSeverityCount: z.number().int().nonnegative(),
   }),
   transfer: z.object({
     ready: z.boolean(),
@@ -392,6 +422,9 @@ export type AssessmentWalkthroughStatus = z.infer<
 >;
 export type SaveAssessmentCriterionStatus = z.infer<
   typeof saveAssessmentCriterionStatusSchema
+>;
+export type AssessmentWalkthroughAttentionSeverity = z.infer<
+  typeof assessmentWalkthroughAttentionSeveritySchema
 >;
 export type StartAssessmentFromSeededTemplateInput = z.infer<
   typeof startAssessmentFromSeededTemplateInputSchema

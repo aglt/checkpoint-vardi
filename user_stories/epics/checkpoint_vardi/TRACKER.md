@@ -32,7 +32,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-16 | Stable browser E2E for end-to-end assessment-to-export flow | done        | #23 |
 | S1-17 | Language-consistent web content for the current MVP flow | done        | #14, #19, #20 |
 | S1-18 | Risk severity choice alignment with the reference workflow | done        | #18 |
-| S1-19 | Simplify checklist flow with clear progress and risk clarity | not_started |    |
+| S1-19 | Simplify checklist flow with clear progress and risk clarity | done        |    |
 
 ## S1/S2 - Stage bridge
 
@@ -44,5 +44,4 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 **Next up:**
 
-- `S1-19 - Simplify checklist flow with clear progress and risk clarity`
 - Keep `S1-09` narrowly scoped and non-blocking unless a later active follow-up exposes a concrete need for it.

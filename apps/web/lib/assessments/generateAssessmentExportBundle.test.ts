@@ -103,19 +103,20 @@ function prepareExportReadyState(
   connection.sqlite
     .prepare(`
       update finding
-      set status = ?, notes = ?, notes_language = ?, updated_at = ?
+      set status = ?, attention_severity = ?, notes = ?, notes_language = ?, updated_at = ?
       where assessment_id = ?
     `)
-    .run("ok", null, null, updatedAt.getTime(), fixture.assessmentId);
+    .run("ok", null, null, null, updatedAt.getTime(), fixture.assessmentId);
 
   connection.sqlite
     .prepare(`
       update finding
-      set status = ?, notes = ?, notes_language = ?, updated_at = ?
+      set status = ?, attention_severity = ?, notes = ?, notes_language = ?, updated_at = ?
       where assessment_id = ? and criterion_id = ?
     `)
     .run(
       "notOk",
+      "large",
       "Needs immediate machine guard follow-up.",
       null,
       updatedAt.getTime(),

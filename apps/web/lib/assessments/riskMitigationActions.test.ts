@@ -107,6 +107,7 @@ async function transferCriterion(
     input: {
       criterionId: fixture.targetCriterion.id,
       status: "notOk",
+      attentionSeverity: "medium",
       notes: "Missing guard",
     },
   });

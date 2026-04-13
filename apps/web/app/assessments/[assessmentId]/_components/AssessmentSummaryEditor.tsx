@@ -81,6 +81,9 @@ export function AssessmentSummaryEditor({
     exportStep.blockers,
   );
   const readinessBlockers = exportBlockerMessages;
+  const walkthroughPendingCount =
+    readiness.walkthrough.unansweredCriterionCount +
+    readiness.walkthrough.missingSeverityCount;
   const classificationPendingCount =
     readiness.classification.unclassifiedRiskEntryCount +
     readiness.classification.staleRiskEntryCount +
@@ -281,7 +284,7 @@ export function AssessmentSummaryEditor({
 
               <div className="space-y-2">
                 <ReadinessRow
-                  count={readiness.walkthrough.unansweredCriterionCount}
+                  count={walkthroughPendingCount}
                   dataKey="walkthrough"
                   label={copy.readiness.labels.walkthrough}
                   language={language}

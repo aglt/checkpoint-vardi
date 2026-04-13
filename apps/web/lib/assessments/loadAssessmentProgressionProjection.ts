@@ -42,6 +42,7 @@ export type AssessmentProgressionAvailability = "available" | "blocked";
 
 export type AssessmentProgressionBlockerCode =
   | "walkthroughUnansweredCriteria"
+  | "walkthroughMissingSeverity"
   | "riskRegisterMissingTransfers"
   | "riskRegisterUnclassifiedEntries"
   | "riskRegisterStaleEntries"
@@ -75,8 +76,10 @@ interface AssessmentProgressionStepStatusBase {
 export interface AssessmentWalkthroughProgressionStepStatus
   extends AssessmentProgressionStepStatusBase {
   readonly id: "walkthrough";
-  readonly answeredCriterionCount: number;
+  readonly validCompletedCriterionCount: number;
+  readonly needsAttentionCriterionCount: number;
   readonly unansweredCriterionCount: number;
+  readonly missingSeverityCriterionCount: number;
   readonly totalCriterionCount: number;
   readonly completedSectionCount: number;
   readonly totalSectionCount: number;
@@ -208,12 +211,39 @@ function buildWalkthroughStep(
         .length,
     0,
   );
-  const answeredCriterionCount = Math.max(
-    totalCriterionCount - unansweredCriterionCount,
+  const missingSeverityCriterionCount = readModel.sections.reduce(
+    (count, section) =>
+      count +
+      section.criteria.filter(
+        (criterion) =>
+          criterion.response.status === "notOk" &&
+          criterion.response.attentionSeverity == null,
+      ).length,
+    0,
+  );
+  const needsAttentionCriterionCount = readModel.sections.reduce(
+    (count, section) =>
+      count +
+      section.criteria.filter(
+        (criterion) =>
+          criterion.response.status === "notOk" &&
+          criterion.response.attentionSeverity != null,
+      ).length,
+    0,
+  );
+  const validCompletedCriterionCount = Math.max(
+    totalCriterionCount - unansweredCriterionCount - missingSeverityCriterionCount,
     0,
   );
   const completedSectionCount = readModel.sections.filter((section) =>
-    section.criteria.every((criterion) => criterion.response.status !== "unanswered"),
+    section.criteria.every(
+      (criterion) =>
+        criterion.response.status !== "unanswered" &&
+        !(
+          criterion.response.status === "notOk" &&
+          criterion.response.attentionSeverity == null
+        ),
+    ),
   ).length;
 
   return {
@@ -221,26 +251,37 @@ function buildWalkthroughStep(
     order: 1,
     completionState: buildCompletionState({
       totalCount: totalCriterionCount,
-      completedCount: answeredCriterionCount,
+      completedCount: validCompletedCriterionCount,
     }),
     availability: "available",
     blockedByStepId: null,
     metrics: {
-      completedCount: answeredCriterionCount,
+      completedCount: validCompletedCriterionCount,
       totalCount: totalCriterionCount,
-      percentage: buildPercentage(answeredCriterionCount, totalCriterionCount),
+      percentage: buildPercentage(validCompletedCriterionCount, totalCriterionCount),
     },
-    blockers:
-      unansweredCriterionCount > 0
+    blockers: [
+      ...(unansweredCriterionCount > 0
         ? [
             {
-              code: "walkthroughUnansweredCriteria",
+              code: "walkthroughUnansweredCriteria" as const,
               count: unansweredCriterionCount,
             },
           ]
-        : [],
-    answeredCriterionCount,
+        : []),
+      ...(missingSeverityCriterionCount > 0
+        ? [
+            {
+              code: "walkthroughMissingSeverity" as const,
+              count: missingSeverityCriterionCount,
+            },
+          ]
+        : []),
+    ],
+    validCompletedCriterionCount,
+    needsAttentionCriterionCount,
     unansweredCriterionCount,
+    missingSeverityCriterionCount,
     totalCriterionCount,
     completedSectionCount,
     totalSectionCount: readModel.sections.length,
@@ -472,6 +513,14 @@ function buildExportBlockers(
           {
             code: "walkthroughUnansweredCriteria" as const,
             count: readiness.walkthrough.unansweredCriterionCount,
+          },
+        ]
+      : []),
+    ...(readiness.walkthrough.missingSeverityCount > 0
+      ? [
+          {
+            code: "walkthroughMissingSeverity" as const,
+            count: readiness.walkthrough.missingSeverityCount,
           },
         ]
       : []),

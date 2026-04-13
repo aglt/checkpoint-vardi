@@ -24,8 +24,7 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
   ).toBeVisible();
   for (const expectedLabel of [
     "Framvinda",
-    "Yfirlit gátlista",
-    "Næstu skref",
+    "Kaflar",
     "Færa í áhættuskrá",
     "Áhættuskrá",
     "Samantekt og útflutningsstaða",
@@ -33,24 +32,51 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
     await expect(page.locator("body")).toContainText(expectedLabel);
   }
 
-  const firstCriterion = page.locator("[data-criterion-id]").first();
-  await firstCriterion.locator('[data-answer-value="notOk"]').click();
+  const activeItem = page.locator("[data-criterion-id]").first();
+  const firstCriterionId = await activeItem.getAttribute("data-criterion-id");
 
-  await expect(firstCriterion).toHaveAttribute("data-selected-answer", "notOk");
+  await activeItem.locator('[data-answer-value="notOk"]').click();
+
+  await expect(activeItem).toHaveAttribute("data-selected-answer", "notOk");
   await expect(
-    page.locator('[data-walkthrough-attention="true"]'),
-  ).toHaveAttribute("data-walkthrough-unsaved-count", "1");
+    activeItem.locator('[data-attention-severity="small"]'),
+  ).toBeVisible();
   await expect(
-    page.locator('[data-section-selected="true"]').first(),
-  ).toHaveAttribute("data-section-unsaved-count", "1");
-  await expect(page.locator("body")).toContainText("1 óvistað atriði");
-  await expect(page.locator("body")).toContainText("enn óvistuð");
+    activeItem.locator('[data-attention-severity="medium"]'),
+  ).toBeVisible();
+  await expect(
+    activeItem.locator('[data-attention-severity="large"]'),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Næsta atriði" }),
+  ).toBeDisabled();
+  await expect(page.locator("body")).toContainText(
+    "Veldu Lítið, Miðlungs eða Mikið til að klára atriði sem þarf athygli.",
+  );
 
   const transferButton = page.locator('[data-transfer-action="risk-register"]');
   await expect(transferButton).toBeDisabled();
-  await page.locator('[data-criterion-save="true"]').click();
+
+  await activeItem.locator('[data-attention-severity="medium"]').click();
+
+  await expect(
+    activeItem.locator('[data-attention-severity="medium"]'),
+  ).toHaveAttribute("data-selected", "true");
+  await expect(
+    page.locator('[data-walkthrough-global-progress="true"]'),
+  ).toContainText("1 af");
+  await expect(page.locator("body")).toContainText("1 atriði þarf athygli");
+  await expect(
+    page.getByRole("button", { name: "Næsta atriði" }),
+  ).toBeEnabled({ timeout: 15_000 });
   await expect(transferButton).toBeEnabled({ timeout: 15_000 });
-  await expect(page.locator('[data-walkthrough-attention="true"]')).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Næsta atriði" }).click();
+
+  const secondCriterionId = await activeItem.getAttribute("data-criterion-id");
+  expect(secondCriterionId).not.toBe(firstCriterionId);
+  await expect(activeItem).toHaveAttribute("data-selected-answer", "unanswered");
+
   await transferButton.click();
 
   await expect(
