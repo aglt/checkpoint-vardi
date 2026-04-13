@@ -79,10 +79,10 @@ function markAllCriteriaOk(
   fixture.connection.sqlite
     .prepare(`
       update finding
-      set status = ?, notes = ?, notes_language = ?, updated_at = ?
+      set status = ?, attention_severity = ?, notes = ?, notes_language = ?, updated_at = ?
       where assessment_id = ?
     `)
-    .run("ok", null, null, savedAt.getTime(), fixture.assessmentId);
+    .run("ok", null, null, null, savedAt.getTime(), fixture.assessmentId);
 }
 
 function markCriteriaNotOk(
@@ -93,11 +93,12 @@ function markCriteriaNotOk(
     fixture.connection.sqlite
       .prepare(`
         update finding
-        set status = ?, notes = ?, notes_language = ?, updated_at = ?
+        set status = ?, attention_severity = ?, notes = ?, notes_language = ?, updated_at = ?
         where assessment_id = ? and criterion_id = ?
       `)
       .run(
         "notOk",
+        "medium",
         "Needs follow-up",
         null,
         savedAt.getTime(),

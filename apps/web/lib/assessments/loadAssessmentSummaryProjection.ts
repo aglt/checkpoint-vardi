@@ -161,6 +161,7 @@ function buildAssessmentExportReadiness(params: {
   readonly findings: readonly {
     readonly id: string;
     readonly status: string;
+    readonly attentionSeverity: string | null;
   }[];
   readonly riskRegisterProjection: AssessmentRiskRegisterProjection;
   readonly missingSummaryFields: readonly AssessmentSummaryRequiredField[];
@@ -168,8 +169,13 @@ function buildAssessmentExportReadiness(params: {
   const unansweredCriterionCount = params.findings.filter(
     (finding) => finding.status === "unanswered",
   ).length;
+  const missingSeverityCount = params.findings.filter(
+    (finding) =>
+      finding.status === "notOk" && finding.attentionSeverity == null,
+  ).length;
   const eligibleFindingCount = params.findings.filter(
-    (finding) => finding.status === "notOk",
+    (finding) =>
+      finding.status === "notOk" && finding.attentionSeverity != null,
   ).length;
   const transferredRiskEntryCount = params.riskRegisterProjection.entries.length;
   const missingRiskEntryCount = Math.max(
@@ -209,7 +215,8 @@ function buildAssessmentExportReadiness(params: {
     },
   );
 
-  const walkthroughReady = unansweredCriterionCount === 0;
+  const walkthroughReady =
+    unansweredCriterionCount === 0 && missingSeverityCount === 0;
   const transferReady = missingRiskEntryCount === 0;
   const classificationReady =
     classificationCounts.unclassifiedRiskEntryCount === 0 &&
@@ -223,6 +230,7 @@ function buildAssessmentExportReadiness(params: {
     walkthrough: {
       ready: walkthroughReady,
       unansweredCriterionCount,
+      missingSeverityCount,
     },
     transfer: {
       ready: transferReady,

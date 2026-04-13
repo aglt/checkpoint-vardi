@@ -25,6 +25,7 @@ export type PresenceStatus = "present" | "absent";
 export interface AssessmentCriterionResponseReadModel {
   readonly id: string | null;
   readonly status: FindingRow["status"];
+  readonly attentionSeverity: FindingRow["attentionSeverity"];
   readonly notes: string | null;
   readonly voiceTranscript: string | null;
   readonly notesLanguage: string | null;
@@ -132,6 +133,7 @@ export function loadAssessmentReadModel(
           response: {
             id: responseRow?.id ?? null,
             status: responseRow?.status ?? "unanswered",
+            attentionSeverity: responseRow?.attentionSeverity ?? null,
             notes: responseRow?.notes ?? null,
             voiceTranscript: responseRow?.voiceTranscript ?? null,
             notesLanguage: responseRow?.notesLanguage ?? null,

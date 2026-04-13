@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-19`
-- Most recently completed step: `S1-16`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-19-simplify-checklist-flow-clear-progress-risk-clarity.md`
+- Next queued step: `S1-09`
+- Most recently completed step: `S1-19`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-19-simplify-checklist-flow-clear-progress-risk-clarity.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
 
 ## S0 - Foundations
 
@@ -424,14 +424,24 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-19: Simplify checklist flow with clear progress and risk clarity
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-19-simplify-checklist-flow-clear-progress-risk-clarity.md`
-**Start gate:** Open on current `main`; PR `#22` already narrowed the checklist shell and `S1-16` already locked the current settled flow into browser regression, so this is the next focused walkthrough refinement slice.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-19-simplify-checklist-flow-clear-progress-risk-clarity.md`
+**Start gate:** Closed.
 **Unblocks:** A lower-cognitive-load walkthrough path, clearer blocking truth, and any needed refresh to the existing browser regression coverage.
+
+**Completion note:**
+> Verified locally on branch `feat/checklist-flow-risk-clarity`: replaced the
+> walkthrough shell with a validity-first one-item flow, added narrow
+> walkthrough attention-size persistence on `finding`, aligned progression,
+> transfer, summary, and export blockers with valid saved completion, and
+> refreshed focused unit plus browser coverage for autosave, severity gating,
+> sequencing, and recovery navigation. Ran `pnpm test`, `pnpm typecheck`,
+> `pnpm lint`, and `pnpm test:e2e` under `node v25.6.1`; Node 22 remains the
+> declared repo contract and was not directly re-verified here.
 
 ### Step S1-09: Foundation for broader safety-plan modules
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-10` browser proof slice, the completed `S1-11` through `S1-18` follow-up flow, the queued `S1-19` walkthrough refinement, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-10` browser proof slice, the completed `S1-11` through `S1-19` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.

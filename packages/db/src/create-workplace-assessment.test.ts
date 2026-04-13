@@ -85,6 +85,7 @@ test("createWorkplaceAssessment pins the full checklist tuple and materializes u
     .prepare(`
       select
         status,
+        attention_severity as attentionSeverity,
         notes,
         voice_transcript as voiceTranscript,
         notes_language as notesLanguage
@@ -93,6 +94,7 @@ test("createWorkplaceAssessment pins the full checklist tuple and materializes u
     `)
     .all(result.assessmentId) as Array<{
       status: string;
+      attentionSeverity: string | null;
       notes: string | null;
       voiceTranscript: string | null;
       notesLanguage: string | null;
@@ -102,6 +104,7 @@ test("createWorkplaceAssessment pins the full checklist tuple and materializes u
   assert.ok(
     persistedFindings.every((findingRow) =>
       findingRow.status === "unanswered" &&
+      findingRow.attentionSeverity === null &&
       findingRow.notes === null &&
       findingRow.voiceTranscript === null &&
       findingRow.notesLanguage === null

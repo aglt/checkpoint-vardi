@@ -170,6 +170,7 @@ test("transferAssessmentFindingsToRiskRegister builds seeded hazard titles for p
                   response: {
                     id: "finding-1",
                     status: "notOk",
+                    attentionSeverity: "large",
                     notes: "Guard missing",
                     voiceTranscript: null,
                     notesLanguage: "is",
@@ -190,6 +191,7 @@ test("transferAssessmentFindingsToRiskRegister builds seeded hazard titles for p
                   response: {
                     id: "finding-2",
                     status: "ok",
+                    attentionSeverity: null,
                     notes: null,
                     voiceTranscript: null,
                     notesLanguage: null,
@@ -237,6 +239,7 @@ test("transferAssessmentFindingsToRiskRegister persists transferred risk entries
     assessmentId: fixture.assessmentId,
     criterionId: fixture.secondCriterion.id,
     status: "notOk",
+    attentionSeverity: "large",
     notes: "Guard missing",
     updatedAt: new Date("2026-04-12T11:05:00.000Z"),
   });
@@ -323,6 +326,7 @@ test("transferAssessmentFindingsToRiskRegister fails deterministically when an e
     assessmentId: fixture.assessmentId,
     criterionId: fixture.firstCriterion.id,
     status: "notOk",
+    attentionSeverity: "large",
     notes: "Guard missing",
     updatedAt: new Date("2026-04-12T11:08:00.000Z"),
   });

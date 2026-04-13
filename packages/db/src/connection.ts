@@ -30,6 +30,7 @@ export function createDatabaseConnection(sqlite: Database.Database): DatabaseCon
 export function applyBootstrapSchema(connection: DatabaseConnection): void {
   const bootstrapSql = readFileSync(getBootstrapSchemaPath(), "utf8");
   connection.sqlite.exec(bootstrapSql);
+  ensureFindingAttentionSeverityColumn(connection);
 }
 
 export function createBootstrappedDatabaseConnection(
@@ -42,4 +43,21 @@ export function createBootstrappedDatabaseConnection(
 
 export function closeDatabase(connection: DatabaseConnection): void {
   connection.sqlite.close();
+}
+
+function ensureFindingAttentionSeverityColumn(connection: DatabaseConnection): void {
+  const columns = connection.sqlite
+    .prepare("PRAGMA table_info('finding')")
+    .all() as Array<{ name: string }>;
+  const hasAttentionSeverityColumn = columns.some(
+    (column) => column.name === "attention_severity",
+  );
+
+  if (hasAttentionSeverityColumn) {
+    return;
+  }
+
+  connection.sqlite.exec(
+    "ALTER TABLE finding ADD COLUMN attention_severity TEXT CHECK (attention_severity IN ('small', 'medium', 'large'))",
+  );
 }

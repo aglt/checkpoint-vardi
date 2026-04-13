@@ -39,6 +39,7 @@ try {
       assessmentId,
       criterionId: criterion.id,
       status: criterion.id === firstCriterionId ? "notOk" : "ok",
+      attentionSeverity: criterion.id === firstCriterionId ? "large" : null,
       notes:
         criterion.id === firstCriterionId
           ? "Open trench edge still needs follow-up."

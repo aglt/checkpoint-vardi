@@ -120,6 +120,7 @@ async function transferCriteriaToRiskRegister(
       input: {
         criterionId,
         status: "notOk",
+        attentionSeverity: "medium",
         notes: "Missing guard",
       },
     });
@@ -169,11 +170,12 @@ function markAllFindingsOk(
   connection.sqlite
     .prepare(`
       update finding
-      set status = ?, notes = ?, notes_language = ?, updated_at = ?
+      set status = ?, attention_severity = ?, notes = ?, notes_language = ?, updated_at = ?
       where assessment_id = ?
     `)
     .run(
       "ok",
+      null,
       null,
       null,
       new Date("2026-04-11T10:09:00.000Z").getTime(),
@@ -234,12 +236,14 @@ test("walkthrough save action persists answers by stable criterion id", async ()
     input: {
       criterionId: fixture.secondCriterion.id,
       status: "notOk",
+      attentionSeverity: "medium",
       notes: "  Missing guard  ",
     },
   });
 
   assert.equal(payload.criterionId, fixture.secondCriterion.id);
   assert.equal(payload.status, "notOk");
+  assert.equal(payload.attentionSeverity, "medium");
   assert.equal(payload.notes, "Missing guard");
 
   const connection = createBootstrappedDatabase(fixture.databasePath);
@@ -254,6 +258,7 @@ test("walkthrough save action persists answers by stable criterion id", async ()
 
   assert.ok(persistedCriterion);
   assert.equal(persistedCriterion.response.status, "notOk");
+  assert.equal(persistedCriterion.response.attentionSeverity, "medium");
   assert.equal(persistedCriterion.response.notes, "Missing guard");
 
   closeDatabase(connection);
@@ -264,15 +269,20 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
   const connection = createBootstrappedDatabase(fixture.databasePath);
-  updateAssessmentFindingResponse({
-    db: connection.db,
-    ownerId: "owner-1",
-    assessmentId: fixture.assessmentId,
-    criterionId: fixture.firstCriterion.id,
-    status: "notApplicable",
-    notes: "Already reviewed on-site.",
-    updatedAt: new Date("2026-04-11T10:07:00.000Z"),
-  });
+  for (const criterion of fixture.checklist.sections[0]?.criteria ?? []) {
+    updateAssessmentFindingResponse({
+      db: connection.db,
+      ownerId: "owner-1",
+      assessmentId: fixture.assessmentId,
+      criterionId: criterion.id,
+      status: "notApplicable",
+      notes:
+        criterion.id === fixture.firstCriterion.id
+          ? "Already reviewed on-site."
+          : null,
+      updatedAt: new Date("2026-04-11T10:07:00.000Z"),
+    });
+  }
   closeDatabase(connection);
 
   const { default: AssessmentPage } = await import(
@@ -304,8 +314,9 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
     new RegExp(escapeRegExp(fixture.firstCriterion.translations.is.guidance)),
   );
   assert.match(markup, new RegExp(escapeRegExp("Already reviewed on-site.")));
-  assert.match(markup, new RegExp(escapeRegExp("Vista atriði")));
-  assert.match(markup, new RegExp(escapeRegExp("Yfirlit gátlista")));
+  assert.match(markup, /data-walkthrough-global-progress="true"/);
+  assert.match(markup, new RegExp(escapeRegExp("Kaflar")));
+  assert.match(markup, new RegExp(escapeRegExp('data-selected-answer="notApplicable"')));
 });
 
 test("assessment page re-renders with the persisted answer state selected", async () => {
@@ -313,15 +324,17 @@ test("assessment page re-renders with the persisted answer state selected", asyn
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
   const connection = createBootstrappedDatabase(fixture.databasePath);
-  updateAssessmentFindingResponse({
-    db: connection.db,
-    ownerId: "owner-1",
-    assessmentId: fixture.assessmentId,
-    criterionId: fixture.firstCriterion.id,
-    status: "notApplicable",
-    notes: null,
-    updatedAt: new Date("2026-04-11T10:08:00.000Z"),
-  });
+  for (const criterion of fixture.checklist.sections[0]?.criteria ?? []) {
+    updateAssessmentFindingResponse({
+      db: connection.db,
+      ownerId: "owner-1",
+      assessmentId: fixture.assessmentId,
+      criterionId: criterion.id,
+      status: "notApplicable",
+      notes: null,
+      updatedAt: new Date("2026-04-11T10:08:00.000Z"),
+    });
+  }
   closeDatabase(connection);
 
   const { default: AssessmentPage } = await import(
@@ -375,6 +388,7 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
     input: {
       criterionId: fixture.secondCriterion.id,
       status: "notOk",
+      attentionSeverity: "medium",
       notes: "Missing guard",
     },
   });
@@ -418,24 +432,17 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
 
   assert.match(markup, new RegExp(escapeRegExp("Færa í áhættuskrá")));
   assert.match(markup, new RegExp(escapeRegExp("Öll hæf atriði færð")));
+  assert.match(
+    markup,
+    new RegExp(escapeRegExp("Öll hæf atriði eru þegar í áhættuskránni.")),
+  );
   assert.match(markup, new RegExp(escapeRegExp("Mótvægisaðgerðir")));
   assert.match(
     markup,
     new RegExp(escapeRegExp("Engar vistaðar mótvægisaðgerðir enn.")),
   );
   assert.doesNotMatch(markup, /Draft action/);
-  assert.match(
-    markup,
-    new RegExp(
-      [
-        escapeRegExp(`data-criterion-nav-id="${fixture.secondCriterion.id}"`),
-        '[\\s\\S]*?',
-        escapeRegExp('data-transfer-state="present"'),
-        '[\\s\\S]*?',
-        escapeRegExp("Fært"),
-      ].join(""),
-    ),
-  );
+  assert.match(markup, /data-transfer-action="risk-register"/);
 });
 
 test("assessment page renders transferred risk-entry editing and resumes saved classification fields", async () => {
@@ -793,19 +800,19 @@ test("assessment page renders checklist navigation and keeps blocked later steps
   );
   assert.match(
     markup,
-    /data-criterion-nav-selected="true"/,
+    /data-walkthrough-global-progress="true"/,
   );
   assert.match(
     markup,
-    /Atriði í þessum kafla/,
+    /data-selected-answer="unanswered"/,
   );
   assert.match(
     markup,
-    /Yfirlit gátlista/,
+    /Kaflar/,
   );
   assert.match(
     markup,
-    /Næstu skref/,
+    /Færa í áhættuskrá/,
   );
   assert.match(
     markup,
@@ -948,11 +955,12 @@ test("assessment page keeps later persisted data visible while walkthrough regre
   connection.sqlite
     .prepare(`
       update finding
-      set status = ?, notes = ?, updated_at = ?
+      set status = ?, attention_severity = ?, notes = ?, updated_at = ?
       where owner_id = ? and assessment_id = ? and criterion_id = ?
     `)
     .run(
       "unanswered",
+      null,
       null,
       new Date("2026-04-11T10:20:00.000Z").getTime(),
       "owner-1",

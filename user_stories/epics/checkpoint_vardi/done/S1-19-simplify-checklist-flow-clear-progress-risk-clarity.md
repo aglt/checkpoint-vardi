@@ -1,6 +1,6 @@
 # S1-19 - Simplify checklist flow with clear progress and risk clarity
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P1
@@ -11,6 +11,16 @@ Depends on: S1-12, S1-15, S1-16, S1-18
 ---
 
 ## Context
+
+This story is complete. Because `frontend-design` was not available locally,
+implementation used `.claude/skills/modern-premium-web/SKILL.md` as the
+repo-local equivalent for the walkthrough UX contract. The walkthrough now
+keeps one dominant item on screen, auto-saves answer/comment/severity changes,
+persists a narrow walkthrough-owned attention severity on `finding`, and keeps
+progress plus blocker truth aligned with valid saved completion instead of
+mixed draft-state counters. Verification ran locally with `pnpm test`,
+`pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e` under `node v25.6.1`; the
+repo contract still declares Node 22.
 
 The current assessment walkthrough already has truthful persisted progression
 from `S1-12`, seed-driven workflow rules from `S1-15`, the stable browser proof

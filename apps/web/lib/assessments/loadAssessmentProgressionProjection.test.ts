@@ -122,6 +122,7 @@ function updateCriterionStatus(
   params: {
     readonly criterionId: string;
     readonly status: "ok" | "notOk" | "notApplicable";
+    readonly attentionSeverity?: "small" | "medium" | "large" | null;
     readonly notes?: string | null;
   },
 ) {
@@ -131,6 +132,8 @@ function updateCriterionStatus(
     assessmentId: fixture.assessmentId,
     criterionId: params.criterionId,
     status: params.status,
+    attentionSeverity:
+      params.status === "notOk" ? params.attentionSeverity ?? "medium" : null,
     notes: params.notes ?? null,
     updatedAt,
   });
@@ -143,11 +146,12 @@ function reopenCriterionAsUnanswered(
   fixture.connection.sqlite
     .prepare(`
       update finding
-      set status = ?, notes = ?, updated_at = ?
+      set status = ?, attention_severity = ?, notes = ?, updated_at = ?
       where owner_id = ? and assessment_id = ? and criterion_id = ?
     `)
     .run(
       "unanswered",
+      null,
       null,
       updatedAt.getTime(),
       OWNER_ID,

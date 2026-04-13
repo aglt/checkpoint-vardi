@@ -103,6 +103,7 @@ async function transferCriteria(
       input: {
         criterionId,
         status: "notOk",
+        attentionSeverity: "medium",
         notes: "Missing guard",
       },
     });

@@ -26,8 +26,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-16` is complete and now lives under `done/`
 - `S1-17` is complete and now lives under `done/`
 - `S1-18` is complete and now lives under `done/`
-- `S1-09` and `S1-19` are staged under `not_started/`
-- the next implementation story is `S1-19`
+- `S1-19` is complete and now lives under `done/`
+- `S1-09` remains staged under `not_started/`
+- the only remaining staged follow-up is `S1-09`, and it stays conditional
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -35,9 +36,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S1-16 - Stable browser E2E for end-to-end assessment-to-export flow`
-- Story file: `user_stories/epics/checkpoint_vardi/done/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
-- Next story: `S1-19 - Simplify checklist flow with clear progress and risk clarity`
+- Most recently completed story: `S1-19 - Simplify checklist flow with clear progress and risk clarity`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S1-19-simplify-checklist-flow-clear-progress-risk-clarity.md`
+- Next story: `S1-09 - Foundation for broader safety-plan modules`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -69,10 +70,11 @@ risk classifications that exports can render from stored truth only. A later
 walkthrough follow-up in PR `#22` kept the same persisted S1-04 truth but
 reframed the active checklist shell around explicit save, one focused
 criterion editor at a time, visible unsaved-work indicators, and a calmer
-next-step orientation block. The next queued slice, `S1-19`, now narrows that
-same walkthrough further around one primary action, clearer progress truth,
-inline attention severity, and lower cognitive load before the stable browser
-proof story `S1-16`.
+next-step orientation block. `S1-19` now completes that refinement by reducing
+the walkthrough to one primary `Answer -> Next` loop, promoting valid saved
+progress into a single global bar plus chapter recovery counts, and moving the
+required `Small | Medium | Large` attention size into the walkthrough itself
+without widening export ownership.
 
 `S1-01` established the canonical seed runtime truth and the package-owned
 read seam that every later S1 story depends on. `S1-02` established the narrow
@@ -109,9 +111,9 @@ current browser-proof queue by carrying the settled construction flow
 through persisted reasoning, mitigation, summary save, export-ready
 verification, and a successful export trigger while hardening
 package-owned PDF rendering against Next server bundling. `S1-19` is now
-the next queued walkthrough simplification slice that removes duplicate
-progress noise, tightens blocking clarity, and brings required risk
-attention forward in-flow without reopening broader IA or export work,
+the completed walkthrough simplification slice that removes duplicate progress
+noise, tightens blocking clarity, and brings required risk attention forward
+in-flow without reopening broader IA or export work,
 while `S1-17` now completes the focused language-consistency follow-up
 that removes mixed app-language copy from the current MVP web flow and
 `S1-18` is the separate
@@ -130,9 +132,9 @@ post-MVP need surfaces for broader platform groundwork.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. Stage One now has its browser-proof queue closed through
-`S1-16`, plus the app-language consistency and severity-alignment
-follow-ups through `S1-17` and `S1-18`; the next staged story is
-`S1-19`, and `S1-09` stays conditional and non-blocking.
+`S1-16`, plus the app-language consistency, severity-alignment, and walkthrough
+clarity follow-ups through `S1-17`, `S1-18`, and `S1-19`; `S1-09` is the only
+remaining staged bridge story and stays conditional plus non-blocking.
 
 ## Guardrails
 

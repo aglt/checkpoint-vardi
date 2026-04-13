@@ -11,6 +11,7 @@ export interface UpdateAssessmentFindingResponseParams {
   readonly assessmentId: string;
   readonly criterionId: string;
   readonly status: UpdatableFindingStatus;
+  readonly attentionSeverity?: FindingRow["attentionSeverity"] | null;
   readonly notes?: string | null;
   readonly notesLanguage?: string | null;
   readonly updatedAt?: Date;
@@ -36,6 +37,8 @@ export function updateAssessmentFindingResponse(
     .update(finding)
     .set({
       status: params.status,
+      attentionSeverity:
+        params.status === "notOk" ? params.attentionSeverity ?? null : null,
       notes: normalizedNotes,
       notesLanguage: normalizedNotes ? params.notesLanguage ?? null : null,
       updatedAt,

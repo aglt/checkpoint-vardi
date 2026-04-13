@@ -136,7 +136,11 @@ function buildRiskEntryHazardByCriterionId(
   return Object.fromEntries(
     readModel.sections.flatMap((section) =>
       section.criteria
-        .filter((criterion) => criterion.response.status === "notOk")
+        .filter(
+          (criterion) =>
+            criterion.response.status === "notOk" &&
+            criterion.response.attentionSeverity != null,
+        )
         .map((criterion) => [criterion.id, criterion.translations.is.title] as const),
     ),
   );

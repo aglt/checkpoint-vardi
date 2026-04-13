@@ -73,6 +73,7 @@ export {
   riskMitigationAction,
   riskMitigationActionStatuses,
   riskLevels,
+  walkthroughAttentionSeverities,
   workplace,
   workplaceArchetypes,
   type AssessmentSummaryRow,

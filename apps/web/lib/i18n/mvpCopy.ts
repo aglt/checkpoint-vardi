@@ -165,71 +165,51 @@ const WALKTHROUGH_COPY = {
   is: {
     eyebrow: "Gátlisti",
     description:
-      "Farðu í gegnum gátlistann lið fyrir lið. Veldu svar, bættu við athugasemd ef þarf og vistaðu svo handvirkt. Þú getur alltaf opnað vistað atriði aftur og breytt því.",
+      "Farðu í gegnum gátlistann eitt atriði í einu. Svör, athugasemdir og eftirfylgni vistast sjálfkrafa og kaflarnir vinstra megin hjálpa þér að ná aftur yfirsýn ef eitthvað þarf að skoða aftur.",
     progressLabel: "Framvinda",
-    checklistHeading: "Yfirlit gátlista",
-    checklistDescription:
-      "Veldu kafla til vinstri og síðan eitt atriði úr listanum. Áherslan hér er að klára gátlistann skýrt og rólega áður en þú ferð í næstu skref.",
-    unsavedWork: {
-      heading: "Óvistuð vinna",
-      description:
-        "Drög haldast á síðunni þegar þú ferð á milli atriða og kafla, en næstu skref nota aðeins vistaðan sannleika.",
-      labels: {
-        unsavedCriteria: "Óvistuð atriði",
-        sectionsWithDrafts: "Kaflar með drög",
-        saveIssues: "Vistunarvillur",
-      },
-      jumpToAttention: "Fara í næsta atriði sem þarf athygli",
-    },
-    nextSteps: {
-      heading: "Næstu skref",
-      description:
-        "Hér sérðu stöðuna á flæðinu án þess að fara aftur í stóra stöðutöflu.",
-      summaryExportLabel: "Samantekt / útflutningur",
-    },
-    sectionsHeading: "Kaflar",
-    criteriaHeading: "Atriði í þessum kafla",
-    criteriaDescription:
-      "Vistaðir liðir haldast breytanlegir. Atriði fara ekki í nýtt vistað ástand fyrr en þú ýtir á vista.",
-    editableHint:
-      "Veldu eitt atriði, svaraðu, bættu við athugasemd ef þarf og vistaðu svo. Þú getur alltaf komið aftur og breytt vistuðu atriði.",
-    summaryLabels: {
-      checklist: "Gátlisti",
-      sectionsComplete: "Loknir kaflar",
-      pinnedMatrix: "Fast fylki",
-    },
+    globalProgressDescription:
+      "Framvinduslán sýnir aðeins atriði sem eru fullkláruð og gild. Atriði sem þurfa athygli haldast sérmerkt án þess að teljast lokað hindrun.",
+    chapterRailHeading: "Kaflar",
+    chapterRailDescription:
+      "Notaðu kaflana sem endurheimtartól ef eitthvað er ósvarað eða þarf athygli. Aðalflæðið er samt áfram svara og halda svo áfram.",
     transfer: {
       eyebrow: "Næsta skref",
       heading: "Færa í áhættuskrá",
       description:
-        "Þegar þú hefur vistað atriði sem eru merkt 'Ekki í lagi' geturðu fært þau héðan í áhættuskrána. Endurkeyrsla bætir aðeins við því sem vantar.",
-      draftWarning:
-        "Atriði sem eru merkt 'Ekki í lagi' en ekki vistuð bíða áfram hér þar til þú vistar þau.",
-      metrics: {
-        eligibleFindings: "Hæf atriði",
-        alreadyTransferred: "Þegar færð",
-        remainingToTransfer: "Eftir að færa",
-      },
+        "Vistað atriði í stöðunni 'Þarf athygli' verður hæft til flutnings héðan í áhættuskrána. Endurkeyrsla bætir aðeins við því sem vantar.",
     },
     sectionLabel: "Kafli",
     criterionLabel: "Atriði",
     notesLabel: "Athugasemdir",
     notesPlaceholder: "Samhengi, staðsetning eða nánari eftirfylgni...",
-    saveAction: "Vista atriði",
     previousCriterion: "Fyrra atriði",
     nextCriterion: "Næsta atriði",
-    retrySave: "Reyna aftur að vista",
+    lastItemMessage:
+      "Þetta er síðasta atriðið. Notaðu flutningsskrefið hér fyrir neðan þegar þú ert tilbúin.",
+    states: {
+      complete: "Lokið",
+      needsAttention: "Þarf athygli",
+      notAnswered: "Ósvarað",
+    },
+    severity: {
+      label: "Stærð athygli",
+      description:
+        "Veldu hversu stórt þetta frávik er í yfirferðinni svo atriðið verði gilt og hægt að flytja það áfram síðar.",
+      options: {
+        small: "Lítið",
+        medium: "Miðlungs",
+        large: "Mikið",
+      },
+    },
+    positionLabels: {
+      itemInChapter: (current: number, total: number) => `Atriði ${current} af ${total} í kaflanum`,
+      itemInAssessment: (current: number, total: number) => `Atriði ${current} af ${total} í öllu matinu`,
+    },
+    answerAriaLabel: (criterionNumber: string) => `Svara atriði ${criterionNumber}`,
     savePills: {
       saving: "Vistar...",
       error: "Vistun brást",
-      needsAnswer: "Vantar svar",
-      unsaved: "Tilbúið að vista",
-      notStarted: "Óunnið",
       saved: "Vistað",
-    },
-    transferPills: {
-      present: "Fært",
-      absent: "Vantar færslu",
     },
     fallbacks: {
       criterionSave: "Ekki tókst að vista þetta atriði.",
@@ -239,71 +219,51 @@ const WALKTHROUGH_COPY = {
   en: {
     eyebrow: "Checklist",
     description:
-      "Work through the checklist one item at a time. Choose an answer, add notes when needed, and save explicitly. You can reopen any saved item and edit it later.",
+      "Work through the checklist one item at a time. Answers, notes, and follow-up size save automatically, while the chapter rail stays available as a recovery tool whenever you need to revisit something.",
     progressLabel: "Progress",
-    checklistHeading: "Checklist overview",
-    checklistDescription:
-      "Choose a section on the left and then one item from the list. The focus here is to complete the checklist clearly before moving into later steps.",
-    unsavedWork: {
-      heading: "Unsaved work",
-      description:
-        "Drafts stay on this page while you move between items and sections, but later steps only use saved truth.",
-      labels: {
-        unsavedCriteria: "Unsaved items",
-        sectionsWithDrafts: "Sections with drafts",
-        saveIssues: "Save issues",
-      },
-      jumpToAttention: "Jump to the next item that needs attention",
-    },
-    nextSteps: {
-      heading: "Next steps",
-      description:
-        "This keeps the workflow visible without bringing back the full dashboard.",
-      summaryExportLabel: "Summary / export",
-    },
-    sectionsHeading: "Sections",
-    criteriaHeading: "Items in this section",
-    criteriaDescription:
-      "Saved items stay editable. An item only moves into its saved state after you click save.",
-    editableHint:
-      "Choose one item, answer it, add notes if needed, and then save it. You can always come back and edit a saved item later.",
-    summaryLabels: {
-      checklist: "Checklist",
-      sectionsComplete: "Sections complete",
-      pinnedMatrix: "Pinned matrix",
-    },
+    globalProgressDescription:
+      "The progress bar reflects only valid completed items. Items that need attention stay visible separately without being treated as blockers on their own.",
+    chapterRailHeading: "Chapters",
+    chapterRailDescription:
+      "Use chapters as a recovery tool when something is unanswered or needs attention. The primary flow still stays answer first, then continue.",
     transfer: {
       eyebrow: "Next step",
       heading: "Transfer to risk register",
       description:
-        "Once you have saved items marked 'Not ok', move them from here into the risk register. Re-running only adds anything that is still missing.",
-      draftWarning:
-        "Items marked 'Not ok' but not saved yet will stay here until you save them.",
-      metrics: {
-        eligibleFindings: "Eligible findings",
-        alreadyTransferred: "Already transferred",
-        remainingToTransfer: "Remaining to transfer",
-      },
+        "Any saved item in the 'Needs attention' state becomes eligible for transfer here. Re-running only adds what is still missing.",
     },
     sectionLabel: "Section",
     criterionLabel: "Criterion",
     notesLabel: "Notes",
     notesPlaceholder: "Context, location, or follow-up detail...",
-    saveAction: "Save item",
     previousCriterion: "Previous item",
     nextCriterion: "Next item",
-    retrySave: "Retry save",
+    lastItemMessage:
+      "This is the last item. Use the transfer step below when you are ready.",
+    states: {
+      complete: "Complete",
+      needsAttention: "Needs attention",
+      notAnswered: "Not answered",
+    },
+    severity: {
+      label: "Attention size",
+      description:
+        "Choose how large this issue feels in the walkthrough so the item becomes valid and ready to move forward later.",
+      options: {
+        small: "Small",
+        medium: "Medium",
+        large: "Large",
+      },
+    },
+    positionLabels: {
+      itemInChapter: (current: number, total: number) => `Item ${current} of ${total} in this chapter`,
+      itemInAssessment: (current: number, total: number) => `Item ${current} of ${total} in this assessment`,
+    },
+    answerAriaLabel: (criterionNumber: string) => `Answer criterion ${criterionNumber}`,
     savePills: {
       saving: "Saving...",
       error: "Save issue",
-      needsAnswer: "Needs answer",
-      unsaved: "Ready to save",
-      notStarted: "Not started",
       saved: "Saved",
-    },
-    transferPills: {
-      present: "Transferred",
-      absent: "Needs transfer",
     },
     fallbacks: {
       criterionSave: "We could not save this walkthrough answer.",
@@ -743,7 +703,7 @@ export function getAssessmentProgressionMetricLabel(params: {
   switch (step.id) {
     case "walkthrough":
       return getProgressCountLabel(language, {
-        answeredCriteria: step.answeredCriterionCount,
+        completedCriteria: step.validCompletedCriterionCount,
         totalCriteria: step.totalCriterionCount,
       });
     case "riskRegister":
@@ -857,13 +817,122 @@ export function getTemplateMetaLabel(
 export function getProgressCountLabel(
   language: AppLanguage,
   params: {
-    readonly answeredCriteria: number;
+    readonly completedCriteria: number;
     readonly totalCriteria: number;
   },
 ): string {
   return language === "is"
-    ? `${params.answeredCriteria} af ${params.totalCriteria} atriðum svarað`
-    : `${params.answeredCriteria} of ${params.totalCriteria} criteria answered`;
+    ? `${params.completedCriteria} af ${params.totalCriteria} atriðum lokið`
+    : `${params.completedCriteria} of ${params.totalCriteria} items complete`;
+}
+
+export function getWalkthroughAttentionCountLabel(
+  language: AppLanguage,
+  count: number,
+): string {
+  return language === "is"
+    ? `${count} ${pluralize(count, "atriði þarf athygli", "atriði þurfa athygli")}`
+    : `${count} ${pluralize(count, "item needs attention", "items need attention")}`;
+}
+
+export function getWalkthroughItemStateLabel(
+  language: AppLanguage,
+  state: "complete" | "needsAttention" | "notAnswered",
+): string {
+  const copy = getAssessmentWalkthroughStaticCopy(language);
+
+  switch (state) {
+    case "complete":
+      return copy.states.complete;
+    case "needsAttention":
+      return copy.states.needsAttention;
+    case "notAnswered":
+      return copy.states.notAnswered;
+  }
+}
+
+export function getWalkthroughSectionCountsLabel(
+  language: AppLanguage,
+  params: {
+    readonly unansweredCount: number;
+    readonly attentionCount: number;
+  },
+): string {
+  const parts: string[] = [];
+
+  if (params.unansweredCount > 0) {
+    parts.push(
+      language === "is"
+        ? `${params.unansweredCount} ${pluralize(params.unansweredCount, "ósvarað", "ósvarað")}`
+        : `${params.unansweredCount} ${pluralize(params.unansweredCount, "not answered", "not answered")}`,
+    );
+  }
+
+  if (params.attentionCount > 0) {
+    parts.push(getWalkthroughAttentionCountLabel(language, params.attentionCount));
+  }
+
+  if (parts.length === 0) {
+    return language === "is" ? "Öll atriði gild og vistuð." : "All items are valid and saved.";
+  }
+
+  return parts.join(language === "is" ? " · " : " · ");
+}
+
+export function getWalkthroughSaveStateMessage(params: {
+  readonly language: AppLanguage;
+  readonly saveState: "idle" | "saving" | "error";
+  readonly savedItemState: "complete" | "needsAttention" | "notAnswered";
+  readonly lastSavedAt: string | null;
+  readonly errorMessage: string | null;
+}): string {
+  const copy = getAssessmentWalkthroughStaticCopy(params.language);
+
+  if (params.saveState === "saving") {
+    return copy.savePills.saving;
+  }
+
+  if (params.saveState === "error") {
+    return params.errorMessage ?? copy.fallbacks.criterionSave;
+  }
+
+  if (params.lastSavedAt) {
+    return params.language === "is"
+      ? `Vistað ${formatSavedAt(params.language, params.lastSavedAt)}.`
+      : `Saved ${formatSavedAt(params.language, params.lastSavedAt)}.`;
+  }
+
+  if (params.savedItemState === "notAnswered") {
+    return params.language === "is"
+      ? "Atriðið vistast sjálfkrafa þegar það er gilt."
+      : "This item saves automatically once it is valid.";
+  }
+
+  return copy.savePills.saved;
+}
+
+export function getWalkthroughNextBlockerMessage(
+  language: AppLanguage,
+  blocker: "missingAnswer" | "missingSeverity" | "saving" | "saveError",
+): string {
+  switch (blocker) {
+    case "missingAnswer":
+      return language === "is"
+        ? "Veldu svar til að klára þetta atriði."
+        : "Choose an answer to complete this item.";
+    case "missingSeverity":
+      return language === "is"
+        ? "Veldu Lítið, Miðlungs eða Mikið til að klára atriði sem þarf athygli."
+        : "Choose Small, Medium, or Large to complete an item that needs attention.";
+    case "saving":
+      return language === "is"
+        ? "Bíddu eftir að vistun ljúki áður en þú ferð áfram."
+        : "Wait for saving to finish before moving on.";
+    case "saveError":
+      return language === "is"
+        ? "Lagaðu vistunarvandann áður en þú heldur áfram."
+        : "Fix the save issue before moving on.";
+  }
 }
 
 export function getCompletedSectionsLabel(
@@ -1033,19 +1102,19 @@ export function getTransferMessage(params: {
 
   if (params.eligibleTransferCriteria === 0) {
     return params.language === "is"
-      ? "Merktu atriði sem 'Ekki í lagi' til að gera það hæft til flutnings."
-      : "Mark a criterion as 'Not ok' to make it eligible for transfer.";
+      ? "Vistaðu atriði sem 'Þarf athygli' til að gera það hæft til flutnings."
+      : "Save an item in the 'Needs attention' state to make it eligible for transfer.";
   }
 
   if (params.remainingCriteria === 0) {
     return params.language === "is"
-      ? "Öll vistuð 'Ekki í lagi' atriði eru þegar í áhættuskránni."
-      : "All persisted 'Not ok' findings are already in the risk register.";
+      ? "Öll hæf atriði eru þegar í áhættuskránni."
+      : "All eligible items are already in the risk register.";
   }
 
   return params.language === "is"
-    ? "Flutningur bætir bara við vistuðum 'Ekki í lagi' atriðum sem vantar enn."
-    : "Transfer will add only the persisted 'Not ok' findings that are still missing.";
+    ? "Flutningur bætir aðeins við hæfum atriðum sem vantar enn."
+    : "Transfer will add only the eligible items that are still missing.";
 }
 
 export function getTransferButtonLabel(params: {
@@ -1368,6 +1437,7 @@ export function getReadinessBlockers(
     readonly walkthrough: {
       readonly ready: boolean;
       readonly unansweredCriterionCount: number;
+      readonly missingSeverityCount: number;
     };
     readonly transfer: {
       readonly ready: boolean;
@@ -1390,6 +1460,14 @@ export function getReadinessBlockers(
           {
             code: "walkthroughUnansweredCriteria" as const,
             count: readiness.walkthrough.unansweredCriterionCount,
+          },
+        ]
+      : []),
+    ...(readiness.walkthrough.missingSeverityCount > 0
+      ? [
+          {
+            code: "walkthroughMissingSeverity" as const,
+            count: readiness.walkthrough.missingSeverityCount,
           },
         ]
       : []),
@@ -1602,6 +1680,10 @@ function getAssessmentProgressionBlockerMessage(
       return language === "is"
         ? `Það vantar svör fyrir ${blocker.count} ${pluralize(blocker.count, "matsatriði", "matsatriði")}.`
         : `${blocker.count} ${pluralize(blocker.count, "walkthrough item still needs an answer", "walkthrough items still need answers")}.`;
+    case "walkthroughMissingSeverity":
+      return language === "is"
+        ? `Það vantar stærð athygli fyrir ${blocker.count} ${pluralize(blocker.count, "atriði sem þarf athygli", "atriði sem þurfa athygli")}.`
+        : `${blocker.count} ${pluralize(blocker.count, "needs-attention item still needs a saved size", "needs-attention items still need a saved size")}.`;
     case "riskRegisterMissingTransfers":
       return language === "is"
         ? `Það á eftir að færa ${blocker.count} ${pluralize(blocker.count, "viðeigandi niðurstöðu", "viðeigandi niðurstöður")} í áhættuskrána.`

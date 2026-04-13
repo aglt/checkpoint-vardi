@@ -3,6 +3,7 @@ import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqli
 export const workplaceArchetypes = ["fixed", "mobile", "construction"] as const;
 export const assessmentStatuses = ["draft", "completed"] as const;
 export const findingStatuses = ["ok", "notOk", "notApplicable", "unanswered"] as const;
+export const walkthroughAttentionSeverities = ["small", "medium", "large"] as const;
 export const riskLevels = ["low", "medium", "high"] as const;
 export const riskMitigationActionStatuses = ["open", "inProgress", "done"] as const;
 export const controlHierarchies = [
@@ -60,6 +61,9 @@ export const finding = sqliteTable(
       .references(() => riskAssessment.id, { onDelete: "cascade" }),
     criterionId: text("criterion_id").notNull(),
     status: text("status", { enum: findingStatuses }).notNull().default("unanswered"),
+    attentionSeverity: text("attention_severity", {
+      enum: walkthroughAttentionSeverities,
+    }),
     notes: text("notes"),
     voiceTranscript: text("voice_transcript"),
     notesLanguage: text("notes_language"),
