@@ -128,7 +128,7 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
   );
 });
 
-test("construction workflow rules keep export blocked until saved reasoning and mitigation exist", async ({
+test("construction workflow reaches a successful export only after persisted reasoning and mitigation exist", async ({
   page,
 }) => {
   await page.goto("/");
@@ -231,6 +231,20 @@ test("construction workflow rules keep export blocked until saved reasoning and 
   await expect(
     summarySection.locator("[data-export-button-state]"),
   ).toBeEnabled();
+  await expect(
+    summarySection.locator('[data-export-state="idle"]'),
+  ).toContainText(
+    "Útflutningur notar vistaðan gátlista, áhættuskrá og samantektargildi.",
+  );
+
+  await page.getByRole("button", { name: "Sækja Word + PDF pakka" }).click();
+
+  await expect(
+    summarySection.locator('[data-export-button-state="success"]'),
+  ).toBeVisible();
+  await expect(
+    summarySection.locator('[data-export-state="success"]'),
+  ).toContainText(`Sækti assessment-${assessmentId}-exports.zip.`);
 });
 
 function seedCompletedConstructionWalkthrough(assessmentId: string) {
