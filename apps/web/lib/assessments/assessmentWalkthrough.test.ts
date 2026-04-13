@@ -304,7 +304,8 @@ test("assessment page renders seeded walkthrough content and resumed notes", asy
     new RegExp(escapeRegExp(fixture.firstCriterion.translations.is.guidance)),
   );
   assert.match(markup, new RegExp(escapeRegExp("Already reviewed on-site.")));
-  assert.match(markup, /Svör vistast strax/);
+  assert.match(markup, new RegExp(escapeRegExp("Vista atriði")));
+  assert.match(markup, new RegExp(escapeRegExp("Yfirlit gátlista")));
 });
 
 test("assessment page re-renders with the persisted answer state selected", async () => {
@@ -427,7 +428,7 @@ test("walkthrough transfer action promotes persisted notOk findings into risk en
     markup,
     new RegExp(
       [
-        escapeRegExp(`data-criterion-id="${fixture.secondCriterion.id}"`),
+        escapeRegExp(`data-criterion-nav-id="${fixture.secondCriterion.id}"`),
         '[\\s\\S]*?',
         escapeRegExp('data-transfer-state="present"'),
         '[\\s\\S]*?',
@@ -770,7 +771,7 @@ test("assessment page renders the summary editor with workplace defaults and rea
   assert.match(markup, /data-export-button-state="idle"/);
 });
 
-test("assessment page renders progression navigation and keeps blocked later steps visible from persisted state", async () => {
+test("assessment page renders checklist navigation and keeps blocked later steps visible from persisted state", async () => {
   const fixture = seedWalkthroughAssessment();
   process.env.VARDI_DATABASE_PATH = fixture.databasePath;
 
@@ -788,19 +789,23 @@ test("assessment page renders progression navigation and keeps blocked later ste
   assert.match(markup, /data-assessment-current-step="walkthrough"/);
   assert.match(
     markup,
-    /<a[^>]*data-progression-current="true"[^>]*data-progression-step-id="walkthrough"[^>]*>/,
+    /data-section-selected="true"/,
   );
   assert.match(
     markup,
-    /<a[^>]*data-progression-availability="blocked"[^>]*data-progression-step-id="riskRegister"[^>]*>/,
+    /data-criterion-nav-selected="true"/,
   );
   assert.match(
     markup,
-    /<a[^>]*data-progression-availability="blocked"[^>]*data-progression-step-id="summary"[^>]*>/,
+    /Atriði í þessum kafla/,
   );
   assert.match(
     markup,
-    /<a[^>]*data-progression-availability="blocked"[^>]*data-progression-step-id="export"[^>]*>/,
+    /Yfirlit gátlista/,
+  );
+  assert.match(
+    markup,
+    /Næstu skref/,
   );
   assert.match(
     markup,

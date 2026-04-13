@@ -24,18 +24,13 @@ import type {
   AssessmentSectionReadModel,
   PresenceStatus,
 } from "@/lib/assessments/loadAssessmentReadModel";
-import type {
-  AssessmentProgressionStepId,
-  AssessmentProgressionStepStatus,
-} from "@/lib/assessments/loadAssessmentProgressionProjection";
 import type { AppLanguage } from "@/lib/i18n/appLanguage";
 import {
-  getAssessmentProgressionGuidanceMessage,
+  buildTransferSuccessMessage,
+  getAnswerOptions,
   getAssessmentProgressionMetricLabel,
   getAssessmentProgressionStatusLabel,
   getAssessmentProgressionStepLabel,
-  buildTransferSuccessMessage,
-  getAnswerOptions,
   getAssessmentWalkthroughStaticCopy,
   getCompletedSectionsLabel,
   getCriterionAnswerAriaLabel,
@@ -45,6 +40,11 @@ import {
   getTransferButtonLabel,
   getTransferMessage,
   getTransferMetricValueLabel,
+  getWalkthroughAttentionMessage,
+  getWalkthroughSaveIssueCountLabel,
+  getWalkthroughTransferDraftWarning,
+  getWalkthroughUnsavedCountLabel,
+  getWalkthroughUnsavedSectionCountLabel,
 } from "@/lib/i18n/mvpCopy";
 import { saveAssessmentCriterionResponseAction } from "@/lib/assessments/saveAssessmentCriterionResponseAction";
 import { transferAssessmentFindingsToRiskRegisterAction } from "@/lib/assessments/transferAssessmentFindingsToRiskRegisterAction";
@@ -94,34 +94,153 @@ export function AssessmentWalkthrough({
     status: "idle",
     message: null,
   });
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+    sections[0]?.id ?? null,
+  );
+  const [selectedCriterionId, setSelectedCriterionId] = useState<string | null>(
+    sections[0]?.criteria[0]?.id ?? null,
+  );
   const criterionStatesRef = useRef<CriterionStateMap>(criterionStates);
-  const pendingSaveTimersRef = useRef<Record<string, number | undefined>>({});
 
   criterionStatesRef.current = criterionStates;
-
-  useEffect(
-    () => () => {
-      for (const timerId of Object.values(pendingSaveTimersRef.current)) {
-        if (typeof timerId === "number") {
-          window.clearTimeout(timerId);
-        }
-      }
-    },
-    [],
-  );
 
   useEffect(() => {
     setRiskEntryStatusByCriterionId(buildInitialCriterionRiskEntryStatus(sections));
   }, [sections]);
+
+  useEffect(() => {
+    if (sections.some((section) => section.id === selectedSectionId)) {
+      return;
+    }
+
+    setSelectedSectionId(sections[0]?.id ?? null);
+  }, [sections, selectedSectionId]);
+
+  const selectedSection =
+    sections.find((section) => section.id === selectedSectionId) ?? sections[0] ?? null;
+  const selectedSectionCriteria = selectedSection?.criteria ?? [];
+
+  useEffect(() => {
+    if (!selectedSection) {
+      setSelectedCriterionId(null);
+      return;
+    }
+
+    if (
+      selectedCriterionId &&
+      selectedSectionCriteria.some((criterion) => criterion.id === selectedCriterionId)
+    ) {
+      return;
+    }
+
+    setSelectedCriterionId(
+      findPreferredCriterionId(selectedSectionCriteria, criterionStatesRef.current),
+    );
+  }, [selectedCriterionId, selectedSection, selectedSectionCriteria]);
+
+  const selectedCriterion =
+    selectedSectionCriteria.find((criterion) => criterion.id === selectedCriterionId) ??
+    selectedSectionCriteria[0] ??
+    null;
+  const selectedCriterionState = selectedCriterion
+    ? criterionStates[selectedCriterion.id] ?? null
+    : null;
   const walkthroughStep = progression.walkthrough;
   const riskRegisterStep = progression.riskRegister;
-  const progressPercentage = walkthroughStep.metrics.percentage;
   const answeredCriteria = walkthroughStep.answeredCriterionCount;
   const totalCriteria = walkthroughStep.totalCriterionCount;
   const completedSections = walkthroughStep.completedSectionCount;
+  const remainingCriteria = Math.max(totalCriteria - answeredCriteria, 0);
   const eligibleTransferCriteria = riskRegisterStep.eligibleFindingCount;
   const transferredCriteria = riskRegisterStep.transferredRiskEntryCount;
-  const remainingCriteria = riskRegisterStep.missingTransferCount;
+  const pendingTransferCriteria = riskRegisterStep.missingTransferCount;
+  const flatCriteria = sections.flatMap((section) =>
+    section.criteria.map((criterion) => ({ section, criterion })),
+  );
+  const walkthroughAttention = getWalkthroughAttentionSummary(
+    sections,
+    criterionStates,
+  );
+  const firstAttentionEntry = findFirstCriterionNeedingAttention(
+    flatCriteria,
+    criterionStates,
+  );
+  const draftNotOkCount = Object.values(criterionStates).reduce(
+    (count, state) =>
+      count +
+      (state.draft.status === "notOk" && state.saved.status !== "notOk" ? 1 : 0),
+    0,
+  );
+  const nextSteps = [
+    {
+      id: "walkthrough",
+      label: getAssessmentProgressionStepLabel(language, progression.walkthrough.id),
+      metric: getAssessmentProgressionMetricLabel({
+        language,
+        step: progression.walkthrough,
+      }),
+      status: getAssessmentProgressionStatusLabel({
+        language,
+        step: progression.walkthrough,
+        currentStepId: progression.currentStepId,
+      }),
+      tone: getNextStepTone(
+        progression.walkthrough,
+        progression.currentStepId === progression.walkthrough.id,
+      ),
+    },
+    {
+      id: "riskRegister",
+      label: getAssessmentProgressionStepLabel(language, progression.riskRegister.id),
+      metric: getAssessmentProgressionMetricLabel({
+        language,
+        step: progression.riskRegister,
+      }),
+      status: getAssessmentProgressionStatusLabel({
+        language,
+        step: progression.riskRegister,
+        currentStepId: progression.currentStepId,
+      }),
+      tone: getNextStepTone(
+        progression.riskRegister,
+        progression.currentStepId === progression.riskRegister.id,
+      ),
+    },
+    {
+      id: "summary-export",
+      label: copy.nextSteps.summaryExportLabel,
+      metric: `${getAssessmentProgressionMetricLabel({
+        language,
+        step: progression.summary,
+      })} · ${getAssessmentProgressionMetricLabel({
+        language,
+        step: progression.export,
+      })}`,
+      status: getAssessmentProgressionStatusLabel({
+        language,
+        step:
+          progression.export.exportReady ||
+          progression.currentStepId === progression.export.id
+            ? progression.export
+            : progression.summary,
+        currentStepId: progression.currentStepId,
+      }),
+      tone: getNextStepTone(
+        progression.export.exportReady ? progression.export : progression.summary,
+        progression.currentStepId === progression.summary.id ||
+          progression.currentStepId === progression.export.id,
+      ),
+    },
+  ] as const;
+  const selectedCriterionIndex = selectedCriterion
+    ? flatCriteria.findIndex((entry) => entry.criterion.id === selectedCriterion.id)
+    : -1;
+  const previousCriterionEntry =
+    selectedCriterionIndex > 0 ? flatCriteria[selectedCriterionIndex - 1] : null;
+  const nextCriterionEntry =
+    selectedCriterionIndex >= 0 && selectedCriterionIndex < flatCriteria.length - 1
+      ? flatCriteria[selectedCriterionIndex + 1]
+      : null;
 
   return (
     <main
@@ -152,27 +271,36 @@ export function AssessmentWalkthrough({
                 </div>
               </div>
 
-              <div className="space-y-3 rounded-[1.75rem] border border-black/10 bg-[#f6f1e7] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:px-5">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="text-sm font-semibold text-slate-900">
-                      {copy.progressLabel}
-                    </div>
-                    <div className="text-sm leading-6 text-slate-600">
-                      {getProgressCountLabel(language, {
-                        answeredCriteria,
-                        totalCriteria,
-                      })}
-                    </div>
-                  </div>
-                  <div className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm font-semibold text-slate-900">
-                    {progressPercentage}%
-                  </div>
-                </div>
-                <div className="h-2 rounded-full bg-black/8">
-                  <div
-                    className="h-full rounded-full bg-[linear-gradient(90deg,#465d3a_0%,#778d63_100%)] transition-[width]"
-                    style={{ width: `${progressPercentage}%` }}
+              <div className="rounded-[1.75rem] border border-black/10 bg-[#f6f1e7] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:px-5">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <ChecklistMetric
+                    label={copy.progressLabel}
+                    value={getProgressCountLabel(language, {
+                      answeredCriteria,
+                      totalCriteria,
+                    })}
+                  />
+                  <ChecklistMetric
+                    label={copy.summaryLabels.sectionsComplete}
+                    value={getCompletedSectionsLabel(language, {
+                      completedSections,
+                      totalSections: sections.length,
+                    })}
+                  />
+                  <ChecklistMetric
+                    label={copy.summaryLabels.checklist}
+                    value={
+                      language === "is"
+                        ? `${remainingCriteria} eftir`
+                        : `${remainingCriteria} remaining`
+                    }
+                  />
+                  <ChecklistMetric
+                    label={copy.unsavedWork.labels.unsavedCriteria}
+                    value={getWalkthroughUnsavedCountLabel(
+                      language,
+                      walkthroughAttention.unsavedCriteriaCount,
+                    )}
                   />
                 </div>
               </div>
@@ -198,172 +326,239 @@ export function AssessmentWalkthrough({
           </div>
         </section>
 
-        <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
+        {walkthroughAttention.unsavedCriteriaCount > 0 ||
+        walkthroughAttention.saveIssueCount > 0 ? (
+          <section
+            className="rounded-[1.75rem] border border-[#d6c4a1] bg-[#fff8ea] px-5 py-4 shadow-[0_18px_45px_rgba(80,62,24,0.08)]"
+            data-walkthrough-attention="true"
+            data-walkthrough-unsaved-count={walkthroughAttention.unsavedCriteriaCount}
+            data-walkthrough-save-issue-count={walkthroughAttention.saveIssueCount}
+          >
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#7a5a1f]">
+                  {copy.unsavedWork.heading}
+                </p>
+                <p className="text-sm leading-6 text-slate-700">
+                  {getWalkthroughAttentionMessage({
+                    language,
+                    unsavedCriteriaCount: walkthroughAttention.unsavedCriteriaCount,
+                    sectionsWithDraftsCount: walkthroughAttention.sectionsWithDraftsCount,
+                    saveIssueCount: walkthroughAttention.saveIssueCount,
+                  })}
+                </p>
+                <p className="text-sm leading-6 text-slate-600">
+                  {copy.unsavedWork.description}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
+                <AttentionPill tone="warning">
+                  {getWalkthroughUnsavedCountLabel(
+                    language,
+                    walkthroughAttention.unsavedCriteriaCount,
+                  )}
+                </AttentionPill>
+                <AttentionPill tone="neutral">
+                  {getWalkthroughUnsavedSectionCountLabel(
+                    language,
+                    walkthroughAttention.sectionsWithDraftsCount,
+                  )}
+                </AttentionPill>
+                {walkthroughAttention.saveIssueCount > 0 ? (
+                  <AttentionPill tone="error">
+                    {getWalkthroughSaveIssueCountLabel(
+                      language,
+                      walkthroughAttention.saveIssueCount,
+                    )}
+                  </AttentionPill>
+                ) : null}
+                {firstAttentionEntry ? (
+                  <button
+                    className="rounded-full border border-[#243026] bg-[#243026] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_26px_rgba(25,31,24,0.14)] transition hover:bg-[#314035]"
+                    onClick={() => navigateToCriterion(firstAttentionEntry)}
+                    type="button"
+                  >
+                    {copy.unsavedWork.jumpToAttention}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        <div className="grid gap-6 lg:grid-cols-[19rem_minmax(0,1fr)]">
           <aside className="order-first self-start space-y-4 lg:sticky lg:top-6">
             <div className="rounded-[1.75rem] border border-black/10 bg-white/82 px-5 py-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur">
-              <div className="space-y-4">
-                {progression.steps.map((step) => (
-                  <a
-                    className="block rounded-[1.3rem] border border-black/10 bg-[#fbf7ef] px-4 py-4 transition hover:border-[#6f8460]"
-                    data-progression-availability={step.availability}
-                    data-progression-completion={step.completionState}
-                    data-progression-current={
-                      progression.currentStepId === step.id ? "true" : "false"
-                    }
-                    data-progression-step-id={step.id}
-                    href={`#assessment-step-${step.id}`}
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                  {copy.checklistHeading}
+                </p>
+                <p className="text-sm leading-6 text-slate-600">
+                  {copy.checklistDescription}
+                </p>
+              </div>
+
+              <div className="mt-4 grid gap-2 text-sm text-slate-700">
+                <ChecklistMetricRow
+                  label={copy.progressLabel}
+                  value={getProgressCountLabel(language, {
+                    answeredCriteria,
+                    totalCriteria,
+                  })}
+                />
+                <ChecklistMetricRow
+                  label={copy.summaryLabels.sectionsComplete}
+                  value={getCompletedSectionsLabel(language, {
+                    completedSections,
+                    totalSections: sections.length,
+                  })}
+                />
+                <ChecklistMetricRow
+                  label={copy.unsavedWork.labels.unsavedCriteria}
+                  value={getWalkthroughUnsavedCountLabel(
+                    language,
+                    walkthroughAttention.unsavedCriteriaCount,
+                  )}
+                />
+                <ChecklistMetricRow
+                  label={copy.unsavedWork.labels.saveIssues}
+                  value={getWalkthroughSaveIssueCountLabel(
+                    language,
+                    walkthroughAttention.saveIssueCount,
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-black/10 bg-white/82 px-5 py-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                  {copy.nextSteps.heading}
+                </p>
+                <p className="text-sm leading-6 text-slate-600">
+                  {copy.nextSteps.description}
+                </p>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {nextSteps.map((step) => (
+                  <NextStepRow
                     key={step.id}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                          {getAssessmentProgressionStepLabel(language, step.id)}
-                        </div>
-                        <div className="text-sm font-semibold leading-6 text-slate-950">
-                          {getAssessmentProgressionMetricLabel({
-                            language,
-                            step,
-                          })}
-                        </div>
-                      </div>
-                      <span
-                        className={getProgressionPillClassName(
-                          step,
-                          progression.currentStepId,
-                        )}
-                      >
-                        {getAssessmentProgressionStatusLabel({
-                          language,
-                          step,
-                          currentStepId: progression.currentStepId,
-                        })}
-                      </span>
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-slate-600">
-                      {getAssessmentProgressionGuidanceMessage({
-                        language,
-                        step,
-                        currentStepId: progression.currentStepId,
-                      })}
-                    </p>
-                  </a>
+                    label={step.label}
+                    metric={step.metric}
+                    status={step.status}
+                    tone={step.tone}
+                  />
                 ))}
               </div>
             </div>
 
             <div className="rounded-[1.75rem] border border-black/10 bg-white/82 px-5 py-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur">
-              <div className="space-y-4">
+              <div className="space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                  {copy.sectionsHeading}
+                </p>
+                <div className="space-y-2">
+                  {sections.map((section) => {
+                    const answeredCount = getAnsweredCount(
+                      section.criteria,
+                      criterionStates,
+                    );
+                    const sectionAttention = getSectionAttentionSummary(
+                      section.criteria,
+                      criterionStates,
+                    );
+
+                    return (
+                      <button
+                        className={getSectionButtonClassName(
+                          section.id === selectedSection?.id,
+                          sectionAttention.unsavedCount > 0,
+                          sectionAttention.saveIssueCount > 0,
+                        )}
+                        data-section-id={section.id}
+                        data-section-selected={
+                          section.id === selectedSection?.id ? "true" : "false"
+                        }
+                        data-section-unsaved-count={sectionAttention.unsavedCount}
+                        data-section-save-issue-count={sectionAttention.saveIssueCount}
+                        key={section.id}
+                        onClick={() => handleSectionSelect(section.id)}
+                        type="button"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                              {copy.sectionLabel} {String(section.order).padStart(2, "0")}
+                            </div>
+                            <div className="text-sm font-semibold leading-6 text-slate-950">
+                              {section.translations.is.title}
+                            </div>
+                          </div>
+                          <div className="flex shrink-0 flex-col items-end gap-2">
+                            {sectionAttention.unsavedCount > 0 ? (
+                              <AttentionPill tone="warning">
+                                {getWalkthroughUnsavedCountLabel(
+                                  language,
+                                  sectionAttention.unsavedCount,
+                                )}
+                              </AttentionPill>
+                            ) : null}
+                            {sectionAttention.saveIssueCount > 0 ? (
+                              <AttentionPill tone="error">
+                                {getWalkthroughSaveIssueCountLabel(
+                                  language,
+                                  sectionAttention.saveIssueCount,
+                                )}
+                              </AttentionPill>
+                            ) : null}
+                          </div>
+                        </div>
+                        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                          <span>
+                            {getSectionAnsweredCountLabel(language, {
+                              answeredCount,
+                              totalCount: section.criteria.length,
+                            })}
+                          </span>
+                          {sectionAttention.unsavedCount > 0 ? (
+                            <span className="rounded-full bg-[#f3eee5] px-2.5 py-1 text-xs font-medium text-[#564938]">
+                              {getWalkthroughUnsavedCountLabel(
+                                language,
+                                sectionAttention.unsavedCount,
+                              )}
+                            </span>
+                          ) : null}
+                          {sectionAttention.saveIssueCount > 0 ? (
+                            <span className="rounded-full bg-[#fff1e8] px-2.5 py-1 text-xs font-medium text-[#7d3211]">
+                              {getWalkthroughSaveIssueCountLabel(
+                                language,
+                                sectionAttention.saveIssueCount,
+                              )}
+                            </span>
+                          ) : null}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {selectedSection ? (
+              <div className="rounded-[1.75rem] border border-black/10 bg-white/82 px-5 py-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur">
                 <div className="space-y-2">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    {copy.transfer.eyebrow}
+                    {copy.criteriaHeading}
                   </p>
-                  <div className="space-y-1">
-                    <h2 className="text-lg font-semibold tracking-tight text-slate-950">
-                      {copy.transfer.heading}
-                    </h2>
-                    <p className="text-sm leading-6 text-slate-600">
-                      {copy.transfer.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-2 text-sm text-slate-700">
-                  <TransferMetric
-                    label={copy.transfer.metrics.eligibleFindings}
-                    value={getTransferMetricValueLabel(eligibleTransferCriteria)}
-                  />
-                  <TransferMetric
-                    label={copy.transfer.metrics.alreadyTransferred}
-                    value={getTransferMetricValueLabel(transferredCriteria)}
-                  />
-                  <TransferMetric
-                    label={copy.transfer.metrics.remainingToTransfer}
-                    value={getTransferMetricValueLabel(remainingCriteria)}
-                  />
-                </div>
-
-                <p
-                  aria-live="polite"
-                  className={getTransferMessageClassName(transferState.status)}
-                >
-                  {getTransferMessage({
-                    language,
-                    status: transferState.status,
-                    message: transferState.message,
-                    eligibleTransferCriteria,
-                    remainingCriteria,
-                  })}
-                </p>
-
-                <button
-                  className={getTransferButtonClassName(
-                    transferState.status === "transferring" ||
-                      remainingCriteria === 0,
-                  )}
-                  data-transfer-action="risk-register"
-                  disabled={
-                    transferState.status === "transferring" ||
-                    remainingCriteria === 0
-                  }
-                  onClick={handleTransferToRiskRegister}
-                  type="button"
-                >
-                  {getTransferButtonLabel({
-                    language,
-                    status: transferState.status,
-                    remainingCriteria,
-                  })}
-                </button>
-              </div>
-            </div>
-
-            <div className="rounded-[1.75rem] border border-black/10 bg-[#243026] px-5 py-5 text-white shadow-[0_24px_60px_rgba(25,31,24,0.2)]">
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h2 className="text-lg font-semibold tracking-tight">
-                    {copy.notes.heading}
-                  </h2>
-                  <p className="text-sm leading-6 text-white/75">
-                    {copy.notes.description}
+                  <p className="text-sm leading-6 text-slate-600">
+                    {copy.criteriaDescription}
                   </p>
                 </div>
-                <div className="grid gap-2 text-sm text-white/80">
-                  <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
-                    {copy.notes.items[0]}
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
-                    {copy.notes.items[1]}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
 
-          <div className="order-last space-y-5 lg:order-last">
-            {sections.map((section) => (
-              <section
-                className="rounded-[2rem] border border-black/10 bg-white/82 p-4 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur sm:p-5 lg:p-6"
-                key={section.id}
-              >
-                <div className="flex flex-col gap-3 border-b border-black/8 pb-4 sm:flex-row sm:items-end sm:justify-between">
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
-                      {copy.sectionLabel} {String(section.order).padStart(2, "0")}
-                    </p>
-                    <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-                      {section.translations.is.title}
-                    </h2>
-                  </div>
-                  <div className="rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1.5 text-sm font-medium text-slate-700">
-                    {getSectionAnsweredCountLabel(language, {
-                      answeredCount: getAnsweredCount(section.criteria, criterionStates),
-                      totalCount: section.criteria.length,
-                    })}
-                  </div>
-                </div>
-
-                <div className="mt-4 space-y-4">
-                  {section.criteria.map((criterion) => {
+                <div className="mt-4 space-y-2">
+                  {selectedSection.criteria.map((criterion) => {
                     const state = criterionStates[criterion.id];
 
                     if (!state) {
@@ -371,128 +566,301 @@ export function AssessmentWalkthrough({
                     }
 
                     return (
-                      <article
-                        className={getCriterionCardClassName(state)}
-                        data-criterion-id={criterion.id}
-                        data-selected-answer={state.draft.status}
+                      <button
+                        className={getCriterionNavButtonClassName(
+                          criterion.id === selectedCriterion?.id,
+                          state,
+                        )}
+                        data-criterion-nav-id={criterion.id}
+                        data-criterion-nav-selected={
+                          criterion.id === selectedCriterion?.id ? "true" : "false"
+                        }
+                        data-criterion-nav-state={getCriterionNavigationState(state)}
                         key={criterion.id}
+                        onClick={() => handleCriterionSelect(selectedSection.id, criterion.id)}
+                        type="button"
                       >
-                        <div className="flex flex-col gap-4">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div className="space-y-3">
-                              <div className="inline-flex w-fit items-center rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
-                                {copy.criterionLabel} {criterion.number}
-                              </div>
-                              <div className="space-y-2">
-                                <h3 className="text-lg font-semibold leading-7 text-slate-950">
-                                  {criterion.translations.is.title}
-                                </h3>
-                                <p className="max-w-3xl text-sm leading-6 text-slate-700">
-                                  {criterion.translations.is.guidance}
-                                </p>
-                              </div>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1 text-left">
+                            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                              {copy.criterionLabel} {criterion.number}
                             </div>
-                            <div className="flex flex-col items-start gap-2 sm:items-end">
-                              {state.saved.status === "notOk" ? (
-                                <TransferStatusPill
-                                  language={language}
-                                  status={
-                                    riskEntryStatusByCriterionId[criterion.id] ??
-                                    criterion.riskEntryStatus
-                                  }
-                                />
-                              ) : null}
-                              <SaveStatePill language={language} state={state} />
+                            <div className="text-sm font-semibold leading-6 text-slate-950">
+                              {criterion.translations.is.title}
                             </div>
                           </div>
-
-                          <div
-                            aria-label={getCriterionAnswerAriaLabel(
-                              language,
-                              criterion.number,
-                            )}
-                            className="grid gap-2 sm:grid-cols-3"
-                            role="radiogroup"
-                          >
-                            {answerOptions.map((option) => (
-                              <button
-                                aria-checked={state.draft.status === option.value}
-                                className={getAnswerOptionClassName(
-                                  option.value,
-                                  state.draft.status === option.value,
-                                )}
-                                data-answer-value={option.value}
-                                data-selected={
-                                  state.draft.status === option.value ? "true" : "false"
+                          <div className="flex shrink-0 flex-col items-end gap-2">
+                            <span className={getCriterionNavStatePillClassName(state)}>
+                              {getCriterionNavigationLabel(copy, state)}
+                            </span>
+                            {state.saved.status === "notOk" ? (
+                              <TransferStatusPill
+                                language={language}
+                                status={
+                                  riskEntryStatusByCriterionId[criterion.id] ??
+                                  criterion.riskEntryStatus
                                 }
-                                key={option.value}
-                                onClick={() => handleStatusSelect(criterion.id, option.value)}
-                                role="radio"
-                                type="button"
-                              >
-                                <span className="text-sm font-semibold">
-                                  {option.label}
-                                </span>
-                                <span className="text-sm leading-5 opacity-80">
-                                  {option.description}
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-
-                          <div className="space-y-2">
-                            <label
-                              className="text-sm font-medium text-slate-900"
-                              htmlFor={`notes-${criterion.id}`}
-                            >
-                              {copy.notesLabel}
-                            </label>
-                            <textarea
-                              className="min-h-28 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
-                              id={`notes-${criterion.id}`}
-                              onBlur={() => handleNotesBlur(criterion.id)}
-                              onChange={(event) =>
-                                handleNotesChange(criterion.id, event.target.value)
-                              }
-                              placeholder={copy.notesPlaceholder}
-                              value={state.draft.notes}
-                            />
-                          </div>
-
-                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                            <p
-                              aria-live="polite"
-                              className={getSaveMessageClassName(state)}
-                            >
-                              {getCriterionSaveMessage({
-                                language,
-                                saveState: state.saveState,
-                                draftStatus: state.draft.status,
-                                draftNotesLength: state.draft.notes.length,
-                                dirty: isDirty(state),
-                                lastSavedAt: state.lastSavedAt,
-                                savedStatus: state.saved.status,
-                                savedNotesLength: state.saved.notes.length,
-                                errorMessage: state.errorMessage,
-                              })}
-                            </p>
-                            {state.saveState === "error" ? (
-                              <button
-                                className="w-full rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:border-slate-400 sm:w-auto"
-                                onClick={() => handleRetry(criterion.id)}
-                                type="button"
-                              >
-                                {copy.retrySave}
-                              </button>
+                              />
                             ) : null}
                           </div>
                         </div>
-                      </article>
+                      </button>
                     );
                   })}
                 </div>
+              </div>
+            ) : null}
+          </aside>
+
+          <div className="order-last space-y-5">
+            {selectedSection && selectedCriterion && selectedCriterionState ? (
+              <section className="rounded-[2rem] border border-black/10 bg-white/82 p-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur sm:p-6">
+                <div className="flex flex-col gap-3 border-b border-black/8 pb-5 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
+                      {copy.sectionLabel} {String(selectedSection.order).padStart(2, "0")}
+                    </p>
+                    <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+                      {selectedSection.translations.is.title}
+                    </h2>
+                    <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                      {copy.editableHint}
+                    </p>
+                  </div>
+                  <div className="rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1.5 text-sm font-medium text-slate-700">
+                    {selectedCriterionIndex + 1} / {flatCriteria.length}
+                  </div>
+                </div>
+
+                <article
+                  className={joinClasses(
+                    getCriterionCardClassName(selectedCriterionState),
+                    "mt-5",
+                  )}
+                  data-criterion-id={selectedCriterion.id}
+                  data-selected-answer={selectedCriterionState.draft.status}
+                >
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="space-y-3">
+                        <div className="inline-flex w-fit items-center rounded-full border border-black/10 bg-[#f7f2e8] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                          {copy.criterionLabel} {selectedCriterion.number}
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="text-xl font-semibold leading-8 text-slate-950">
+                            {selectedCriterion.translations.is.title}
+                          </h3>
+                          <p className="max-w-3xl text-sm leading-6 text-slate-700">
+                            {selectedCriterion.translations.is.guidance}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-start gap-2 sm:items-end">
+                        {selectedCriterionState.saved.status === "notOk" ? (
+                          <TransferStatusPill
+                            language={language}
+                            status={
+                              riskEntryStatusByCriterionId[selectedCriterion.id] ??
+                              selectedCriterion.riskEntryStatus
+                            }
+                          />
+                        ) : null}
+                        <SaveStatePill language={language} state={selectedCriterionState} />
+                      </div>
+                    </div>
+
+                    <div
+                      aria-label={getCriterionAnswerAriaLabel(
+                        language,
+                        selectedCriterion.number,
+                      )}
+                      className="grid gap-2 sm:grid-cols-3"
+                      role="radiogroup"
+                    >
+                      {answerOptions.map((option) => (
+                        <button
+                          aria-checked={
+                            selectedCriterionState.draft.status === option.value
+                          }
+                          className={getAnswerOptionClassName(
+                            option.value,
+                            selectedCriterionState.draft.status === option.value,
+                          )}
+                          data-answer-value={option.value}
+                          data-selected={
+                            selectedCriterionState.draft.status === option.value
+                              ? "true"
+                              : "false"
+                          }
+                          key={option.value}
+                          onClick={() =>
+                            handleStatusSelect(selectedCriterion.id, option.value)
+                          }
+                          role="radio"
+                          type="button"
+                        >
+                          <span className="text-sm font-semibold">{option.label}</span>
+                          <span className="text-sm leading-5 opacity-80">
+                            {option.description}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2">
+                      <label
+                        className="text-sm font-medium text-slate-900"
+                        htmlFor={`notes-${selectedCriterion.id}`}
+                      >
+                        {copy.notesLabel}
+                      </label>
+                      <textarea
+                        className="min-h-32 w-full rounded-[1.35rem] border border-black/10 bg-[#fffdf8] px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-[#6f8460]"
+                        id={`notes-${selectedCriterion.id}`}
+                        onChange={(event) =>
+                          handleNotesChange(selectedCriterion.id, event.target.value)
+                        }
+                        placeholder={copy.notesPlaceholder}
+                        value={selectedCriterionState.draft.notes}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-3 border-t border-black/8 pt-4">
+                      <p
+                        aria-live="polite"
+                        className={getSaveMessageClassName(selectedCriterionState)}
+                      >
+                        {getCriterionSaveMessage({
+                          language,
+                          saveState: selectedCriterionState.saveState,
+                          draftStatus: selectedCriterionState.draft.status,
+                          draftNotesLength: selectedCriterionState.draft.notes.length,
+                          dirty: isDirty(selectedCriterionState),
+                          lastSavedAt: selectedCriterionState.lastSavedAt,
+                          savedStatus: selectedCriterionState.saved.status,
+                          savedNotesLength: selectedCriterionState.saved.notes.length,
+                          errorMessage: selectedCriterionState.errorMessage,
+                        })}
+                      </p>
+
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <button
+                            className={getSecondaryActionButtonClassName(
+                              previousCriterionEntry === null,
+                            )}
+                            disabled={previousCriterionEntry === null}
+                            onClick={() => navigateToCriterion(previousCriterionEntry)}
+                            type="button"
+                          >
+                            {copy.previousCriterion}
+                          </button>
+                          <button
+                            className={getSecondaryActionButtonClassName(
+                              nextCriterionEntry === null,
+                            )}
+                            disabled={nextCriterionEntry === null}
+                            onClick={() => navigateToCriterion(nextCriterionEntry)}
+                            type="button"
+                          >
+                            {copy.nextCriterion}
+                          </button>
+                        </div>
+
+                        <button
+                          className={getSaveActionButtonClassName(
+                            !canSaveCriterion(selectedCriterionState),
+                          )}
+                          data-criterion-save="true"
+                          disabled={!canSaveCriterion(selectedCriterionState)}
+                          onClick={() => handleSave(selectedCriterion.id)}
+                          type="button"
+                        >
+                          {getSaveActionLabel(copy, selectedCriterionState)}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
               </section>
-            ))}
+            ) : null}
+
+            <section className="rounded-[2rem] border border-black/10 bg-white/82 p-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur sm:p-6">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    {copy.transfer.eyebrow}
+                  </p>
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-semibold tracking-tight text-slate-950">
+                      {copy.transfer.heading}
+                    </h2>
+                    <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                      {copy.transfer.description}
+                    </p>
+                  </div>
+
+                  <div className="grid gap-2 text-sm text-slate-700 sm:grid-cols-3">
+                    <TransferMetric
+                      label={copy.transfer.metrics.eligibleFindings}
+                      value={getTransferMetricValueLabel(eligibleTransferCriteria)}
+                    />
+                    <TransferMetric
+                      label={copy.transfer.metrics.alreadyTransferred}
+                      value={getTransferMetricValueLabel(transferredCriteria)}
+                    />
+                    <TransferMetric
+                      label={copy.transfer.metrics.remainingToTransfer}
+                      value={getTransferMetricValueLabel(pendingTransferCriteria)}
+                    />
+                  </div>
+
+                  {draftNotOkCount > 0 ? (
+                    <p className="rounded-[1.2rem] border border-[#d6c4a1] bg-[#fff8ea] px-4 py-3 text-sm leading-6 text-[#7a5a1f]">
+                      {getWalkthroughTransferDraftWarning({
+                        language,
+                        draftNotOkCount,
+                      })}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="w-full max-w-sm space-y-3 rounded-[1.5rem] border border-black/10 bg-[#f7f2e8] p-4">
+                  <p
+                    aria-live="polite"
+                    className={getTransferMessageClassName(transferState.status)}
+                  >
+                    {getTransferMessage({
+                      language,
+                      status: transferState.status,
+                      message: transferState.message,
+                      eligibleTransferCriteria,
+                      remainingCriteria: pendingTransferCriteria,
+                    })}
+                  </p>
+
+                  <button
+                    className={getTransferButtonClassName(
+                      transferState.status === "transferring" ||
+                        pendingTransferCriteria === 0,
+                    )}
+                    data-transfer-action="risk-register"
+                    disabled={
+                      transferState.status === "transferring" ||
+                      pendingTransferCriteria === 0
+                    }
+                    onClick={handleTransferToRiskRegister}
+                    type="button"
+                  >
+                    {getTransferButtonLabel({
+                      language,
+                      status: transferState.status,
+                      remainingCriteria: pendingTransferCriteria,
+                    })}
+                  </button>
+                </div>
+              </div>
+            </section>
 
             {children}
           </div>
@@ -501,49 +869,87 @@ export function AssessmentWalkthrough({
     </main>
   );
 
+  function handleSectionSelect(sectionId: string) {
+    const section = sections.find((candidate) => candidate.id === sectionId);
+
+    if (!section) {
+      return;
+    }
+
+    setSelectedSectionId(sectionId);
+    setSelectedCriterionId(
+      findPreferredCriterionId(section.criteria, criterionStatesRef.current),
+    );
+  }
+
+  function handleCriterionSelect(sectionId: string, criterionId: string) {
+    setSelectedSectionId(sectionId);
+    setSelectedCriterionId(criterionId);
+  }
+
+  function navigateToCriterion(
+    entry:
+      | {
+          readonly section: AssessmentSectionReadModel;
+          readonly criterion: AssessmentSectionReadModel["criteria"][number];
+        }
+      | null,
+  ) {
+    if (!entry) {
+      return;
+    }
+
+    setSelectedSectionId(entry.section.id);
+    setSelectedCriterionId(entry.criterion.id);
+  }
+
+  function updateCriterionState(
+    criterionId: string,
+    updater: (currentState: CriterionClientState) => CriterionClientState,
+  ) {
+    setCriterionStates((current) => {
+      const criterionState = current[criterionId];
+
+      if (!criterionState) {
+        return current;
+      }
+
+      const nextState = {
+        ...current,
+        [criterionId]: updater(criterionState),
+      };
+
+      criterionStatesRef.current = nextState;
+      return nextState;
+    });
+  }
+
   function handleStatusSelect(
     criterionId: string,
     status: SaveAssessmentCriterionStatus,
   ) {
-    const currentState = criterionStatesRef.current[criterionId];
-
-    if (!currentState) {
-      return;
-    }
-
-    persistCriterion(criterionId, {
-      ...currentState.draft,
-      status,
-    });
+    updateCriterionState(criterionId, (criterionState) => ({
+      ...criterionState,
+      draft: {
+        ...criterionState.draft,
+        status,
+      },
+      saveState: criterionState.saveState === "error" ? "idle" : criterionState.saveState,
+      errorMessage: null,
+    }));
   }
 
   function handleNotesChange(criterionId: string, notes: string) {
-    clearPendingSave(criterionId);
-
-    setCriterionStates((current) =>
-      updateCriterionDraftNotes(current, criterionId, notes),
-    );
-
-    scheduleSave(criterionId);
+    updateCriterionState(criterionId, (criterionState) => ({
+      ...updateCriterionDraftNotes(
+        { [criterionId]: criterionState },
+        criterionId,
+        notes,
+      )[criterionId],
+    }));
   }
 
-  function handleNotesBlur(criterionId: string) {
-    clearPendingSave(criterionId);
-    const criterionState = criterionStatesRef.current[criterionId];
-
-    if (
-      !criterionState ||
-      !isDirty(criterionState) ||
-      !canPersistCriterionDraft(criterionState.draft)
-    ) {
-      return;
-    }
-
-    persistCriterion(criterionId, criterionState.draft);
-  }
-
-  function handleRetry(criterionId: string) {
-    clearPendingSave(criterionId);
+  function handleSave(criterionId: string) {
     const criterionState = criterionStatesRef.current[criterionId];
 
     if (!criterionState || !canPersistCriterionDraft(criterionState.draft)) {
@@ -554,7 +960,7 @@ export function AssessmentWalkthrough({
   }
 
   function handleTransferToRiskRegister() {
-    if (transferState.status === "transferring" || remainingCriteria === 0) {
+    if (transferState.status === "transferring" || pendingTransferCriteria === 0) {
       return;
     }
 
@@ -594,37 +1000,7 @@ export function AssessmentWalkthrough({
     });
   }
 
-  function scheduleSave(criterionId: string) {
-    clearPendingSave(criterionId);
-
-    pendingSaveTimersRef.current[criterionId] = window.setTimeout(() => {
-      pendingSaveTimersRef.current[criterionId] = undefined;
-      const criterionState = criterionStatesRef.current[criterionId];
-
-      if (
-        !criterionState ||
-        !isDirty(criterionState) ||
-        !canPersistCriterionDraft(criterionState.draft)
-      ) {
-        return;
-      }
-
-      persistCriterion(criterionId, criterionState.draft);
-    }, 650);
-  }
-
-  function clearPendingSave(criterionId: string) {
-    const timerId = pendingSaveTimersRef.current[criterionId];
-
-    if (typeof timerId === "number") {
-      window.clearTimeout(timerId);
-      pendingSaveTimersRef.current[criterionId] = undefined;
-    }
-  }
-
   function persistCriterion(criterionId: string, nextDraft: CriterionDraft) {
-    clearPendingSave(criterionId);
-
     if (!canPersistCriterionDraft(nextDraft)) {
       return;
     }
@@ -655,27 +1031,33 @@ export function AssessmentWalkthrough({
         });
 
         startTransition(() => {
-          setCriterionStates((current) =>
-            reconcileCriterionSaveSuccess(
+          setCriterionStates((current) => {
+            const nextState = reconcileCriterionSaveSuccess(
               current,
               criterionId,
               nextRequestId,
               response,
               nextDraft,
-            ),
-          );
+            );
+
+            criterionStatesRef.current = nextState;
+            return nextState;
+          });
         });
         await refreshProgression();
       } catch (error: unknown) {
         startTransition(() => {
-          setCriterionStates((current) =>
-            reconcileCriterionSaveFailure(
+          setCriterionStates((current) => {
+            const nextState = reconcileCriterionSaveFailure(
               current,
               criterionId,
               nextRequestId,
               copy.fallbacks.criterionSave,
-            ),
-          );
+            );
+
+            criterionStatesRef.current = nextState;
+            return nextState;
+          });
         });
       }
     });
@@ -701,7 +1083,26 @@ function SummaryCard({
   );
 }
 
-function TransferMetric({
+function ChecklistMetric({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: string;
+}) {
+  return (
+    <div className="rounded-[1.35rem] border border-black/8 bg-white px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        {label}
+      </div>
+      <div className="mt-2 text-base font-semibold leading-6 text-slate-950">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function ChecklistMetricRow({
   label,
   value,
 }: {
@@ -716,19 +1117,41 @@ function TransferMetric({
   );
 }
 
-function getProgressionPillClassName(
-  step: AssessmentProgressionStepStatus,
-  currentStepId: AssessmentProgressionStepId,
-): string {
-  return joinClasses(
-    "inline-flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]",
-    currentStepId === step.id
-      ? "border-[#6f8460] bg-[#edf4ea] text-[#335126]"
-      : step.availability === "blocked"
-        ? "border-[#d7b778] bg-[#fff2d4] text-[#805312]"
-        : step.completionState === "complete"
-          ? "border-[#a8c2a1] bg-[#e7f1e2] text-[#355428]"
-          : "border-black/10 bg-white text-slate-600",
+function AttentionPill({
+  tone,
+  children,
+}: {
+  readonly tone: "warning" | "error" | "neutral";
+  readonly children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={joinClasses(
+        "inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]",
+        tone === "warning"
+          ? "border-[#c6ab70] bg-[#fff3d6] text-[#7a5a1f]"
+          : tone === "error"
+            ? "border-[#bb6b4b] bg-[#fff1e8] text-[#7d3211]"
+            : "border-black/10 bg-white text-slate-600",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+function TransferMetric({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl border border-black/8 bg-[#f7f2e8] px-3 py-3">
+      <span className="text-sm font-medium text-slate-600">{label}</span>
+      <span className="text-base font-semibold text-slate-950">{value}</span>
+    </div>
   );
 }
 
@@ -768,14 +1191,315 @@ function TransferStatusPill({
   const copy = getAssessmentWalkthroughStaticCopy(language);
 
   return (
-    <div
-      className={getTransferPillClassName(status)}
-      data-transfer-state={status}
-    >
+    <div className={getTransferPillClassName(status)} data-transfer-state={status}>
       {status === "present"
         ? copy.transferPills.present
         : copy.transferPills.absent}
     </div>
+  );
+}
+
+function findPreferredCriterionId(
+  criteria: readonly AssessmentSectionReadModel["criteria"][number][],
+  criterionStates: CriterionStateMap,
+): string | null {
+  const dirtyCriterion = criteria.find((criterion) => {
+    const state = criterionStates[criterion.id];
+    return state ? isDirty(state) : false;
+  });
+
+  if (dirtyCriterion) {
+    return dirtyCriterion.id;
+  }
+
+  const unansweredCriterion = criteria.find((criterion) => {
+    const state = criterionStates[criterion.id];
+    return state?.saved.status === "unanswered";
+  });
+
+  if (unansweredCriterion) {
+    return unansweredCriterion.id;
+  }
+
+  return criteria[0]?.id ?? null;
+}
+
+function findFirstCriterionNeedingAttention(
+  criteria: readonly {
+    readonly section: AssessmentSectionReadModel;
+    readonly criterion: AssessmentSectionReadModel["criteria"][number];
+  }[],
+  criterionStates: CriterionStateMap,
+):
+  | {
+      readonly section: AssessmentSectionReadModel;
+      readonly criterion: AssessmentSectionReadModel["criteria"][number];
+    }
+  | null {
+  const saveIssueEntry =
+    criteria.find(({ criterion }) => hasSaveIssue(criterionStates[criterion.id])) ?? null;
+
+  if (saveIssueEntry) {
+    return saveIssueEntry;
+  }
+
+  return (
+    criteria.find(({ criterion }) => hasUnsavedDraft(criterionStates[criterion.id])) ?? null
+  );
+}
+
+interface SectionAttentionSummary {
+  readonly unsavedCount: number;
+  readonly saveIssueCount: number;
+}
+
+function getSectionAttentionSummary(
+  criteria: readonly AssessmentSectionReadModel["criteria"][number][],
+  criterionStates: CriterionStateMap,
+): SectionAttentionSummary {
+  return criteria.reduce<SectionAttentionSummary>(
+    (summary, criterion) => {
+      const state = criterionStates[criterion.id];
+
+      if (!state) {
+        return summary;
+      }
+
+      return {
+        unsavedCount: summary.unsavedCount + (hasUnsavedDraft(state) ? 1 : 0),
+        saveIssueCount: summary.saveIssueCount + (hasSaveIssue(state) ? 1 : 0),
+      };
+    },
+    {
+      unsavedCount: 0,
+      saveIssueCount: 0,
+    },
+  );
+}
+
+interface WalkthroughAttentionSummary {
+  readonly unsavedCriteriaCount: number;
+  readonly sectionsWithDraftsCount: number;
+  readonly saveIssueCount: number;
+}
+
+function getWalkthroughAttentionSummary(
+  sections: readonly AssessmentSectionReadModel[],
+  criterionStates: CriterionStateMap,
+): WalkthroughAttentionSummary {
+  return sections.reduce<WalkthroughAttentionSummary>(
+    (summary, section) => {
+      const sectionAttention = getSectionAttentionSummary(
+        section.criteria,
+        criterionStates,
+      );
+
+      return {
+        unsavedCriteriaCount:
+          summary.unsavedCriteriaCount + sectionAttention.unsavedCount,
+        sectionsWithDraftsCount:
+          summary.sectionsWithDraftsCount +
+          (sectionAttention.unsavedCount > 0 ? 1 : 0),
+        saveIssueCount: summary.saveIssueCount + sectionAttention.saveIssueCount,
+      };
+    },
+    {
+      unsavedCriteriaCount: 0,
+      sectionsWithDraftsCount: 0,
+      saveIssueCount: 0,
+    },
+  );
+}
+
+function hasUnsavedDraft(state: CriterionClientState | undefined): boolean {
+  return Boolean(state && isDirty(state));
+}
+
+function hasSaveIssue(state: CriterionClientState | undefined): boolean {
+  return Boolean(state && state.saveState === "error");
+}
+
+type CriterionNavigationState =
+  | "error"
+  | "needsAnswer"
+  | "unsaved"
+  | "notStarted"
+  | "saved";
+
+function getCriterionNavigationState(
+  state: CriterionClientState,
+): CriterionNavigationState {
+  if (state.saveState === "error") {
+    return "error";
+  }
+
+  if (state.draft.status === "unanswered" && state.draft.notes.length > 0) {
+    return "needsAnswer";
+  }
+
+  if (isDirty(state)) {
+    return "unsaved";
+  }
+
+  if (state.saved.status === "unanswered" && state.saved.notes.length === 0) {
+    return "notStarted";
+  }
+
+  return "saved";
+}
+
+function getCriterionNavigationLabel(
+  copy: ReturnType<typeof getAssessmentWalkthroughStaticCopy>,
+  state: CriterionClientState,
+): string {
+  switch (getCriterionNavigationState(state)) {
+    case "error":
+      return copy.savePills.error;
+    case "needsAnswer":
+      return copy.savePills.needsAnswer;
+    case "unsaved":
+      return copy.savePills.unsaved;
+    case "notStarted":
+      return copy.savePills.notStarted;
+    case "saved":
+      return copy.savePills.saved;
+  }
+
+  return copy.savePills.saved;
+}
+
+function canSaveCriterion(state: CriterionClientState): boolean {
+  if (state.saveState === "saving") {
+    return false;
+  }
+
+  if (!canPersistCriterionDraft(state.draft)) {
+    return false;
+  }
+
+  return isDirty(state) || state.saveState === "error";
+}
+
+function getSaveActionLabel(
+  copy: ReturnType<typeof getAssessmentWalkthroughStaticCopy>,
+  state: CriterionClientState,
+): string {
+  if (state.saveState === "saving") {
+    return copy.savePills.saving;
+  }
+
+  if (state.saveState === "error") {
+    return copy.retrySave;
+  }
+
+  return copy.saveAction;
+}
+
+function NextStepRow({
+  label,
+  metric,
+  status,
+  tone,
+}: {
+  readonly label: string;
+  readonly metric: string;
+  readonly status: string;
+  readonly tone: "current" | "blocked" | "complete" | "inProgress";
+}) {
+  return (
+    <div
+      className="flex items-start justify-between gap-3 rounded-[1.2rem] border border-black/8 bg-[#fbf7ef] px-4 py-3"
+      data-next-step-label={label}
+    >
+      <div className="space-y-1">
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          {label}
+        </div>
+        <div className="text-sm leading-6 text-slate-700">{metric}</div>
+      </div>
+      <span className={getNextStepPillClassName(tone)}>{status}</span>
+    </div>
+  );
+}
+
+function getNextStepTone(
+  step: {
+    readonly availability: "available" | "blocked";
+    readonly completionState: "notStarted" | "inProgress" | "complete";
+  },
+  current: boolean,
+): "current" | "blocked" | "complete" | "inProgress" {
+  if (current) {
+    return "current";
+  }
+
+  if (step.availability === "blocked") {
+    return "blocked";
+  }
+
+  if (step.completionState === "complete") {
+    return "complete";
+  }
+
+  return "inProgress";
+}
+
+function getNextStepPillClassName(
+  tone: "current" | "blocked" | "complete" | "inProgress",
+): string {
+  return joinClasses(
+    "inline-flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]",
+    tone === "current"
+      ? "border-[#6f8460] bg-[#edf4ea] text-[#335126]"
+      : tone === "blocked"
+        ? "border-[#d7b778] bg-[#fff2d4] text-[#805312]"
+        : tone === "complete"
+          ? "border-[#a8c2a1] bg-[#e7f1e2] text-[#355428]"
+          : "border-black/10 bg-white text-slate-600",
+  );
+}
+
+function getSectionButtonClassName(
+  selected: boolean,
+  hasUnsavedDrafts: boolean,
+  hasSaveIssues: boolean,
+): string {
+  return joinClasses(
+    "w-full rounded-[1.3rem] border px-4 py-4 text-left transition",
+    selected
+      ? "border-[#6f8460] bg-[#edf4ea] shadow-[0_14px_30px_rgba(43,67,31,0.08)]"
+      : hasSaveIssues
+        ? "border-[#d6b09a] bg-[#fff8f2] hover:border-[#bb6b4b]"
+        : hasUnsavedDrafts
+          ? "border-[#d8c8a6] bg-[#fffaf0] hover:border-[#9b8b67]"
+          : "border-black/10 bg-[#fbf7ef] hover:border-[#8da17f] hover:bg-white",
+  );
+}
+
+function getCriterionNavButtonClassName(
+  selected: boolean,
+  state: CriterionClientState,
+): string {
+  return joinClasses(
+    "w-full rounded-[1.2rem] border px-4 py-3 text-left transition",
+    selected
+      ? "border-[#6f8460] bg-[#eef5e9]"
+      : state.saveState === "error"
+        ? "border-[#bb6b4b] bg-[#fff4ed]"
+        : isDirty(state)
+          ? "border-[#9aa986] bg-[#faf7ef]"
+          : "border-black/10 bg-[#fbf7ef] hover:border-[#8da17f] hover:bg-white",
+  );
+}
+
+function getCriterionNavStatePillClassName(state: CriterionClientState): string {
+  return joinClasses(
+    "inline-flex w-fit items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
+    state.saveState === "error"
+      ? "border-[#bb6b4b] bg-[#fff1e8] text-[#7d3211]"
+      : isDirty(state)
+        ? "border-[#8a7d6a] bg-[#f3eee5] text-[#564938]"
+        : "border-black/10 bg-white text-slate-600",
   );
 }
 
@@ -833,6 +1557,24 @@ function getSaveMessageClassName(state: CriterionClientState): string {
   return joinClasses(
     "text-sm leading-6",
     state.saveState === "error" ? "text-[#8a2f0d]" : "text-slate-600",
+  );
+}
+
+function getSecondaryActionButtonClassName(disabled: boolean): string {
+  return joinClasses(
+    "rounded-full border px-4 py-2.5 text-sm font-semibold transition",
+    disabled
+      ? "cursor-not-allowed border-black/10 bg-[#ebe4d7] text-slate-500"
+      : "border-black/10 bg-white text-slate-900 hover:border-slate-400",
+  );
+}
+
+function getSaveActionButtonClassName(disabled: boolean): string {
+  return joinClasses(
+    "rounded-full px-5 py-2.5 text-sm font-semibold transition",
+    disabled
+      ? "cursor-not-allowed border border-black/10 bg-[#ebe4d7] text-slate-500"
+      : "border border-[#243026] bg-[#243026] text-white shadow-[0_12px_28px_rgba(25,31,24,0.16)] hover:bg-[#314035]",
   );
 }
 
