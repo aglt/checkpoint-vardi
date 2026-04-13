@@ -805,6 +805,10 @@ test("assessment page renders checklist navigation and keeps blocked later steps
   );
   assert.match(
     markup,
+    /Næstu skref/,
+  );
+  assert.match(
+    markup,
     /<section[^>]*data-step-availability="blocked"[^>]*id="assessment-step-riskRegister"[^>]*>/,
   );
   assert.match(

@@ -28,6 +28,9 @@ import type { AppLanguage } from "@/lib/i18n/appLanguage";
 import {
   buildTransferSuccessMessage,
   getAnswerOptions,
+  getAssessmentProgressionMetricLabel,
+  getAssessmentProgressionStatusLabel,
+  getAssessmentProgressionStepLabel,
   getAssessmentWalkthroughStaticCopy,
   getCompletedSectionsLabel,
   getCriterionAnswerAriaLabel,
@@ -37,6 +40,11 @@ import {
   getTransferButtonLabel,
   getTransferMessage,
   getTransferMetricValueLabel,
+  getWalkthroughAttentionMessage,
+  getWalkthroughSaveIssueCountLabel,
+  getWalkthroughTransferDraftWarning,
+  getWalkthroughUnsavedCountLabel,
+  getWalkthroughUnsavedSectionCountLabel,
 } from "@/lib/i18n/mvpCopy";
 import { saveAssessmentCriterionResponseAction } from "@/lib/assessments/saveAssessmentCriterionResponseAction";
 import { transferAssessmentFindingsToRiskRegisterAction } from "@/lib/assessments/transferAssessmentFindingsToRiskRegisterAction";
@@ -149,6 +157,81 @@ export function AssessmentWalkthrough({
   const flatCriteria = sections.flatMap((section) =>
     section.criteria.map((criterion) => ({ section, criterion })),
   );
+  const walkthroughAttention = getWalkthroughAttentionSummary(
+    sections,
+    criterionStates,
+  );
+  const firstAttentionEntry = findFirstCriterionNeedingAttention(
+    flatCriteria,
+    criterionStates,
+  );
+  const draftNotOkCount = Object.values(criterionStates).reduce(
+    (count, state) =>
+      count +
+      (state.draft.status === "notOk" && state.saved.status !== "notOk" ? 1 : 0),
+    0,
+  );
+  const nextSteps = [
+    {
+      id: "walkthrough",
+      label: getAssessmentProgressionStepLabel(language, progression.walkthrough.id),
+      metric: getAssessmentProgressionMetricLabel({
+        language,
+        step: progression.walkthrough,
+      }),
+      status: getAssessmentProgressionStatusLabel({
+        language,
+        step: progression.walkthrough,
+        currentStepId: progression.currentStepId,
+      }),
+      tone: getNextStepTone(
+        progression.walkthrough,
+        progression.currentStepId === progression.walkthrough.id,
+      ),
+    },
+    {
+      id: "riskRegister",
+      label: getAssessmentProgressionStepLabel(language, progression.riskRegister.id),
+      metric: getAssessmentProgressionMetricLabel({
+        language,
+        step: progression.riskRegister,
+      }),
+      status: getAssessmentProgressionStatusLabel({
+        language,
+        step: progression.riskRegister,
+        currentStepId: progression.currentStepId,
+      }),
+      tone: getNextStepTone(
+        progression.riskRegister,
+        progression.currentStepId === progression.riskRegister.id,
+      ),
+    },
+    {
+      id: "summary-export",
+      label: copy.nextSteps.summaryExportLabel,
+      metric: `${getAssessmentProgressionMetricLabel({
+        language,
+        step: progression.summary,
+      })} · ${getAssessmentProgressionMetricLabel({
+        language,
+        step: progression.export,
+      })}`,
+      status: getAssessmentProgressionStatusLabel({
+        language,
+        step:
+          progression.export.exportReady ||
+          progression.currentStepId === progression.export.id
+            ? progression.export
+            : progression.summary,
+        currentStepId: progression.currentStepId,
+      }),
+      tone: getNextStepTone(
+        progression.export.exportReady ? progression.export : progression.summary,
+        progression.currentStepId === progression.summary.id ||
+          progression.currentStepId === progression.export.id,
+      ),
+    },
+  ] as const;
   const selectedCriterionIndex = selectedCriterion
     ? flatCriteria.findIndex((entry) => entry.criterion.id === selectedCriterion.id)
     : -1;
@@ -189,7 +272,7 @@ export function AssessmentWalkthrough({
               </div>
 
               <div className="rounded-[1.75rem] border border-black/10 bg-[#f6f1e7] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:px-5">
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   <ChecklistMetric
                     label={copy.progressLabel}
                     value={getProgressCountLabel(language, {
@@ -211,6 +294,13 @@ export function AssessmentWalkthrough({
                         ? `${remainingCriteria} eftir`
                         : `${remainingCriteria} remaining`
                     }
+                  />
+                  <ChecklistMetric
+                    label={copy.unsavedWork.labels.unsavedCriteria}
+                    value={getWalkthroughUnsavedCountLabel(
+                      language,
+                      walkthroughAttention.unsavedCriteriaCount,
+                    )}
                   />
                 </div>
               </div>
@@ -235,6 +325,67 @@ export function AssessmentWalkthrough({
             </aside>
           </div>
         </section>
+
+        {walkthroughAttention.unsavedCriteriaCount > 0 ||
+        walkthroughAttention.saveIssueCount > 0 ? (
+          <section
+            className="rounded-[1.75rem] border border-[#d6c4a1] bg-[#fff8ea] px-5 py-4 shadow-[0_18px_45px_rgba(80,62,24,0.08)]"
+            data-walkthrough-attention="true"
+            data-walkthrough-unsaved-count={walkthroughAttention.unsavedCriteriaCount}
+            data-walkthrough-save-issue-count={walkthroughAttention.saveIssueCount}
+          >
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#7a5a1f]">
+                  {copy.unsavedWork.heading}
+                </p>
+                <p className="text-sm leading-6 text-slate-700">
+                  {getWalkthroughAttentionMessage({
+                    language,
+                    unsavedCriteriaCount: walkthroughAttention.unsavedCriteriaCount,
+                    sectionsWithDraftsCount: walkthroughAttention.sectionsWithDraftsCount,
+                    saveIssueCount: walkthroughAttention.saveIssueCount,
+                  })}
+                </p>
+                <p className="text-sm leading-6 text-slate-600">
+                  {copy.unsavedWork.description}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
+                <AttentionPill tone="warning">
+                  {getWalkthroughUnsavedCountLabel(
+                    language,
+                    walkthroughAttention.unsavedCriteriaCount,
+                  )}
+                </AttentionPill>
+                <AttentionPill tone="neutral">
+                  {getWalkthroughUnsavedSectionCountLabel(
+                    language,
+                    walkthroughAttention.sectionsWithDraftsCount,
+                  )}
+                </AttentionPill>
+                {walkthroughAttention.saveIssueCount > 0 ? (
+                  <AttentionPill tone="error">
+                    {getWalkthroughSaveIssueCountLabel(
+                      language,
+                      walkthroughAttention.saveIssueCount,
+                    )}
+                  </AttentionPill>
+                ) : null}
+                {firstAttentionEntry ? (
+                  <button
+                    className="rounded-full border border-[#243026] bg-[#243026] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_26px_rgba(25,31,24,0.14)] transition hover:bg-[#314035]"
+                    onClick={() => navigateToCriterion(firstAttentionEntry)}
+                    type="button"
+                  >
+                    {copy.unsavedWork.jumpToAttention}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <div className="grid gap-6 lg:grid-cols-[19rem_minmax(0,1fr)]">
           <aside className="order-first self-start space-y-4 lg:sticky lg:top-6">
@@ -264,9 +415,42 @@ export function AssessmentWalkthrough({
                   })}
                 />
                 <ChecklistMetricRow
-                  label={copy.transfer.metrics.remainingToTransfer}
-                  value={getTransferMetricValueLabel(pendingTransferCriteria)}
+                  label={copy.unsavedWork.labels.unsavedCriteria}
+                  value={getWalkthroughUnsavedCountLabel(
+                    language,
+                    walkthroughAttention.unsavedCriteriaCount,
+                  )}
                 />
+                <ChecklistMetricRow
+                  label={copy.unsavedWork.labels.saveIssues}
+                  value={getWalkthroughSaveIssueCountLabel(
+                    language,
+                    walkthroughAttention.saveIssueCount,
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-black/10 bg-white/82 px-5 py-5 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                  {copy.nextSteps.heading}
+                </p>
+                <p className="text-sm leading-6 text-slate-600">
+                  {copy.nextSteps.description}
+                </p>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {nextSteps.map((step) => (
+                  <NextStepRow
+                    key={step.id}
+                    label={step.label}
+                    metric={step.metric}
+                    status={step.status}
+                    tone={step.tone}
+                  />
+                ))}
               </div>
             </div>
 
@@ -281,33 +465,79 @@ export function AssessmentWalkthrough({
                       section.criteria,
                       criterionStates,
                     );
+                    const sectionAttention = getSectionAttentionSummary(
+                      section.criteria,
+                      criterionStates,
+                    );
 
                     return (
                       <button
                         className={getSectionButtonClassName(
                           section.id === selectedSection?.id,
+                          sectionAttention.unsavedCount > 0,
+                          sectionAttention.saveIssueCount > 0,
                         )}
                         data-section-id={section.id}
                         data-section-selected={
                           section.id === selectedSection?.id ? "true" : "false"
                         }
+                        data-section-unsaved-count={sectionAttention.unsavedCount}
+                        data-section-save-issue-count={sectionAttention.saveIssueCount}
                         key={section.id}
                         onClick={() => handleSectionSelect(section.id)}
                         type="button"
                       >
-                        <div className="space-y-1">
-                          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                            {copy.sectionLabel} {String(section.order).padStart(2, "0")}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                              {copy.sectionLabel} {String(section.order).padStart(2, "0")}
+                            </div>
+                            <div className="text-sm font-semibold leading-6 text-slate-950">
+                              {section.translations.is.title}
+                            </div>
                           </div>
-                          <div className="text-sm font-semibold leading-6 text-slate-950">
-                            {section.translations.is.title}
+                          <div className="flex shrink-0 flex-col items-end gap-2">
+                            {sectionAttention.unsavedCount > 0 ? (
+                              <AttentionPill tone="warning">
+                                {getWalkthroughUnsavedCountLabel(
+                                  language,
+                                  sectionAttention.unsavedCount,
+                                )}
+                              </AttentionPill>
+                            ) : null}
+                            {sectionAttention.saveIssueCount > 0 ? (
+                              <AttentionPill tone="error">
+                                {getWalkthroughSaveIssueCountLabel(
+                                  language,
+                                  sectionAttention.saveIssueCount,
+                                )}
+                              </AttentionPill>
+                            ) : null}
                           </div>
                         </div>
-                        <div className="mt-3 text-sm text-slate-600">
-                          {getSectionAnsweredCountLabel(language, {
-                            answeredCount,
-                            totalCount: section.criteria.length,
-                          })}
+                        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                          <span>
+                            {getSectionAnsweredCountLabel(language, {
+                              answeredCount,
+                              totalCount: section.criteria.length,
+                            })}
+                          </span>
+                          {sectionAttention.unsavedCount > 0 ? (
+                            <span className="rounded-full bg-[#f3eee5] px-2.5 py-1 text-xs font-medium text-[#564938]">
+                              {getWalkthroughUnsavedCountLabel(
+                                language,
+                                sectionAttention.unsavedCount,
+                              )}
+                            </span>
+                          ) : null}
+                          {sectionAttention.saveIssueCount > 0 ? (
+                            <span className="rounded-full bg-[#fff1e8] px-2.5 py-1 text-xs font-medium text-[#7d3211]">
+                              {getWalkthroughSaveIssueCountLabel(
+                                language,
+                                sectionAttention.saveIssueCount,
+                              )}
+                            </span>
+                          ) : null}
                         </div>
                       </button>
                     );
@@ -584,6 +814,15 @@ export function AssessmentWalkthrough({
                       value={getTransferMetricValueLabel(pendingTransferCriteria)}
                     />
                   </div>
+
+                  {draftNotOkCount > 0 ? (
+                    <p className="rounded-[1.2rem] border border-[#d6c4a1] bg-[#fff8ea] px-4 py-3 text-sm leading-6 text-[#7a5a1f]">
+                      {getWalkthroughTransferDraftWarning({
+                        language,
+                        draftNotOkCount,
+                      })}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="w-full max-w-sm space-y-3 rounded-[1.5rem] border border-black/10 bg-[#f7f2e8] p-4">
@@ -878,6 +1117,29 @@ function ChecklistMetricRow({
   );
 }
 
+function AttentionPill({
+  tone,
+  children,
+}: {
+  readonly tone: "warning" | "error" | "neutral";
+  readonly children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={joinClasses(
+        "inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]",
+        tone === "warning"
+          ? "border-[#c6ab70] bg-[#fff3d6] text-[#7a5a1f]"
+          : tone === "error"
+            ? "border-[#bb6b4b] bg-[#fff1e8] text-[#7d3211]"
+            : "border-black/10 bg-white text-slate-600",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
 function TransferMetric({
   label,
   value,
@@ -962,6 +1224,101 @@ function findPreferredCriterionId(
   return criteria[0]?.id ?? null;
 }
 
+function findFirstCriterionNeedingAttention(
+  criteria: readonly {
+    readonly section: AssessmentSectionReadModel;
+    readonly criterion: AssessmentSectionReadModel["criteria"][number];
+  }[],
+  criterionStates: CriterionStateMap,
+):
+  | {
+      readonly section: AssessmentSectionReadModel;
+      readonly criterion: AssessmentSectionReadModel["criteria"][number];
+    }
+  | null {
+  const saveIssueEntry =
+    criteria.find(({ criterion }) => hasSaveIssue(criterionStates[criterion.id])) ?? null;
+
+  if (saveIssueEntry) {
+    return saveIssueEntry;
+  }
+
+  return (
+    criteria.find(({ criterion }) => hasUnsavedDraft(criterionStates[criterion.id])) ?? null
+  );
+}
+
+interface SectionAttentionSummary {
+  readonly unsavedCount: number;
+  readonly saveIssueCount: number;
+}
+
+function getSectionAttentionSummary(
+  criteria: readonly AssessmentSectionReadModel["criteria"][number][],
+  criterionStates: CriterionStateMap,
+): SectionAttentionSummary {
+  return criteria.reduce<SectionAttentionSummary>(
+    (summary, criterion) => {
+      const state = criterionStates[criterion.id];
+
+      if (!state) {
+        return summary;
+      }
+
+      return {
+        unsavedCount: summary.unsavedCount + (hasUnsavedDraft(state) ? 1 : 0),
+        saveIssueCount: summary.saveIssueCount + (hasSaveIssue(state) ? 1 : 0),
+      };
+    },
+    {
+      unsavedCount: 0,
+      saveIssueCount: 0,
+    },
+  );
+}
+
+interface WalkthroughAttentionSummary {
+  readonly unsavedCriteriaCount: number;
+  readonly sectionsWithDraftsCount: number;
+  readonly saveIssueCount: number;
+}
+
+function getWalkthroughAttentionSummary(
+  sections: readonly AssessmentSectionReadModel[],
+  criterionStates: CriterionStateMap,
+): WalkthroughAttentionSummary {
+  return sections.reduce<WalkthroughAttentionSummary>(
+    (summary, section) => {
+      const sectionAttention = getSectionAttentionSummary(
+        section.criteria,
+        criterionStates,
+      );
+
+      return {
+        unsavedCriteriaCount:
+          summary.unsavedCriteriaCount + sectionAttention.unsavedCount,
+        sectionsWithDraftsCount:
+          summary.sectionsWithDraftsCount +
+          (sectionAttention.unsavedCount > 0 ? 1 : 0),
+        saveIssueCount: summary.saveIssueCount + sectionAttention.saveIssueCount,
+      };
+    },
+    {
+      unsavedCriteriaCount: 0,
+      sectionsWithDraftsCount: 0,
+      saveIssueCount: 0,
+    },
+  );
+}
+
+function hasUnsavedDraft(state: CriterionClientState | undefined): boolean {
+  return Boolean(state && isDirty(state));
+}
+
+function hasSaveIssue(state: CriterionClientState | undefined): boolean {
+  return Boolean(state && state.saveState === "error");
+}
+
 type CriterionNavigationState =
   | "error"
   | "needsAnswer"
@@ -1038,12 +1395,84 @@ function getSaveActionLabel(
   return copy.saveAction;
 }
 
-function getSectionButtonClassName(selected: boolean): string {
+function NextStepRow({
+  label,
+  metric,
+  status,
+  tone,
+}: {
+  readonly label: string;
+  readonly metric: string;
+  readonly status: string;
+  readonly tone: "current" | "blocked" | "complete" | "inProgress";
+}) {
+  return (
+    <div
+      className="flex items-start justify-between gap-3 rounded-[1.2rem] border border-black/8 bg-[#fbf7ef] px-4 py-3"
+      data-next-step-label={label}
+    >
+      <div className="space-y-1">
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          {label}
+        </div>
+        <div className="text-sm leading-6 text-slate-700">{metric}</div>
+      </div>
+      <span className={getNextStepPillClassName(tone)}>{status}</span>
+    </div>
+  );
+}
+
+function getNextStepTone(
+  step: {
+    readonly availability: "available" | "blocked";
+    readonly completionState: "notStarted" | "inProgress" | "complete";
+  },
+  current: boolean,
+): "current" | "blocked" | "complete" | "inProgress" {
+  if (current) {
+    return "current";
+  }
+
+  if (step.availability === "blocked") {
+    return "blocked";
+  }
+
+  if (step.completionState === "complete") {
+    return "complete";
+  }
+
+  return "inProgress";
+}
+
+function getNextStepPillClassName(
+  tone: "current" | "blocked" | "complete" | "inProgress",
+): string {
+  return joinClasses(
+    "inline-flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]",
+    tone === "current"
+      ? "border-[#6f8460] bg-[#edf4ea] text-[#335126]"
+      : tone === "blocked"
+        ? "border-[#d7b778] bg-[#fff2d4] text-[#805312]"
+        : tone === "complete"
+          ? "border-[#a8c2a1] bg-[#e7f1e2] text-[#355428]"
+          : "border-black/10 bg-white text-slate-600",
+  );
+}
+
+function getSectionButtonClassName(
+  selected: boolean,
+  hasUnsavedDrafts: boolean,
+  hasSaveIssues: boolean,
+): string {
   return joinClasses(
     "w-full rounded-[1.3rem] border px-4 py-4 text-left transition",
     selected
       ? "border-[#6f8460] bg-[#edf4ea] shadow-[0_14px_30px_rgba(43,67,31,0.08)]"
-      : "border-black/10 bg-[#fbf7ef] hover:border-[#8da17f] hover:bg-white",
+      : hasSaveIssues
+        ? "border-[#d6b09a] bg-[#fff8f2] hover:border-[#bb6b4b]"
+        : hasUnsavedDrafts
+          ? "border-[#d8c8a6] bg-[#fffaf0] hover:border-[#9b8b67]"
+          : "border-black/10 bg-[#fbf7ef] hover:border-[#8da17f] hover:bg-white",
   );
 }
 

@@ -25,6 +25,7 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
   for (const expectedLabel of [
     "Framvinda",
     "Yfirlit gátlista",
+    "Næstu skref",
     "Færa í áhættuskrá",
     "Áhættuskrá",
     "Samantekt og útflutningsstaða",
@@ -36,11 +37,20 @@ test("partial MVP workflow stays truthfully blocked at export readiness", async 
   await firstCriterion.locator('[data-answer-value="notOk"]').click();
 
   await expect(firstCriterion).toHaveAttribute("data-selected-answer", "notOk");
+  await expect(
+    page.locator('[data-walkthrough-attention="true"]'),
+  ).toHaveAttribute("data-walkthrough-unsaved-count", "1");
+  await expect(
+    page.locator('[data-section-selected="true"]').first(),
+  ).toHaveAttribute("data-section-unsaved-count", "1");
+  await expect(page.locator("body")).toContainText("1 óvistað atriði");
+  await expect(page.locator("body")).toContainText("enn óvistuð");
 
   const transferButton = page.locator('[data-transfer-action="risk-register"]');
   await expect(transferButton).toBeDisabled();
   await page.locator('[data-criterion-save="true"]').click();
   await expect(transferButton).toBeEnabled({ timeout: 15_000 });
+  await expect(page.locator('[data-walkthrough-attention="true"]')).toHaveCount(0);
   await transferButton.click();
 
   await expect(
