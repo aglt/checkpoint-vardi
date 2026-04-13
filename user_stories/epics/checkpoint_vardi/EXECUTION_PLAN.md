@@ -129,7 +129,13 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > Ran `pnpm test`, `pnpm typecheck`, and `pnpm lint` after installing workspace
 > dependencies in this worktree. This session used `node v25.6.1`; Node 22
 > remains the declared repo contract, but was not directly re-verified here.
-> PR: `#6`.
+> A later merged follow-up in PR `#22` kept the same persistence seam but
+> simplified the walkthrough into a manual-save checklist shell with explicit
+> save, visible unsaved-work indicators across sections, and lighter next-step
+> orientation; that follow-up was re-validated under Node `v22` with
+> `pnpm --filter @vardi/web typecheck`, `pnpm --filter @vardi/web test`,
+> `pnpm lint`, and the targeted walkthrough Playwright workflow spec.
+> PRs: `#6`, `#22`.
 
 ### Step S1-05: Transfer non-compliant findings into risk register
 

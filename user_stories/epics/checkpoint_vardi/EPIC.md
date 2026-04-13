@@ -63,7 +63,11 @@ request-derived fallback contract in PR `#19` and now with Icelandic as
 the live app-owned default in PR `#20`, and now a dedicated
 app-owned progression owner that keeps guided status and completion
 truth tied to persisted workflow state plus persisted saved reasoning on
-risk classifications that exports can render from stored truth only.
+risk classifications that exports can render from stored truth only. A later
+walkthrough follow-up in PR `#22` kept the same persisted S1-04 truth but
+reframed the active checklist shell around explicit save, one focused
+criterion editor at a time, visible unsaved-work indicators, and a calmer
+next-step orientation block.
 
 `S1-01` established the canonical seed runtime truth and the package-owned
 read seam that every later S1 story depends on. `S1-02` established the narrow
@@ -71,7 +75,9 @@ persisted assessment truth and the app-owned composed walkthrough read seam.
 `S1-03` materialized runnable assessment instances from seeded templates
 without widening into walkthrough editing. `S1-04` now completes the core
 walkthrough form slice by rendering seeded sections and criteria and persisting
-criterion-level answers onto the existing finding rows. `S1-05` now completes
+criterion-level answers onto the existing finding rows; later PR `#22`
+retained that truth but simplified the walkthrough shell into an explicit-save
+checklist flow with visible unsaved work and lighter progression cues. `S1-05` now completes
 the deterministic Step `1b` bridge by transferring persisted `notOk` findings
 into `risk_entry` rows without widening into risk editing or scoring. `S1-06`
 now completes the next narrow slice by editing those transferred rows in-flow

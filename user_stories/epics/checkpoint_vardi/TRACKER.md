@@ -18,7 +18,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-01 | Seed catalog foundation for assessment runtime          | done         | #3 |
 | S1-02 | Assessment domain and read model                        | done         | #4 |
 | S1-03 | Start assessment from seeded template                   | done         | #5 |
-| S1-04 | Assessment walkthrough form slice                       | done         | #6 |
+| S1-04 | Assessment walkthrough form slice                       | done         | #6, #22 |
 | S1-05 | Transfer non-compliant findings into risk register      | done         | #7 |
 | S1-06 | Risk classification engine and risk-entry editing       | done         | #8 |
 | S1-07 | Summary form and export readiness                       | done         | #9 |

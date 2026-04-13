@@ -39,16 +39,24 @@ transport or locale policy of its own.
 The walkthrough UI is implemented as a feature-local client component that
 renders criterion title and guidance from seeded runtime data, provides the
 three supported answer states (`ok`, `not ok`, `not applicable`) plus notes,
-and auto-saves answers or notes back onto the existing persisted finding rows.
-Its draft and save-state orchestration now lives in a dedicated tested
-controller module so the rendering surface stays narrower. Reload and resume
-behavior comes from re-reading those same persisted rows through the existing
-read model, without widening into risk transfer, summary, or export work.
+and persists them back onto the existing finding rows through the same narrow
+server action and app mutation seam. A later merged follow-up in PR `#22`
+kept that same persisted truth and controller ownership but simplified the UX
+into a checklist-first shell: one focused criterion editor at a time, explicit
+save instead of autosave, visible unsaved-work counts across sections, and a
+small next-step orientation block so downstream workflow status stays readable
+without turning the walkthrough back into a heavy dashboard. Reload and resume
+behavior still comes from re-reading those same persisted rows through the
+existing read model, without widening into risk transfer, summary, or export
+work.
 
 This completion was verified locally with `pnpm test`, `pnpm typecheck`, and
 `pnpm lint` after installing workspace dependencies in this worktree. This
 session used `node v25.6.1`; Node 22 remains the declared repo contract, but
-that exact runtime was not available in this shell during this session.
+that exact runtime was not available in this shell during this session. The
+later UX follow-up in PR `#22` was re-validated under Node `v22` with
+`pnpm --filter @vardi/web typecheck`, `pnpm --filter @vardi/web test`,
+`pnpm lint`, and the targeted walkthrough Playwright workflow spec.
 
 ## Goal
 
