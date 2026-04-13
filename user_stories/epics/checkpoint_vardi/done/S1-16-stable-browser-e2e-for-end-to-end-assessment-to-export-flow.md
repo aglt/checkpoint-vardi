@@ -1,6 +1,6 @@
 # S1-16 - Stable browser E2E for end-to-end assessment-to-export flow
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P1
@@ -12,17 +12,30 @@ Depends on: S1-10, S1-15
 
 ## Context
 
-The repo already stages `S1-10` as the Playwright foundation story:
-tooling, config, deterministic bootstrap, and the first meaningful
-browser seams. This story is intentionally later. Its job is not to
-introduce Playwright from scratch, but to lock one reliable golden-path
-assessment-to-export flow once the persisted readiness and export
-behavior on `main` have stabilized after the queued follow-up changes.
+This story is complete and is tracked in PR `#23`. `S1-10` already
+established the repo-local Playwright foundation, deterministic SQLite
+reset, and the first truthful blocked-readiness browser seam. `S1-16`
+now closes the current browser-proof queue by extending the settled
+construction-template browser flow through the real persisted export
+path while keeping the existing woodworking blocked-readiness case as a
+cheap negative guard.
 
-That means this story should wait until the real product flow is no
-longer churning across action planning, completion guards, saved
-reasoning, export framing, and any seed-driven runtime requirements that
-affect readiness truth.
+The golden-path spec now starts an assessment from the seeded
+construction template in the browser, reuses the existing deterministic
+walkthrough seed helper from `S1-10` to align persisted walkthrough
+state with the seeded runtime, transfers the saved `notOk` finding into
+the risk register, persists the rule-required classification reasoning
+and mitigation action from `S1-15`, saves the summary, verifies
+export-ready state, and triggers a successful export from the running
+app.
+
+Implementing that proof also exposed a real runtime export failure in
+the Next server bundle: the default `pdfkit` entrypoint expected AFM
+font data files at runtime paths that do not survive the bundled app
+environment used by Playwright. The package-owned export renderer now
+uses the standalone `pdfkit` runtime with embedded standard-font data so
+browser-triggered exports remain truthful without widening app
+boundaries or adding fake export behavior to the test layer.
 
 ## Goal
 
@@ -91,13 +104,16 @@ Run and document:
 - `pnpm lint`
 - `pnpm test:e2e`
 
+Validation completed locally under `node v22.22.2` with all four
+commands above.
+
 ## Notes For Later Stories
 
-- Do not start this story until export behavior on `main` is accepted
-  truth and the core assessment flow is no longer in active churn.
-- If the golden-path suite becomes brittle because product truth is
-  still moving, stop and create a narrower follow-up rather than padding
-  the browser helpers with fake state.
+- Keep future browser additions small and tied to real persisted seams;
+  do not turn Playwright helpers into a parallel source of product
+  truth.
+- If later export changes destabilize this path, prefer another narrow
+  story over widening deterministic helpers beyond seeded/runtime truth.
 
 ## Execution Rules
 

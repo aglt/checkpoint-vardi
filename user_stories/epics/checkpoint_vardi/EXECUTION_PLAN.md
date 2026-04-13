@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-16`
-- Most recently completed step: `S1-15`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
+- Next queued step: `S1-09` (conditional)
+- Most recently completed step: `S1-16`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
 
 ## S0 - Foundations
 
@@ -362,10 +362,13 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-16: Stable browser E2E for end-to-end assessment-to-export flow
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
-**Start gate:** Closed until `S1-15` lands on `main` and the updated workflow-rule/export-gating slice settles enough for a stable end-to-end browser proof.
-**Unblocks:** A stable browser-level regression net for the real persisted assessment-to-export journey after the flow settles.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
+**Start gate:** Closed.
+**Unblocks:** Confident maintenance of the real persisted assessment-to-export journey on `main`.
+
+**Completion note:**
+> Verified locally on branch `codex/s1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow` under `node v22.22.2`: kept the existing woodworking blocked-readiness browser guard, extended the settled construction-template Playwright flow through the real export trigger, and fixed a real runtime export failure by moving package-owned PDF rendering to the standalone `pdfkit` runtime so Next server bundling keeps standard-font data available during browser-triggered exports. Final validation ran with `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e`. PR: `#23`.
 
 ### Step S1-17: Language-consistent web content for the current MVP flow
 
@@ -417,5 +420,5 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-09-foundation-for-broader-safety-plan-modules.md`
-**Start gate:** Closed unless the completed `S1-10` browser proof slice, the staged `S1-11` through `S1-16` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
+**Start gate:** Closed unless the completed `S1-10` browser proof slice, the completed `S1-11` through `S1-18` follow-up flow, or another follow-up MVP need exposes a concrete requirement for narrow groundwork.
 **Unblocks:** Only the smallest required future expansion seams; it must remain non-blocking for the MVP flow.
