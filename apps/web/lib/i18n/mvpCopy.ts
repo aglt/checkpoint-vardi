@@ -331,6 +331,12 @@ const RISK_REGISTER_COPY = {
       incomplete: "Ólokið",
       saveToRefresh: "Vista til að uppfæra",
     },
+    workflowRules: {
+      justificationRequired:
+        "Þetta snið krefst vistaðrar röksemdar fyrir þessari flokkun áður en áhættuskráin og útflutningur teljast tilbúin.",
+      mitigationRequired:
+        "Þetta snið krefst að minnsta kosti einnar vistaðrar mótvægisaðgerðar fyrir þetta áhættustig áður en áhættuskráin og útflutningur teljast tilbúin.",
+    },
     mitigation: {
       heading: "Mótvægisaðgerðir",
       description:
@@ -429,6 +435,12 @@ const RISK_REGISTER_COPY = {
       needsRepair: "Needs repair",
       incomplete: "Incomplete",
       saveToRefresh: "Save to refresh",
+    },
+    workflowRules: {
+      justificationRequired:
+        "This template requires saved classification reasoning for this entry before the risk register and export count as ready.",
+      mitigationRequired:
+        "This template requires at least one saved mitigation action for this severity before the risk register and export count as ready.",
     },
     mitigation: {
       heading: "Mitigation actions",
@@ -1503,6 +1515,14 @@ function getAssessmentProgressionBlockerMessage(
       return language === "is"
         ? `Ekki tókst að staðfesta vistaða flokkun fyrir ${blocker.count} ${pluralize(blocker.count, "færslu", "færslur")}.`
         : `${blocker.count} ${pluralize(blocker.count, "risk entry could not verify its saved classification", "risk entries could not verify their saved classifications")}.`;
+    case "riskRegisterMissingJustification":
+      return language === "is"
+        ? `Vistaða röksemd vantar fyrir ${blocker.count} ${pluralize(blocker.count, "áhættufærslu", "áhættufærslur")}.`
+        : `${blocker.count} ${pluralize(blocker.count, "risk entry still needs saved classification reasoning", "risk entries still need saved classification reasoning")}.`;
+    case "riskRegisterMissingMitigation":
+      return language === "is"
+        ? `Vistaða mótvægisaðgerð vantar fyrir ${blocker.count} ${pluralize(blocker.count, "áhættufærslu", "áhættufærslur")}.`
+        : `${blocker.count} ${pluralize(blocker.count, "risk entry still needs a saved mitigation action", "risk entries still need saved mitigation actions")}.`;
     case "summaryMissingFields":
       return language === "is"
         ? `Samantekt vantar enn vistuð gildi fyrir ${formatSummaryFieldList(language, blocker.fieldIds ?? [])}.`

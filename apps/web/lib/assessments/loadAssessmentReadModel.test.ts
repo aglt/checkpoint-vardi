@@ -83,6 +83,7 @@ test("loadAssessmentReadModel preserves seeded ordering and unanswered defaults"
   });
 
   assert.equal(readModel.checklist.id, checklist.id);
+  assert.deepEqual(readModel.checklist.workflowRules, checklist.workflowRules);
   assert.equal(readModel.riskMatrix.id, riskMatrix.id);
   assert.equal(readModel.sections.length, checklist.sections.length);
   assert.equal(readModel.summaryStatus, "absent");

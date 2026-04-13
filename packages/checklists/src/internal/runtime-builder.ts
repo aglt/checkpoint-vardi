@@ -11,6 +11,8 @@ import type {
   RiskLevel,
   RiskMatrix,
   SeedChecklist,
+  SeedChecklistSummaryRequiredField,
+  SeedChecklistWorkflowRules,
   SeedChecklistSummary,
   UnresolvedImportedLegalReference,
 } from "../index.js";
@@ -38,6 +40,7 @@ type RawChecklist = {
   slug: unknown;
   version: unknown;
   defaultLanguage: unknown;
+  workflowRules?: RawWorkflowRules;
   metadata: {
     source: {
       fileName: unknown;
@@ -61,6 +64,12 @@ type RawCriterion = {
   order: unknown;
   legalRefs: unknown[];
   translations: RawCriterionTranslations;
+};
+
+type RawWorkflowRules = {
+  requiresJustification?: unknown;
+  requiresMitigationForRiskLevels?: unknown;
+  summaryRequiredFields?: unknown;
 };
 
 type RawManifestChecklistEntry = {
@@ -119,6 +128,15 @@ type RawRiskMatrix = {
 type RawRiskMatrixCatalog = {
   matrices: RawRiskMatrix[];
 };
+
+const defaultSummaryRequiredFields = [
+  "companyName",
+  "location",
+  "assessmentDate",
+  "participants",
+  "method",
+  "notes",
+] as const satisfies readonly SeedChecklistSummaryRequiredField[];
 
 export interface SeedRuntimeSourceData {
   readonly manifest: RawManifest;
@@ -296,6 +314,7 @@ export function buildSeedRuntime(sourceData: SeedRuntimeSourceData): SeedRuntime
       slug: checklist.slug,
       version: checklist.version,
       defaultLanguage: checklist.defaultLanguage,
+      workflowRules: checklist.workflowRules,
       sections: checklist.sections.length,
       criteria: countChecklistCriteria(checklist.sections),
       translations: checklist.translations,
@@ -418,6 +437,10 @@ function buildChecklist(
     slug: checklistSlug,
     version: checklistVersion,
     defaultLanguage,
+    workflowRules: buildWorkflowRules(
+      rawChecklist.workflowRules,
+      `Seed checklist ${checklistSlug}.workflowRules`,
+    ),
     translations: buildTitleTranslations(
       rawChecklist.translations,
       `Seed checklist ${checklistSlug}.translations`,
@@ -885,6 +908,122 @@ function buildCriterionTranslations(
   };
 }
 
+function buildWorkflowRules(
+  rawWorkflowRules: RawWorkflowRules | undefined,
+  label: string,
+): SeedChecklistWorkflowRules {
+  if (rawWorkflowRules === undefined) {
+    return {
+      requiresJustification: false,
+      requiresMitigationForRiskLevels: [],
+      summaryRequiredFields: [...defaultSummaryRequiredFields],
+    };
+  }
+
+  ensure(
+    rawWorkflowRules !== null && typeof rawWorkflowRules === "object",
+    `${label} must be an object`,
+  );
+
+  const allowedKeys = new Set([
+    "requiresJustification",
+    "requiresMitigationForRiskLevels",
+    "summaryRequiredFields",
+  ]);
+
+  for (const key of Object.keys(rawWorkflowRules)) {
+    ensure(
+      allowedKeys.has(key),
+      `${label} contains unsupported rule key ${key}`,
+    );
+  }
+
+  const requiresJustification =
+    rawWorkflowRules.requiresJustification === undefined
+      ? false
+      : expectBoolean(
+          rawWorkflowRules.requiresJustification,
+          `${label}.requiresJustification`,
+        );
+
+  const requiresMitigationForRiskLevels =
+    rawWorkflowRules.requiresMitigationForRiskLevels === undefined
+      ? []
+      : buildWorkflowRiskLevels(
+          rawWorkflowRules.requiresMitigationForRiskLevels,
+          `${label}.requiresMitigationForRiskLevels`,
+        );
+
+  const summaryRequiredFields =
+    rawWorkflowRules.summaryRequiredFields === undefined
+      ? [...defaultSummaryRequiredFields]
+      : buildWorkflowSummaryRequiredFields(
+          rawWorkflowRules.summaryRequiredFields,
+          `${label}.summaryRequiredFields`,
+        );
+
+  return {
+    requiresJustification,
+    requiresMitigationForRiskLevels,
+    summaryRequiredFields,
+  };
+}
+
+function buildWorkflowRiskLevels(
+  rawRiskLevels: unknown,
+  label: string,
+): readonly RiskLevel[] {
+  ensure(Array.isArray(rawRiskLevels), `${label} must be an array`);
+
+  const seenRiskLevels = new Set<RiskLevel>();
+  const riskLevels: RiskLevel[] = [];
+
+  for (const [index, rawRiskLevel] of rawRiskLevels.entries()) {
+    ensure(
+      typeof rawRiskLevel === "string" && allowedRiskLevels.has(rawRiskLevel as RiskLevel),
+      `${label}[${index}] must be low, medium, or high`,
+    );
+
+    const riskLevel = rawRiskLevel as RiskLevel;
+    ensure(!seenRiskLevels.has(riskLevel), `${label} must not contain duplicate ${riskLevel}`);
+    seenRiskLevels.add(riskLevel);
+    riskLevels.push(riskLevel);
+  }
+
+  return riskLevels;
+}
+
+function buildWorkflowSummaryRequiredFields(
+  rawSummaryRequiredFields: unknown,
+  label: string,
+): readonly SeedChecklistSummaryRequiredField[] {
+  ensure(Array.isArray(rawSummaryRequiredFields), `${label} must be an array`);
+
+  const allowedSummaryFields = new Set<SeedChecklistSummaryRequiredField>(
+    defaultSummaryRequiredFields,
+  );
+  const seenSummaryFields = new Set<SeedChecklistSummaryRequiredField>();
+  const summaryRequiredFields: SeedChecklistSummaryRequiredField[] = [];
+
+  for (const [index, rawSummaryField] of rawSummaryRequiredFields.entries()) {
+    ensure(
+      typeof rawSummaryField === "string" &&
+        allowedSummaryFields.has(rawSummaryField as SeedChecklistSummaryRequiredField),
+      `${label}[${index}] must be one of ${defaultSummaryRequiredFields.join(", ")}`,
+    );
+
+    const summaryField = rawSummaryField as SeedChecklistSummaryRequiredField;
+    ensure(
+      !seenSummaryFields.has(summaryField),
+      `${label} must not contain duplicate ${summaryField}`,
+    );
+    seenSummaryFields.add(summaryField);
+    summaryRequiredFields.push(summaryField);
+  }
+
+  return summaryRequiredFields;
+}
+
 function countChecklistCriteria(sections: readonly SeedChecklistSection[]): number {
   return sections.reduce((count, section) => count + section.criteria.length, 0);
 }
@@ -913,6 +1052,11 @@ function expectNonNegativeInteger(value: unknown, label: string): number {
     `${label} must be a non-negative integer`,
   );
   return value as number;
+}
+
+function expectBoolean(value: unknown, label: string): boolean {
+  ensure(typeof value === "boolean", `${label} must be a boolean`);
+  return value;
 }
 
 function ensure(condition: unknown, message: string): asserts condition {

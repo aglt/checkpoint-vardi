@@ -25,7 +25,6 @@ import {
   getAssessmentSummaryStaticCopy,
   getExportMessage,
   getPriorityBadgeLabel,
-  getReadinessBlockers,
   getReadinessCountLabel,
   getSummarySaveMessage,
 } from "@/lib/i18n/mvpCopy";
@@ -71,9 +70,8 @@ export function AssessmentSummaryEditor({
       status: "idle",
       message: null,
     });
-  }, [assessmentId, readiness.exportReady, summary]);
+  }, [assessmentId, exportStep.exportReady, summary]);
 
-  const readinessBlockers = getReadinessBlockers(language, readiness);
   const summaryBlockerMessages = getAssessmentProgressionBlockerMessages(
     language,
     summaryStep.blockers,
@@ -82,6 +80,7 @@ export function AssessmentSummaryEditor({
     language,
     exportStep.blockers,
   );
+  const readinessBlockers = exportBlockerMessages;
   const classificationPendingCount =
     readiness.classification.unclassifiedRiskEntryCount +
     readiness.classification.staleRiskEntryCount +
@@ -90,7 +89,7 @@ export function AssessmentSummaryEditor({
   const exportDisabled =
     exportState.status === "exporting" ||
     summaryState.saveState === "saving" ||
-    !readiness.exportReady ||
+    !exportStep.exportReady ||
     summaryDirty;
 
   return (
@@ -98,7 +97,7 @@ export function AssessmentSummaryEditor({
       className="rounded-[2rem] border border-black/10 bg-[linear-gradient(180deg,rgba(255,252,246,0.94)_0%,rgba(246,239,226,0.92)_100%)] p-4 shadow-[0_24px_70px_rgba(28,29,24,0.1)] backdrop-blur sm:p-5 lg:p-6"
       data-step-availability={summaryStep.availability}
       data-step-completion={summaryStep.completionState}
-      data-summary-readiness={readiness.exportReady ? "ready" : "blocked"}
+      data-summary-readiness={exportStep.exportReady ? "ready" : "blocked"}
       id="assessment-step-summary"
     >
       <div className="flex flex-col gap-3 border-b border-black/8 pb-4 lg:flex-row lg:items-end lg:justify-between">
@@ -115,10 +114,10 @@ export function AssessmentSummaryEditor({
         </div>
         <div
           className={getExportReadinessBadgeClassName(
-            readiness.exportReady,
+            exportStep.exportReady,
           )}
         >
-          {readiness.exportReady
+          {exportStep.exportReady
             ? copy.readinessBadge.ready
             : copy.readinessBadge.blocked}
         </div>
@@ -398,7 +397,7 @@ export function AssessmentSummaryEditor({
               language,
               saveState: summaryState.saveState,
               dirty: summaryDirty,
-              exportReady: readiness.exportReady,
+              exportReady: exportStep.exportReady,
               errorMessage: summaryState.errorMessage,
             })}
           </p>
@@ -442,8 +441,8 @@ export function AssessmentSummaryEditor({
                 {copy.readiness.description}
               </p>
             </div>
-            <span className={getExportReadinessBadgeClassName(readiness.exportReady)}>
-              {readiness.exportReady
+            <span className={getExportReadinessBadgeClassName(exportStep.exportReady)}>
+              {exportStep.exportReady
                 ? copy.readinessBadge.ready
                 : copy.readinessBadge.blocked}
             </span>
@@ -484,7 +483,7 @@ export function AssessmentSummaryEditor({
           >
             {getExportMessage({
               language,
-              exportReady: readiness.exportReady,
+              exportReady: exportStep.exportReady,
               exportState,
               summaryDirty,
             })}

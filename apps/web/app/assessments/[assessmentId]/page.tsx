@@ -44,6 +44,7 @@ export default async function AssessmentWalkthroughPage({
       db,
       ownerId,
       assessmentId,
+      readModel,
       riskRegisterProjection,
     });
     const progression = loadAssessmentProgressionProjection({
