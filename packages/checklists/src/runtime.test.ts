@@ -67,6 +67,38 @@ test("public seam preserves manifest and source ordering", () => {
     woodworkingChecklist.sections.at(-1)?.id,
     "woodworking-workshop.section-15",
   );
+  assert.deepEqual(woodworkingChecklist.workflowRules, {
+    requiresJustification: false,
+    requiresMitigationForRiskLevels: [],
+    summaryRequiredFields: [
+      "companyName",
+      "location",
+      "assessmentDate",
+      "participants",
+      "method",
+      "notes",
+    ],
+  });
+
+  const constructionChecklist = getSeedChecklistBySlug("construction-site");
+  assert.ok(constructionChecklist);
+  if (!constructionChecklist) {
+    throw new Error("Expected construction seed checklist");
+  }
+  assert.deepEqual(constructionChecklist.workflowRules, {
+    requiresJustification: true,
+    requiresMitigationForRiskLevels: ["medium", "high"],
+    summaryRequiredFields: [
+      "companyName",
+      "location",
+      "assessmentDate",
+      "participants",
+      "method",
+      "notes",
+    ],
+  });
+  assert.deepEqual(summaries[0]?.workflowRules, woodworkingChecklist.workflowRules);
+  assert.deepEqual(summaries[1]?.workflowRules, constructionChecklist.workflowRules);
 
   const riskMatrices = listRiskMatrices();
   assert.deepEqual(
@@ -177,4 +209,92 @@ test("runtime builder fails fast when legal-reference integrity breaks", () => {
     () => buildSeedRuntime(missingCatalogCodeSourceData),
     /Missing legal reference catalog entry for missing-legal-code/,
   );
+});
+
+test("runtime builder applies backward-compatible workflow-rule defaults when seeds do not opt in", () => {
+  const sourceData = createSourceData();
+  delete sourceData.checklists[0]!.checklist.workflowRules;
+
+  const runtime = buildSeedRuntime(sourceData);
+  const woodworkingChecklist = runtime.checklistBySlug.get("woodworking-workshop");
+
+  assert.ok(woodworkingChecklist);
+  assert.deepEqual(woodworkingChecklist?.workflowRules, {
+    requiresJustification: false,
+    requiresMitigationForRiskLevels: [],
+    summaryRequiredFields: [
+      "companyName",
+      "location",
+      "assessmentDate",
+      "participants",
+      "method",
+      "notes",
+    ],
+  });
+});
+
+test("runtime builder fails fast on unsupported workflow-rule keys and invalid rule shapes", () => {
+  const unsupportedRuleKeySourceData = createSourceData();
+  unsupportedRuleKeySourceData.checklists[0]!.checklist.workflowRules = {
+    unsupportedRule: true,
+  };
+
+  assert.throws(
+    () => buildSeedRuntime(unsupportedRuleKeySourceData),
+    /contains unsupported rule key unsupportedRule/,
+  );
+
+  const duplicateRiskLevelSourceData = createSourceData();
+  duplicateRiskLevelSourceData.checklists[1]!.checklist.workflowRules = {
+    requiresJustification: true,
+    requiresMitigationForRiskLevels: ["medium", "medium"],
+    summaryRequiredFields: ["companyName"],
+  };
+
+  assert.throws(
+    () => buildSeedRuntime(duplicateRiskLevelSourceData),
+    /requiresMitigationForRiskLevels must not contain duplicate medium/,
+  );
+
+  const duplicateSummaryFieldSourceData = createSourceData();
+  duplicateSummaryFieldSourceData.checklists[1]!.checklist.workflowRules = {
+    requiresJustification: true,
+    requiresMitigationForRiskLevels: ["high"],
+    summaryRequiredFields: ["notes", "notes"],
+  };
+
+  assert.throws(
+    () => buildSeedRuntime(duplicateSummaryFieldSourceData),
+    /summaryRequiredFields must not contain duplicate notes/,
+  );
+
+  const invalidSummaryFieldSourceData = createSourceData();
+  invalidSummaryFieldSourceData.checklists[1]!.checklist.workflowRules = {
+    requiresJustification: true,
+    requiresMitigationForRiskLevels: ["high"],
+    summaryRequiredFields: ["unknown-field"],
+  };
+
+  assert.throws(
+    () => buildSeedRuntime(invalidSummaryFieldSourceData),
+    /summaryRequiredFields\[0\] must be one of companyName, location, assessmentDate, participants, method, notes/,
+  );
+});
+
+test("runtime builder preserves seeded summary-required-field ordering", () => {
+  const sourceData = createSourceData();
+  sourceData.checklists[0]!.checklist.workflowRules = {
+    requiresJustification: false,
+    requiresMitigationForRiskLevels: [],
+    summaryRequiredFields: ["notes", "participants", "companyName"],
+  };
+
+  const runtime = buildSeedRuntime(sourceData);
+  const woodworkingChecklist = runtime.checklistBySlug.get("woodworking-workshop");
+
+  assert.deepEqual(woodworkingChecklist?.workflowRules.summaryRequiredFields, [
+    "notes",
+    "participants",
+    "companyName",
+  ]);
 });

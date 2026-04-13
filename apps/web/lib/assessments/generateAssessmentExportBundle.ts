@@ -130,10 +130,14 @@ export async function generateAssessmentExportBundle(
       db: params.db,
       ownerId: params.ownerId,
       assessmentId: parsedInput.data.assessmentId,
+      readModel,
       riskRegisterProjection,
     });
 
-    if (!summaryProjection.readiness.exportReady) {
+    if (
+      !summaryProjection.readiness.exportReady ||
+      summaryProjection.workflowRuleEvaluation.blocksExport
+    ) {
       throw new GenerateAssessmentExportBundleError({
         status: 422,
         code: "assessment-export-not-ready",

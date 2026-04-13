@@ -11,6 +11,8 @@ import {
   riskEntry,
 } from "@vardi/db/testing";
 
+import { loadAssessmentReadModel } from "./loadAssessmentReadModel";
+import { loadAssessmentRiskRegisterProjection } from "./loadAssessmentRiskRegisterProjection";
 import { loadAssessmentSummaryProjection } from "./loadAssessmentSummaryProjection";
 
 const startedAt = new Date("2026-04-12T10:00:00.000Z");
@@ -156,6 +158,51 @@ test("loadAssessmentSummaryProjection prefills workplace defaults and reports bl
     "participants",
     "method",
     "notes",
+  ]);
+
+  closeDatabase(fixture.connection);
+});
+
+test("loadAssessmentSummaryProjection consumes workflow-rule evaluation for summary field requirements", () => {
+  const fixture = seedAssessmentFixture();
+  const readModel = loadAssessmentReadModel({
+    db: fixture.connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+  });
+  const customReadModel = {
+    ...readModel,
+    checklist: {
+      ...readModel.checklist,
+      workflowRules: {
+        requiresJustification: false,
+        requiresMitigationForRiskLevels: [],
+        summaryRequiredFields: ["notes", "participants"] as const,
+      },
+    },
+  };
+  const riskRegisterProjection = loadAssessmentRiskRegisterProjection({
+    db: fixture.connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+    readModel: customReadModel,
+  });
+
+  const projection = loadAssessmentSummaryProjection({
+    db: fixture.connection.db,
+    ownerId: "owner-1",
+    assessmentId: fixture.assessmentId,
+    readModel: customReadModel,
+    riskRegisterProjection,
+  });
+
+  assert.deepEqual(projection.workflowRuleEvaluation.requiredSummaryFields, [
+    "notes",
+    "participants",
+  ]);
+  assert.deepEqual(projection.readiness.summary.missingFields, [
+    "notes",
+    "participants",
   ]);
 
   closeDatabase(fixture.connection);

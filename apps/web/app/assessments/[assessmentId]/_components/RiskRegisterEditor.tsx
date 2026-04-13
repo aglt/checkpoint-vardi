@@ -160,6 +160,8 @@ export function RiskRegisterEditor({
           {entries.map((entry) => {
             const riskEntryState = riskEntryStates[entry.id];
             const riskMitigationStates = mitigationActionStates[entry.id] ?? [];
+            const workflowRuleResult =
+              progression.workflowRuleEvaluation.entryResultsByRiskEntryId[entry.id];
 
             if (!riskEntryState) {
               return null;
@@ -368,6 +370,12 @@ export function RiskRegisterEditor({
                               value={riskEntryState.draft.classificationReasoning}
                             />
                           </div>
+
+                          {workflowRuleResult?.missingJustification ? (
+                            <WorkflowRuleNotice>
+                              {copy.workflowRules.justificationRequired}
+                            </WorkflowRuleNotice>
+                          ) : null}
                         </div>
                       </div>
 
@@ -446,6 +454,12 @@ export function RiskRegisterEditor({
                         {copy.mitigation.addAction}
                       </button>
                     </div>
+
+                    {workflowRuleResult?.missingMitigation ? (
+                      <WorkflowRuleNotice>
+                        {copy.workflowRules.mitigationRequired}
+                      </WorkflowRuleNotice>
+                    ) : null}
 
                     {riskMitigationStates.length === 0 ? (
                       <div className="mt-4 rounded-[1.4rem] border border-dashed border-black/12 bg-white/70 px-4 py-4 text-sm leading-6 text-slate-600">
@@ -873,6 +887,7 @@ export function RiskRegisterEditor({
             ),
           );
         });
+        await refreshProgression();
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
@@ -1014,6 +1029,7 @@ export function RiskRegisterEditor({
             ),
           );
         });
+        await refreshProgression();
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
@@ -1287,6 +1303,18 @@ function getRiskMitigationActionMessageClassName(
     state.saveState === "error"
       ? "text-[#8a2f0d]"
       : "text-slate-600",
+  );
+}
+
+function WorkflowRuleNotice({
+  children,
+}: {
+  readonly children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[1.2rem] border border-[#d7b778] bg-[#fff2d4] px-4 py-3 text-sm leading-6 text-[#6a4a05]">
+      {children}
+    </div>
   );
 }
 

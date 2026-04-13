@@ -50,7 +50,10 @@ export interface AssessmentSectionReadModel {
 export interface AssessmentReadModel {
   readonly workplace: WorkplaceRow;
   readonly assessment: RiskAssessmentRow;
-  readonly checklist: Pick<SeedChecklist, "id" | "slug" | "version" | "defaultLanguage" | "translations">;
+  readonly checklist: Pick<
+    SeedChecklist,
+    "id" | "slug" | "version" | "defaultLanguage" | "workflowRules" | "translations"
+  >;
   readonly riskMatrix: Pick<RiskMatrix, "id" | "slug" | "likelihoodLevels" | "consequenceLevels" | "translations">;
   readonly summaryStatus: PresenceStatus;
   readonly sections: readonly AssessmentSectionReadModel[];
@@ -102,6 +105,7 @@ export function loadAssessmentReadModel(
       slug: checklist.slug,
       version: checklist.version,
       defaultLanguage: checklist.defaultLanguage,
+      workflowRules: checklist.workflowRules,
       translations: checklist.translations,
     },
     riskMatrix: {

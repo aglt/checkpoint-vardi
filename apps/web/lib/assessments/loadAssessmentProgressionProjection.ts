@@ -4,6 +4,7 @@ import type {
 } from "@vardi/schemas";
 import type { VardiDatabase } from "@vardi/db";
 
+import type { AssessmentWorkflowRuleEvaluation } from "./assessmentWorkflowRules";
 import {
   loadAssessmentReadModel,
   type AssessmentReadModel,
@@ -45,6 +46,8 @@ export type AssessmentProgressionBlockerCode =
   | "riskRegisterUnclassifiedEntries"
   | "riskRegisterStaleEntries"
   | "riskRegisterInvalidEntries"
+  | "riskRegisterMissingJustification"
+  | "riskRegisterMissingMitigation"
   | "summaryMissingFields";
 
 export interface AssessmentProgressionMetrics {
@@ -89,6 +92,8 @@ export interface AssessmentRiskRegisterProgressionStepStatus
   readonly unclassifiedRiskEntryCount: number;
   readonly staleRiskEntryCount: number;
   readonly invalidRiskEntryCount: number;
+  readonly missingJustificationCount: number;
+  readonly missingMitigationCount: number;
 }
 
 export interface AssessmentSummaryProgressionStepStatus
@@ -123,16 +128,8 @@ export interface AssessmentProgressionProjection {
   readonly export: AssessmentExportProgressionStepStatus;
   readonly steps: readonly AssessmentProgressionStepStatus[];
   readonly exportReadiness: AssessmentExportReadiness;
+  readonly workflowRuleEvaluation: AssessmentWorkflowRuleEvaluation;
 }
-
-const REQUIRED_SUMMARY_FIELDS = [
-  "companyName",
-  "location",
-  "assessmentDate",
-  "participants",
-  "method",
-  "notes",
-] as const satisfies readonly AssessmentSummaryRequiredField[];
 
 export function loadAssessmentProgressionProjection(
   params: LoadAssessmentProgressionProjectionParams,
@@ -152,17 +149,23 @@ export function loadAssessmentProgressionProjection(
       db: params.db,
       ownerId: params.ownerId,
       assessmentId: params.assessmentId,
+      readModel,
       riskRegisterProjection,
     });
 
   const walkthrough = buildWalkthroughStep(readModel);
-  const riskRegister = buildRiskRegisterStep(summaryProjection.readiness, walkthrough);
-  const summary = buildSummaryStep(summaryProjection.readiness);
-  const exportStep = buildExportStep(summaryProjection.readiness, [
+  const riskRegister = buildRiskRegisterStep({
+    readiness: summaryProjection.readiness,
+    riskRegisterProjection,
+    workflowRuleEvaluation: summaryProjection.workflowRuleEvaluation,
     walkthrough,
-    riskRegister,
-    summary,
-  ]);
+  });
+  const summary = buildSummaryStep(summaryProjection);
+  const exportStep = buildExportStep({
+    readiness: summaryProjection.readiness,
+    workflowRuleEvaluation: summaryProjection.workflowRuleEvaluation,
+    prerequisiteSteps: [walkthrough, riskRegister, summary],
+  });
 
   const prerequisiteSteps = [walkthrough, riskRegister, summary, exportStep];
   const steps = prerequisiteSteps.map((step) =>
@@ -187,6 +190,7 @@ export function loadAssessmentProgressionProjection(
     export: steps[3] as AssessmentExportProgressionStepStatus,
     steps,
     exportReadiness: summaryProjection.readiness,
+    workflowRuleEvaluation: summaryProjection.workflowRuleEvaluation,
   };
 }
 
@@ -243,37 +247,45 @@ function buildWalkthroughStep(
   };
 }
 
-function buildRiskRegisterStep(
-  readiness: AssessmentExportReadiness,
-  walkthrough: AssessmentWalkthroughProgressionStepStatus,
-): AssessmentRiskRegisterProgressionStepStatus {
-  const eligibleFindingCount = readiness.transfer.eligibleFindingCount;
-  const transferredRiskEntryCount = readiness.classification.transferredRiskEntryCount;
+function buildRiskRegisterStep(params: {
+  readonly readiness: AssessmentExportReadiness;
+  readonly riskRegisterProjection: AssessmentRiskRegisterProjection;
+  readonly workflowRuleEvaluation: AssessmentWorkflowRuleEvaluation;
+  readonly walkthrough: AssessmentWalkthroughProgressionStepStatus;
+}): AssessmentRiskRegisterProgressionStepStatus {
+  const eligibleFindingCount = params.readiness.transfer.eligibleFindingCount;
+  const transferredRiskEntryCount = params.riskRegisterProjection.entries.length;
   const requiredEntryCount = Math.max(
     eligibleFindingCount,
     transferredRiskEntryCount,
   );
-  const missingTransferCount = readiness.transfer.missingRiskEntryCount;
+  const missingTransferCount = params.readiness.transfer.missingRiskEntryCount;
   const unclassifiedRiskEntryCount =
-    readiness.classification.unclassifiedRiskEntryCount;
-  const staleRiskEntryCount = readiness.classification.staleRiskEntryCount;
-  const invalidRiskEntryCount = readiness.classification.invalidRiskEntryCount;
-  const remainingWorkCount =
-    missingTransferCount +
-    unclassifiedRiskEntryCount +
-    staleRiskEntryCount +
-    invalidRiskEntryCount;
+    params.readiness.classification.unclassifiedRiskEntryCount;
+  const staleRiskEntryCount = params.readiness.classification.staleRiskEntryCount;
+  const invalidRiskEntryCount = params.readiness.classification.invalidRiskEntryCount;
+  const missingJustificationCount =
+    params.workflowRuleEvaluation.missingJustificationCount;
+  const missingMitigationCount =
+    params.workflowRuleEvaluation.missingMitigationCount;
   const completedCount =
     requiredEntryCount === 0
       ? 0
-      : Math.max(requiredEntryCount - remainingWorkCount, 0);
+      : params.riskRegisterProjection.entries.filter((entry) =>
+          isRiskRegisterEntryComplete(
+            entry,
+            params.workflowRuleEvaluation,
+          ),
+        ).length;
 
   let completionState: AssessmentProgressionCompletionState;
 
   if (requiredEntryCount === 0) {
     completionState =
-      walkthrough.completionState === "complete" ? "complete" : "notStarted";
-  } else if (remainingWorkCount === 0) {
+      params.walkthrough.completionState === "complete"
+        ? "complete"
+        : "notStarted";
+  } else if (completedCount === requiredEntryCount) {
     completionState = "complete";
   } else if (transferredRiskEntryCount > 0 || completedCount > 0) {
     completionState = "inProgress";
@@ -291,7 +303,7 @@ function buildRiskRegisterStep(
       completedCount,
       totalCount: requiredEntryCount,
       percentage:
-        requiredEntryCount === 0 && walkthrough.completionState === "complete"
+        requiredEntryCount === 0 && params.walkthrough.completionState === "complete"
           ? 100
           : buildPercentage(completedCount, requiredEntryCount),
     },
@@ -300,6 +312,8 @@ function buildRiskRegisterStep(
       unclassifiedRiskEntryCount,
       staleRiskEntryCount,
       invalidRiskEntryCount,
+      missingJustificationCount,
+      missingMitigationCount,
     }),
     eligibleFindingCount,
     transferredRiskEntryCount,
@@ -308,31 +322,40 @@ function buildRiskRegisterStep(
     unclassifiedRiskEntryCount,
     staleRiskEntryCount,
     invalidRiskEntryCount,
+    missingJustificationCount,
+    missingMitigationCount,
   };
 }
 
 function buildSummaryStep(
-  readiness: AssessmentExportReadiness,
+  summaryProjection: AssessmentSummaryProjection,
 ): AssessmentSummaryProgressionStepStatus {
-  const missingFieldIds = readiness.summary.missingFields;
-  const savedFieldCount = REQUIRED_SUMMARY_FIELDS.length - missingFieldIds.length;
+  const missingFieldIds = summaryProjection.workflowRuleEvaluation.missingSummaryFieldIds;
+  const requiredFieldCount =
+    summaryProjection.workflowRuleEvaluation.requiredSummaryFields.length;
+  const savedFieldCount = requiredFieldCount - missingFieldIds.length;
+  const completionState =
+    requiredFieldCount === 0
+      ? "complete"
+      : buildCompletionState({
+          totalCount: requiredFieldCount,
+          completedCount: savedFieldCount,
+        });
+  const percentage =
+    requiredFieldCount === 0
+      ? 100
+      : buildPercentage(savedFieldCount, requiredFieldCount);
 
   return {
     id: "summary",
     order: 3,
-    completionState: buildCompletionState({
-      totalCount: REQUIRED_SUMMARY_FIELDS.length,
-      completedCount: savedFieldCount,
-    }),
+    completionState,
     availability: "available",
     blockedByStepId: null,
     metrics: {
       completedCount: savedFieldCount,
-      totalCount: REQUIRED_SUMMARY_FIELDS.length,
-      percentage: buildPercentage(
-        savedFieldCount,
-        REQUIRED_SUMMARY_FIELDS.length,
-      ),
+      totalCount: requiredFieldCount,
+      percentage,
     },
     blockers:
       missingFieldIds.length > 0
@@ -345,23 +368,26 @@ function buildSummaryStep(
           ]
         : [],
     savedFieldCount,
-    requiredFieldCount: REQUIRED_SUMMARY_FIELDS.length,
+    requiredFieldCount,
     missingFieldIds,
   };
 }
 
-function buildExportStep(
-  readiness: AssessmentExportReadiness,
-  prerequisiteSteps: readonly AssessmentProgressionStepStatus[],
-): AssessmentExportProgressionStepStatus {
-  const hasAnyProgress = prerequisiteSteps.some(
+function buildExportStep(params: {
+  readonly readiness: AssessmentExportReadiness;
+  readonly workflowRuleEvaluation: AssessmentWorkflowRuleEvaluation;
+  readonly prerequisiteSteps: readonly AssessmentProgressionStepStatus[];
+}): AssessmentExportProgressionStepStatus {
+  const hasAnyProgress = params.prerequisiteSteps.some(
     (step) => step.completionState !== "notStarted",
   );
+  const exportReady =
+    params.readiness.exportReady && !params.workflowRuleEvaluation.blocksExport;
 
   return {
     id: "export",
     order: 4,
-    completionState: readiness.exportReady
+    completionState: exportReady
       ? "complete"
       : hasAnyProgress
         ? "inProgress"
@@ -369,12 +395,15 @@ function buildExportStep(
     availability: "available",
     blockedByStepId: null,
     metrics: {
-      completedCount: readiness.exportReady ? 1 : 0,
+      completedCount: exportReady ? 1 : 0,
       totalCount: 1,
-      percentage: readiness.exportReady ? 100 : 0,
+      percentage: exportReady ? 100 : 0,
     },
-    blockers: buildExportBlockers(readiness),
-    exportReady: readiness.exportReady,
+    blockers: buildExportBlockers(
+      params.readiness,
+      params.workflowRuleEvaluation,
+    ),
+    exportReady,
   };
 }
 
@@ -383,6 +412,8 @@ function buildRiskRegisterBlockers(params: {
   readonly unclassifiedRiskEntryCount: number;
   readonly staleRiskEntryCount: number;
   readonly invalidRiskEntryCount: number;
+  readonly missingJustificationCount: number;
+  readonly missingMitigationCount: number;
 }): readonly AssessmentProgressionBlocker[] {
   const blockers: AssessmentProgressionBlocker[] = [];
 
@@ -414,11 +445,26 @@ function buildRiskRegisterBlockers(params: {
     });
   }
 
+  if (params.missingJustificationCount > 0) {
+    blockers.push({
+      code: "riskRegisterMissingJustification",
+      count: params.missingJustificationCount,
+    });
+  }
+
+  if (params.missingMitigationCount > 0) {
+    blockers.push({
+      code: "riskRegisterMissingMitigation",
+      count: params.missingMitigationCount,
+    });
+  }
+
   return blockers;
 }
 
 function buildExportBlockers(
   readiness: AssessmentExportReadiness,
+  workflowRuleEvaluation: AssessmentWorkflowRuleEvaluation,
 ): readonly AssessmentProgressionBlocker[] {
   return [
     ...(readiness.walkthrough.unansweredCriterionCount > 0
@@ -435,6 +481,9 @@ function buildExportBlockers(
         readiness.classification.unclassifiedRiskEntryCount,
       staleRiskEntryCount: readiness.classification.staleRiskEntryCount,
       invalidRiskEntryCount: readiness.classification.invalidRiskEntryCount,
+      missingJustificationCount:
+        workflowRuleEvaluation.missingJustificationCount,
+      missingMitigationCount: workflowRuleEvaluation.missingMitigationCount,
     }),
     ...(readiness.summary.missingFields.length > 0
       ? [
@@ -446,6 +495,23 @@ function buildExportBlockers(
         ]
       : []),
   ];
+}
+
+function isRiskRegisterEntryComplete(
+  entry: AssessmentRiskRegisterProjection["entries"][number],
+  workflowRuleEvaluation: AssessmentWorkflowRuleEvaluation,
+): boolean {
+  if (entry.classificationState !== "ready" || entry.savedRiskLevel == null) {
+    return false;
+  }
+
+  const entryRuleEvaluation =
+    workflowRuleEvaluation.entryResultsByRiskEntryId[entry.id];
+
+  return (
+    !entryRuleEvaluation?.missingJustification &&
+    !entryRuleEvaluation?.missingMitigation
+  );
 }
 
 function applyAvailability<

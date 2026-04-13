@@ -9,19 +9,28 @@ import {
 } from "@vardi/db";
 
 import {
+  evaluateAssessmentWorkflowRules,
+  mapChecklistRulesToAppRules,
+  type AssessmentWorkflowRuleEvaluation,
+} from "./assessmentWorkflowRules";
+import {
   loadAssessmentRiskRegisterProjection,
   type AssessmentRiskRegisterProjection,
-  type AssessmentRiskRegisterEntryProjection,
 } from "./loadAssessmentRiskRegisterProjection";
 import {
   buildAssessmentSummaryPrioritizedEntries,
   type AssessmentSummaryPrioritizedEntry,
 } from "./assessmentSummaryPriorityEntries";
+import {
+  loadAssessmentReadModel,
+  type AssessmentReadModel,
+} from "./loadAssessmentReadModel";
 
 export interface LoadAssessmentSummaryProjectionParams {
   readonly db: VardiDatabase;
   readonly ownerId: string;
   readonly assessmentId: string;
+  readonly readModel?: AssessmentReadModel;
   readonly riskRegisterProjection?: AssessmentRiskRegisterProjection;
 }
 
@@ -54,16 +63,8 @@ export interface AssessmentSummaryProjection {
   };
   readonly prioritizedEntries: readonly AssessmentSummaryPrioritizedEntry[];
   readonly readiness: AssessmentExportReadiness;
+  readonly workflowRuleEvaluation: AssessmentWorkflowRuleEvaluation;
 }
-
-const REQUIRED_SUMMARY_FIELDS = [
-  "companyName",
-  "location",
-  "assessmentDate",
-  "participants",
-  "method",
-  "notes",
-] as const satisfies readonly AssessmentSummaryRequiredField[];
 
 // This is the app-owned summary and export-readiness projection for S1-07.
 export function loadAssessmentSummaryProjection(
@@ -74,18 +75,32 @@ export function loadAssessmentSummaryProjection(
     ownerId: params.ownerId,
     assessmentId: params.assessmentId,
   });
+  const readModel =
+    params.readModel ??
+    loadAssessmentReadModel({
+      db: params.db,
+      ownerId: params.ownerId,
+      assessmentId: params.assessmentId,
+    });
   const riskRegisterProjection =
     params.riskRegisterProjection ??
     loadAssessmentRiskRegisterProjection({
       db: params.db,
       ownerId: params.ownerId,
       assessmentId: params.assessmentId,
+      readModel,
     });
   const savedSummary = toSavedSummaryValues(aggregate.summary);
   const defaultSummary = buildDefaultSummaryValues({
     assessmentStartedAt: aggregate.assessment.startedAt,
     workplaceName: aggregate.workplace.name,
     workplaceAddress: aggregate.workplace.address,
+  });
+  const workflowRuleEvaluation = evaluateAssessmentWorkflowRules({
+    readModel,
+    riskRegisterProjection,
+    summary: savedSummary,
+    rules: mapChecklistRulesToAppRules(readModel.checklist.workflowRules),
   });
 
   return {
@@ -108,8 +123,9 @@ export function loadAssessmentSummaryProjection(
     readiness: buildAssessmentExportReadiness({
       findings: aggregate.findings,
       riskRegisterProjection,
-      summary: savedSummary,
+      missingSummaryFields: workflowRuleEvaluation.missingSummaryFieldIds,
     }),
+    workflowRuleEvaluation,
   };
 }
 
@@ -147,7 +163,7 @@ function buildAssessmentExportReadiness(params: {
     readonly status: string;
   }[];
   readonly riskRegisterProjection: AssessmentRiskRegisterProjection;
-  readonly summary: AssessmentSummarySavedValues;
+  readonly missingSummaryFields: readonly AssessmentSummaryRequiredField[];
 }): AssessmentExportReadiness {
   const unansweredCriterionCount = params.findings.filter(
     (finding) => finding.status === "unanswered",
@@ -193,17 +209,13 @@ function buildAssessmentExportReadiness(params: {
     },
   );
 
-  const missingSummaryFields = REQUIRED_SUMMARY_FIELDS.filter((field) =>
-    isSummaryFieldMissing(params.summary, field),
-  );
-
   const walkthroughReady = unansweredCriterionCount === 0;
   const transferReady = missingRiskEntryCount === 0;
   const classificationReady =
     classificationCounts.unclassifiedRiskEntryCount === 0 &&
     classificationCounts.staleRiskEntryCount === 0 &&
     classificationCounts.invalidRiskEntryCount === 0;
-  const summaryReady = missingSummaryFields.length === 0;
+  const summaryReady = params.missingSummaryFields.length === 0;
 
   return {
     exportReady:
@@ -227,20 +239,9 @@ function buildAssessmentExportReadiness(params: {
     },
     summary: {
       ready: summaryReady,
-      missingFields: missingSummaryFields,
+      missingFields: [...params.missingSummaryFields],
     },
   };
-}
-
-function isSummaryFieldMissing(
-  summary: AssessmentSummarySavedValues,
-  field: AssessmentSummaryRequiredField,
-): boolean {
-  if (field === "assessmentDate") {
-    return summary.assessmentDate == null;
-  }
-
-  return summary[field] == null || summary[field].trim().length === 0;
 }
 
 function formatDateOnly(value: Date | null): string | null {

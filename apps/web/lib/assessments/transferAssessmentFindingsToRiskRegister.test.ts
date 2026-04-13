@@ -116,6 +116,18 @@ test("transferAssessmentFindingsToRiskRegister builds seeded hazard titles for p
             slug: "woodworking-workshop",
             version: "2026-04-12",
             defaultLanguage: "is",
+            workflowRules: {
+              requiresJustification: false,
+              requiresMitigationForRiskLevels: [],
+              summaryRequiredFields: [
+                "companyName",
+                "location",
+                "assessmentDate",
+                "participants",
+                "method",
+                "notes",
+              ],
+            },
             translations: {
               is: {
                 title: "Checklist",
@@ -351,6 +363,7 @@ test("transferAssessmentFindingsToRiskRegister fails deterministically when an e
                 slug: fixture.checklist.slug,
                 version: fixture.checklist.version,
                 defaultLanguage: fixture.checklist.defaultLanguage,
+                workflowRules: fixture.checklist.workflowRules,
                 translations: fixture.checklist.translations,
               },
               riskMatrix: {

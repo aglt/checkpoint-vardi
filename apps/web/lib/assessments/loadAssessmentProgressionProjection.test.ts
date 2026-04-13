@@ -9,6 +9,7 @@ import {
   createWorkplaceAssessment,
   finding,
   riskEntry,
+  riskMitigationAction,
   updateAssessmentFindingResponse,
 } from "@vardi/db/testing";
 
@@ -25,6 +26,16 @@ function getRequiredChecklist() {
 
   if (!checklist) {
     throw new Error("Expected seeded woodworking checklist fixture to exist.");
+  }
+
+  return checklist;
+}
+
+function getRequiredConstructionChecklist() {
+  const checklist = getSeedChecklistBySlug("construction-site");
+
+  if (!checklist) {
+    throw new Error("Expected seeded construction checklist fixture to exist.");
   }
 
   return checklist;
@@ -51,6 +62,39 @@ function seedAssessmentFixture() {
     workplace: {
       name: "FB workshop",
       address: "Austurberg 5",
+      archetype: "construction",
+      primaryLanguage: "is",
+    },
+    assessment: {
+      checklistId: checklist.id,
+      checklistSlug: checklist.slug,
+      checklistVersion: checklist.version,
+      riskMatrixId: riskMatrix.id,
+      startedAt,
+    },
+    criterionIds: criteria.map((criterion) => criterion.id),
+  });
+
+  return {
+    connection,
+    assessmentId: assessment.assessmentId,
+    criteria,
+    firstCriterion: criteria[0]!,
+    secondCriterion: criteria[1]!,
+  };
+}
+
+function seedConstructionAssessmentFixture() {
+  const connection = createBootstrappedDatabase();
+  const checklist = getRequiredConstructionChecklist();
+  const riskMatrix = getRequiredRiskMatrix();
+  const criteria = checklist.sections.flatMap((section) => section.criteria);
+  const assessment = createWorkplaceAssessment({
+    db: connection.db,
+    ownerId: OWNER_ID,
+    workplace: {
+      name: "Construction site",
+      address: "Austurberg 17",
       archetype: "construction",
       primaryLanguage: "is",
     },
@@ -159,6 +203,7 @@ function insertRiskEntry(
     readonly likelihood: number | null;
     readonly consequence: number | null;
     readonly riskLevel: "low" | "medium" | "high" | null;
+    readonly classificationReasoning?: string | null;
   },
 ) {
   fixture.connection.db.insert(riskEntry).values({
@@ -171,6 +216,7 @@ function insertRiskEntry(
     likelihood: params.likelihood,
     consequence: params.consequence,
     riskLevel: params.riskLevel,
+    classificationReasoning: params.classificationReasoning ?? null,
     currentControls: null,
     controlHierarchy: null,
     costEstimate: null,
@@ -281,6 +327,87 @@ test("loadAssessmentProgressionProjection keeps transferred but unclassified row
   assert.equal(progression.summary.blockedByStepId, "riskRegister");
   assert.equal(progression.export.availability, "blocked");
   assert.equal(progression.export.blockedByStepId, "riskRegister");
+
+  closeDatabase(fixture.connection);
+});
+
+test("loadAssessmentProgressionProjection adds workflow-rule blockers without widening baseline readiness", () => {
+  const fixture = seedConstructionAssessmentFixture();
+
+  markAllCriteria(fixture, "ok");
+  updateCriterionStatus(fixture, {
+    criterionId: fixture.firstCriterion.id,
+    status: "notOk",
+    notes: "Missing guard",
+  });
+  insertRiskEntry(fixture, {
+    id: "risk-entry-required-rules",
+    criterionId: fixture.firstCriterion.id,
+    hazard: "Missing guard",
+    likelihood: 2,
+    consequence: 3,
+    riskLevel: "high",
+    classificationReasoning: null,
+  });
+  saveSummary(fixture, {
+    companyName: "Construction site",
+    location: "Austurberg 17",
+    participants: "Assessor",
+    method: "Walkthrough",
+    notes: "Guarding must be fixed first.",
+  });
+
+  const progression = loadProgression(fixture);
+
+  assert.equal(progression.exportReadiness.exportReady, true);
+  assert.equal(progression.workflowRuleEvaluation.missingJustificationCount, 1);
+  assert.equal(progression.workflowRuleEvaluation.missingMitigationCount, 1);
+  assert.equal(progression.riskRegister.completionState, "inProgress");
+  assert.equal(progression.currentStepId, "riskRegister");
+  assert.deepEqual(
+    progression.riskRegister.blockers.map((blocker) => blocker.code),
+    [
+      "riskRegisterMissingJustification",
+      "riskRegisterMissingMitigation",
+    ],
+  );
+  assert.equal(progression.export.exportReady, false);
+  assert.deepEqual(
+    progression.export.blockers.map((blocker) => blocker.code),
+    [
+      "riskRegisterMissingJustification",
+      "riskRegisterMissingMitigation",
+    ],
+  );
+
+  fixture.connection.db.insert(riskMitigationAction).values({
+    id: "action-1",
+    riskEntryId: "risk-entry-required-rules",
+    ownerId: OWNER_ID,
+    description: "Install compliant guard",
+    assigneeName: "Site foreman",
+    dueDate: null,
+    status: "done",
+    createdAt: updatedAt,
+    updatedAt,
+  }).run();
+  fixture.connection.sqlite
+    .prepare(`
+      update risk_entry
+      set classification_reasoning = ?
+      where id = ?
+    `)
+    .run(
+      "High severity because workers pass the guard point throughout the day.",
+      "risk-entry-required-rules",
+    );
+
+  const resolvedProgression = loadProgression(fixture);
+
+  assert.equal(resolvedProgression.workflowRuleEvaluation.missingJustificationCount, 0);
+  assert.equal(resolvedProgression.workflowRuleEvaluation.missingMitigationCount, 0);
+  assert.equal(resolvedProgression.riskRegister.completionState, "complete");
+  assert.equal(resolvedProgression.export.exportReady, true);
 
   closeDatabase(fixture.connection);
 });

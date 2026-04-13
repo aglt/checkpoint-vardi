@@ -3,6 +3,21 @@
   "slug": "construction-site",
   "version": "2026-04-11",
   "defaultLanguage": "is",
+  "workflowRules": {
+    "requiresJustification": true,
+    "requiresMitigationForRiskLevels": [
+      "medium",
+      "high"
+    ],
+    "summaryRequiredFields": [
+      "companyName",
+      "location",
+      "assessmentDate",
+      "participants",
+      "method",
+      "notes"
+    ]
+  },
   "metadata": {
     "source": {
       "fileName": "5.Vinnuumhvefisvísir fyrir byggingarsvæði.docx",

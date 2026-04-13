@@ -1,6 +1,6 @@
 # S1-15 - Sector/profile-specific assessment rules via seed-owned runtime extensions
 
-> **Status: NOT STARTED**
+> **Status: DONE**
 > **Stage:** S1 - MVP assessment workflow
 > **Epic:** Checkpoint Vardi - Stage One assessment workflow
 > **Priority:** P2
@@ -12,16 +12,32 @@ Depends on: S1-14
 
 ## Context
 
-`@vardi/checklists` already owns the seeded checklist/runtime truth that
-the app composes into the assessment flow. The next meaningful expansion
-is not to scatter hardcoded app conditionals for every sector-specific
-need, but to let seed-owned runtime truth express a small reviewed set
-of workflow requirements safely.
+This story is complete and is tracked in PR `#21`. `@vardi/checklists` now owns one optional
+`workflowRules` seed/runtime field with fail-fast validation for the
+supported rule set, backward-compatible defaults for templates that do
+not opt in, and runtime exposure through the package's public seam.
 
-This story extends seed/runtime expressiveness without introducing a
-generic rules DSL or letting shared packages bleed across the repo's
-boundaries. The app continues to compose runtime truth and enforce
-supported rules intentionally.
+`construction-site` now opts into:
+
+- `requiresJustification: true`
+- `requiresMitigationForRiskLevels: ["medium", "high"]`
+- `summaryRequiredFields: ["companyName", "location", "assessmentDate", "participants", "method", "notes"]`
+
+`woodworking-workshop` stays on the backward-compatible defaults.
+
+App-owned workflow behavior stayed intentionally narrow. `apps/web` now
+maps runtime rules once in
+`apps/web/lib/assessments/assessmentWorkflowRules.ts` and evaluates them
+once through `evaluateAssessmentWorkflowRules(...)`. The summary
+projection, progression projection, export gate, and risk-register UI
+consume that evaluation result instead of reinterpreting raw seed
+literals independently. `AssessmentExportReadiness` stayed unchanged,
+while workflow-rule blockers remain explicit app-owned export and
+progression blockers outside the shared readiness contract.
+
+Persisted mitigation validity also stayed explicit and minimal: any
+persisted mitigation action row counts, and persisted rows already
+guarantee the saved description/status shape from `S1-11`.
 
 ## Goal
 
@@ -87,12 +103,19 @@ Keep MVP rule types small and concrete:
 - app behavior tests for each supported rule type
 - regression tests proving existing seeds still behave predictably
 
+Validation completed locally under `node v22.22.2` with:
+
+- `pnpm test`
+- `pnpm typecheck`
+- `pnpm lint`
+- `pnpm test:e2e`
+
 ## Notes For Later Stories
 
 - This story should plug into the progression/completion owner from
   `S1-12`, not bypass it.
-- `S1-16` should verify at least one runtime-driven readiness behavior
-  only if the flow is stable enough to keep the browser suite reliable.
+- `S1-16` should verify the now-stabilized export path and rule-driven
+  blockers end to end once this slice is merged and settled on `main`.
 
 ## Execution Rules
 

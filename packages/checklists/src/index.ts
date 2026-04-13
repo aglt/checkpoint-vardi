@@ -7,6 +7,7 @@ export interface SeedChecklistSummary {
   readonly slug: string;
   readonly version: string;
   readonly defaultLanguage: string;
+  readonly workflowRules: SeedChecklistWorkflowRules;
   readonly sections: number;
   readonly criteria: number;
   readonly translations: {
@@ -21,6 +22,7 @@ export interface SeedChecklist {
   readonly slug: string;
   readonly version: string;
   readonly defaultLanguage: string;
+  readonly workflowRules: SeedChecklistWorkflowRules;
   readonly translations: {
     readonly is: {
       readonly title: string;
@@ -47,6 +49,20 @@ export interface SeedChecklist {
       };
     }[];
   }[];
+}
+
+export type SeedChecklistSummaryRequiredField =
+  | "companyName"
+  | "location"
+  | "assessmentDate"
+  | "participants"
+  | "method"
+  | "notes";
+
+export interface SeedChecklistWorkflowRules {
+  readonly requiresJustification: boolean;
+  readonly requiresMitigationForRiskLevels: readonly RiskLevel[];
+  readonly summaryRequiredFields: readonly SeedChecklistSummaryRequiredField[];
 }
 
 export interface CanonicalLegalReference {

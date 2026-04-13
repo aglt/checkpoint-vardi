@@ -148,7 +148,10 @@ function prepareExportReadyState(
     likelihood: 2,
     consequence: 3,
     riskLevel: "high",
-    classificationReasoning: overrides?.classificationReasoning ?? null,
+    classificationReasoning:
+      overrides && "classificationReasoning" in overrides
+        ? overrides.classificationReasoning ?? null
+        : "Workers pass the machine often and an unguarded contact could cause severe injury.",
     currentControls: "Daily pre-start checks",
     controlHierarchy: null,
     costEstimate: 42000,
@@ -385,7 +388,7 @@ test("generateAssessmentExportBundle returns a bundle manifest and typed not-rea
 
   assert.equal(
     readyRiskRegisterProjection.entries[0]?.classificationReasoning,
-    null,
+    "Workers pass the machine often and an unguarded contact could cause severe injury.",
   );
 
   const successOutput = await generateAssessmentExportBundle({
@@ -404,6 +407,34 @@ test("generateAssessmentExportBundle returns a bundle manifest and typed not-rea
     /^PK/,
   );
   closeDatabase(readyConnection);
+
+  const workflowBlockedFixture = seedExportAssessmentFixture();
+  prepareExportReadyState(workflowBlockedFixture, {
+    classificationReasoning: null,
+  });
+  const workflowBlockedConnection = createBootstrappedDatabase(
+    workflowBlockedFixture.databasePath,
+  );
+
+  await assert.rejects(
+    async () =>
+      await generateAssessmentExportBundle({
+        db: workflowBlockedConnection.db,
+        ownerId: "owner-1",
+        input: {
+          assessmentId: workflowBlockedFixture.assessmentId,
+        },
+      }),
+    (error: unknown) => {
+      assert.ok(error instanceof GenerateAssessmentExportBundleError);
+      assert.equal(error.status, 422);
+      assert.equal(error.code, "assessment-export-not-ready");
+      assert.equal(error.readiness?.exportReady, true);
+      return true;
+    },
+  );
+
+  closeDatabase(workflowBlockedConnection);
 
   const blockedFixture = seedExportAssessmentFixture();
   const blockedConnection = createBootstrappedDatabase(blockedFixture.databasePath);
