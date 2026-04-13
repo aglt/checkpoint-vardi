@@ -12,7 +12,7 @@ Depends on: S1-14
 
 ## Context
 
-This story is complete. `@vardi/checklists` now owns one optional
+This story is complete and is tracked in PR `#21`. `@vardi/checklists` now owns one optional
 `workflowRules` seed/runtime field with fail-fast validation for the
 supported rule set, backward-compatible defaults for templates that do
 not opt in, and runtime exposure through the package's public seam.

@@ -358,7 +358,7 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 > and evaluates them once through a dedicated app-owned workflow-rule seam that
 > summary, progression, export gating, and risk-register messaging consume
 > without widening `AssessmentExportReadiness`. Final validation ran with
-> `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e`.
+> `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e`. PR: `#21`.
 
 ### Step S1-16: Stable browser E2E for end-to-end assessment-to-export flow
 
