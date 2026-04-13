@@ -28,7 +28,7 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 | S1-12 | Guided assessment progression and completion guards     | done         | #15 |
 | S1-13 | Explicit risk reasoning capture                         | done         | #16 |
 | S1-14 | Compliance-oriented export framing and assessment metadata | done        | #17 |
-| S1-15 | Sector/profile-specific assessment rules via seed-owned runtime extensions | not_started |    |
+| S1-15 | Sector/profile-specific assessment rules via seed-owned runtime extensions | done        |    |
 | S1-16 | Stable browser E2E for end-to-end assessment-to-export flow | not_started |    |
 | S1-17 | Language-consistent web content for the current MVP flow | done        | #14, #19, #20 |
 | S1-18 | Risk severity choice alignment with the reference workflow | done        | #18 |
@@ -43,7 +43,6 @@ story file or folder in the same change. Invoke `$vardi-story-management`.
 
 **Next up:**
 
-- `S1-15 - Sector/profile-specific assessment rules via seed-owned runtime extensions`
-- Keep `S1-16` parked until the export-framing and runtime-rule slices
-  have settled on `main`.
+- `S1-16 - Stable browser E2E for end-to-end assessment-to-export flow`
+- Keep `S1-16` parked until the S1-15 runtime-rule slice lands and settles on `main`.
 - Keep `S1-09` narrowly scoped and non-blocking unless a later active follow-up exposes a concrete need for it.

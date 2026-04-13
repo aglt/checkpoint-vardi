@@ -22,10 +22,11 @@ epic's scope, guardrails, and sequencing once real stories are added.
 - `S1-12` is complete and now lives under `done/`
 - `S1-13` is complete and now lives under `done/`
 - `S1-14` is complete and now lives under `done/`
+- `S1-15` is complete and now lives under `done/`
 - `S1-17` is complete and now lives under `done/`
 - `S1-18` is complete and now lives under `done/`
-- `S1-09` and `S1-15` through `S1-16` are staged under `not_started/`
-- the next implementation story is `S1-15`
+- `S1-09` and `S1-16` are staged under `not_started/`
+- the next implementation story is `S1-16`
 - the maintenance workflow is defined by `$vardi-story-management`
 
 ## How To Use This Epic
@@ -33,9 +34,9 @@ epic's scope, guardrails, and sequencing once real stories are added.
 The active stage is currently:
 
 - **S1 - MVP assessment workflow**
-- Most recently completed story: `S1-18 - Risk severity choice alignment with the reference workflow`
-- Story file: `user_stories/epics/checkpoint_vardi/done/S1-18-risk-severity-choice-alignment.md`
-- Next story: `S1-15 - Sector/profile-specific assessment rules via seed-owned runtime extensions`
+- Most recently completed story: `S1-15 - Sector/profile-specific assessment rules via seed-owned runtime extensions`
+- Story file: `user_stories/epics/checkpoint_vardi/done/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
+- Next story: `S1-16 - Stable browser E2E for end-to-end assessment-to-export flow`
 
 Any agent changing story state must update `TRACKER.md`, `EXECUTION_PLAN.md`, `EPIC.md`, and the
 story file or folder in the same change. Invoke `$vardi-story-management`.
@@ -90,10 +91,11 @@ persisted-state projection, `S1-13` captures
 explicit saved reasoning for risk classifications, `S1-14` now reframes
 exports around persisted assessment metadata, provenance, ordered
 sections, and code-only unresolved-reference handling without widening
-domain rules, `S1-15` lets a small supported rule set flow from
-seed/runtime truth into the app, and `S1-16` closes the current
+domain rules, `S1-15` now lets a small supported rule set flow from
+seed/runtime truth into the app through one app-owned mapping seam and
+one app-owned workflow-rule evaluator, and `S1-16` closes the current
 browser-proof queue with a later stable regression once those
-flow-shaping slices settle, while `S1-17` now completes the focused
+flow-shaping slices settle on `main`, while `S1-17` now completes the focused
 language-consistency follow-up that removes mixed app-language copy from
 the current MVP web flow and `S1-18` is the separate
 severity-alignment repair for the screenshot-backed named risk choice. It now
@@ -111,10 +113,11 @@ post-MVP need surfaces for broader platform groundwork.
 
 This baseline now gives later stories a trustworthy install, lint, typecheck, test, build, and
 dev-server loop. Stage One now has its first browser-proof baseline through
-`S1-14` plus the current app-language consistency and severity-alignment
-follow-ups through `S1-17` and `S1-18`; the next staged story is `S1-15`,
-`S1-16` remains the later browser-export regression proof once the
-runtime-rule slice settles, and `S1-09` stays conditional and non-blocking.
+`S1-15` plus the current app-language consistency and severity-alignment
+follow-ups through `S1-17` and `S1-18`; the next staged story is `S1-16`,
+which remains the later browser-export regression proof once the
+runtime-rule slice settles on `main`, and `S1-09` stays conditional and
+non-blocking.
 
 ## Guardrails
 

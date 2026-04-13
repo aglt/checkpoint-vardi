@@ -8,10 +8,10 @@
 ## Current State
 
 - Active step: none in progress
-- Next queued step: `S1-15`
-- Most recently completed step: `S1-14`
-- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-14-compliance-oriented-export-framing-and-assessment-metadata.md`
-- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
+- Next queued step: `S1-16`
+- Most recently completed step: `S1-15`
+- Most recently completed story file: `user_stories/epics/checkpoint_vardi/done/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
+- Next queued story file: `user_stories/epics/checkpoint_vardi/not_started/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
 
 ## S0 - Foundations
 
@@ -345,16 +345,26 @@ S1-08 -> S1-09 (only if a concrete S1 story needs narrow groundwork)
 
 ### Step S1-15: Sector/profile-specific assessment rules via seed-owned runtime extensions
 
-**Status:** Not started.
-**Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
-**Start gate:** Open. `S1-14` now lands the export-framing seam that later runtime-driven wording and rule shaping should build on.
+**Status:** Completed.
+**Story file:** `user_stories/epics/checkpoint_vardi/done/S1-15-sector-profile-specific-assessment-rules-via-seed-owned-runtime-extensions.md`
+**Start gate:** Closed.
 **Unblocks:** Sector-specific workflow behavior without scattered app conditionals, plus the final stabilized flow for `S1-16`.
+
+**Completion note:**
+> Verified locally under `node v22.22.2`: `@vardi/checklists` now validates and
+> exposes a narrow `workflowRules` runtime seam with backward-compatible
+> defaults, `construction-site` opts into the supported justification,
+> mitigation, and summary-field rules, and `apps/web` now maps those rules once
+> and evaluates them once through a dedicated app-owned workflow-rule seam that
+> summary, progression, export gating, and risk-register messaging consume
+> without widening `AssessmentExportReadiness`. Final validation ran with
+> `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm test:e2e`.
 
 ### Step S1-16: Stable browser E2E for end-to-end assessment-to-export flow
 
 **Status:** Not started.
 **Story file:** `user_stories/epics/checkpoint_vardi/not_started/S1-16-stable-browser-e2e-for-end-to-end-assessment-to-export-flow.md`
-**Start gate:** Closed until `S1-10` is complete and the queued assessment-flow and export follow-up stories that change readiness truth have landed or been intentionally deferred.
+**Start gate:** Closed until `S1-15` lands on `main` and the updated workflow-rule/export-gating slice settles enough for a stable end-to-end browser proof.
 **Unblocks:** A stable browser-level regression net for the real persisted assessment-to-export journey after the flow settles.
 
 ### Step S1-17: Language-consistent web content for the current MVP flow
