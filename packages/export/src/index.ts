@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import {
   Document,
   HeadingLevel,
@@ -6,7 +7,7 @@ import {
   TextRun,
 } from "docx";
 import JSZip from "jszip";
-import PDFDocument from "pdfkit";
+import type PDFDocumentConstructor from "pdfkit";
 
 export type ChecklistCriterionStatus =
   | "ok"
@@ -72,6 +73,9 @@ const DOCX_CONTENT_TYPE =
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const PDF_CONTENT_TYPE = "application/pdf";
 const EMPTY_VALUE = "Not provided.";
+const require = createRequire(import.meta.url);
+const PDFDocument = require("pdfkit/js/pdfkit.standalone.js") as typeof PDFDocumentConstructor;
+type PdfDocument = InstanceType<typeof PDFDocumentConstructor>;
 
 export async function renderAssessmentReportFiles(
   documents: AssessmentReportDocuments,
@@ -286,7 +290,7 @@ async function renderDocx(children: readonly Paragraph[]): Promise<Uint8Array> {
 }
 
 async function renderPdf(
-  build: (document: PDFKit.PDFDocument) => void,
+  build: (document: PdfDocument) => void,
 ): Promise<Uint8Array> {
   const document = new PDFDocument({
     size: "A4",
@@ -342,24 +346,24 @@ async function renderAssessmentReportPdf(
   });
 }
 
-function writePdfTitle(document: PDFKit.PDFDocument, value: string) {
+function writePdfTitle(document: PdfDocument, value: string) {
   document.fontSize(20).font("Helvetica-Bold").text(value);
   document.moveDown(0.5);
 }
 
-function writePdfSectionHeading(document: PDFKit.PDFDocument, value: string) {
+function writePdfSectionHeading(document: PdfDocument, value: string) {
   document.moveDown(0.5);
   document.fontSize(15).font("Helvetica-Bold").text(value);
   document.moveDown(0.3);
 }
 
-function writePdfEntryHeading(document: PDFKit.PDFDocument, value: string) {
+function writePdfEntryHeading(document: PdfDocument, value: string) {
   document.fontSize(12).font("Helvetica-Bold").text(value);
   document.moveDown(0.2);
 }
 
 function writePdfKeyValue(
-  document: PDFKit.PDFDocument,
+  document: PdfDocument,
   label: string,
   value: string,
 ) {
